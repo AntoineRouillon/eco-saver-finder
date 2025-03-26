@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown, Search } from 'lucide-react';
@@ -26,9 +25,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     // Simulate API call to get scraped products from Leboncoin
     const timer = setTimeout(() => {
       // Simulate different scenarios (change this to test different cases)
-      const scenario = Math.random() > 0.7 ? 'no-results' : 
-                      Math.random() > 0.5 ? 'echo-dot' : 
-                      Math.random() > 0.25 ? 'ipad' : 'headphones';
+      // Higher probability of showing results for better demo experience
+      const scenario = Math.random() > 0.3 ? 'no-results' : 
+                      Math.random() > 0.4 ? 'echo-dot' : 
+                      Math.random() > 0.2 ? 'ipad' : 'headphones';
       
       let scrapedProducts: Product[] = [];
       
@@ -76,22 +76,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
             location: 'Nantes',
             url: '#'
-          },
-          {
-            id: '3',
-            title: 'iPad Pro 12.9" M1 - 256 Go - Très bon état',
-            price: '799,00 €',
-            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-            location: 'Bordeaux',
-            url: '#'
-          },
-          {
-            id: '4',
-            title: 'iPad 9th génération - 64 Go - Wi-Fi - Neuf scellé',
-            price: '329,00 €',
-            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-            location: 'Toulouse',
-            url: '#'
           }
         ];
       } else if (scenario === 'headphones') {
@@ -113,9 +97,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             url: '#'
           }
         ];
-      } else {
-        // no-results case
-        scrapedProducts = [];
       }
       
       setProducts(scrapedProducts);

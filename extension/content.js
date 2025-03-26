@@ -115,6 +115,12 @@ function renderAlternatives(alternatives, count) {
     
     // Don't show the toggle button if no alternatives found
     toggle.style.display = 'none';
+    
+    // Hide the entire extension container after 3 seconds if no alternatives
+    setTimeout(() => {
+      container.style.display = 'none';
+    }, 3000);
+    
     return;
   }
 
@@ -171,6 +177,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     let container = document.getElementById('amazon-alternative-finder');
     if (!container) {
       container = createExtensionUI();
+    } else {
+      // Reset if it already exists
+      container.style.display = 'block';
+      const loading = container.querySelector('.aaf-loading');
+      const results = container.querySelector('.aaf-results');
+      const noResults = container.querySelector('.aaf-no-results');
+      
+      loading.style.display = 'flex';
+      results.style.display = 'none';
+      noResults.style.display = 'none';
     }
 
     // Request alternatives using the product info
@@ -178,8 +194,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       action: "GET_ALTERNATIVES",
       productInfo: message.productInfo
     }, response => {
-      if (response && response.success) {
-        renderAlternatives(response.alternatives, response.count);
+      if (response) {
+        renderAlternatives(response.alternatives || [], response.count || 0);
         
         // Only expand the panel if there are alternatives
         if (response.count > 0) {
@@ -187,6 +203,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             container.classList.add('aaf-expanded');
           }, 500);
         }
+      } else {
+        // Handle case when response is undefined or null
+        renderAlternatives([], 0);
       }
     });
   }
