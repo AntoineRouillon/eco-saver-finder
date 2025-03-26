@@ -26,99 +26,96 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     // Simulate API call to get scraped products from Leboncoin
     const timer = setTimeout(() => {
       // Simulate different scenarios (change this to test different cases)
-      const scenario = 'echo-dot'; // Options: 'echo-dot', 'ipad', 'headphones', 'no-results'
+      const scenario = Math.random() > 0.7 ? 'no-results' : 
+                      Math.random() > 0.5 ? 'echo-dot' : 
+                      Math.random() > 0.25 ? 'ipad' : 'headphones';
       
       let scrapedProducts: Product[] = [];
       
-      switch(scenario) {
-        case 'echo-dot':
-          scrapedProducts = [
-            {
-              id: '1',
-              title: 'Echo Dot (4ème génération) - État parfait',
-              price: '29,50 €',
-              image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-              location: 'Paris 15e',
-              url: '#'
-            },
-            {
-              id: '2',
-              title: 'Enceinte Amazon Echo Dot 4 neuve',
-              price: '27,00 €',
-              image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-              location: 'Lyon 6e',
-              url: '#'
-            },
-            {
-              id: '3',
-              title: 'Enceinte connectée Echo Dot 4 avec Alexa',
-              price: '31,90 €',
-              image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-              location: 'Marseille 8e',
-              url: '#'
-            }
-          ];
-          break;
-        case 'ipad':
-          scrapedProducts = [
-            {
-              id: '1',
-              title: 'iPad Pro 11" 2022 - 256 Go - Comme neuf',
-              price: '689,00 €',
-              image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-              location: 'Paris 8e',
-              url: '#'
-            },
-            {
-              id: '2',
-              title: 'iPad Air 5 64Go WiFi Space Grey sous garantie',
-              price: '469,00 €',
-              image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-              location: 'Nantes',
-              url: '#'
-            },
-            {
-              id: '3',
-              title: 'iPad Pro 12.9" M1 - 256 Go - Très bon état',
-              price: '799,00 €',
-              image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-              location: 'Bordeaux',
-              url: '#'
-            },
-            {
-              id: '4',
-              title: 'iPad 9th génération - 64 Go - Wi-Fi - Neuf scellé',
-              price: '329,00 €',
-              image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-              location: 'Toulouse',
-              url: '#'
-            }
-          ];
-          break;
-        case 'headphones':
-          scrapedProducts = [
-            {
-              id: '1',
-              title: 'Casque Sony WH-1000XM4 - Noir - Comme neuf',
-              price: '219,00 €',
-              image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
-              location: 'Lille',
-              url: '#'
-            },
-            {
-              id: '2',
-              title: 'Sony WH-1000XM5 - Garantie 6 mois',
-              price: '289,00 €',
-              image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
-              location: 'Paris 9e',
-              url: '#'
-            }
-          ];
-          break;
-        case 'no-results':
-        default:
-          scrapedProducts = [];
-          break;
+      if (scenario === 'echo-dot') {
+        scrapedProducts = [
+          {
+            id: '1',
+            title: 'Echo Dot (4ème génération) - État parfait',
+            price: '29,50 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Paris 15e',
+            url: '#'
+          },
+          {
+            id: '2',
+            title: 'Enceinte Amazon Echo Dot 4 neuve',
+            price: '27,00 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Lyon 6e',
+            url: '#'
+          },
+          {
+            id: '3',
+            title: 'Enceinte connectée Echo Dot 4 avec Alexa',
+            price: '31,90 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Marseille 8e',
+            url: '#'
+          }
+        ];
+      } else if (scenario === 'ipad') {
+        scrapedProducts = [
+          {
+            id: '1',
+            title: 'iPad Pro 11" 2022 - 256 Go - Comme neuf',
+            price: '689,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Paris 8e',
+            url: '#'
+          },
+          {
+            id: '2',
+            title: 'iPad Air 5 64Go WiFi Space Grey sous garantie',
+            price: '469,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Nantes',
+            url: '#'
+          },
+          {
+            id: '3',
+            title: 'iPad Pro 12.9" M1 - 256 Go - Très bon état',
+            price: '799,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Bordeaux',
+            url: '#'
+          },
+          {
+            id: '4',
+            title: 'iPad 9th génération - 64 Go - Wi-Fi - Neuf scellé',
+            price: '329,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Toulouse',
+            url: '#'
+          }
+        ];
+      } else if (scenario === 'headphones') {
+        scrapedProducts = [
+          {
+            id: '1',
+            title: 'Casque Sony WH-1000XM4 - Noir - Comme neuf',
+            price: '219,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Lille',
+            url: '#'
+          },
+          {
+            id: '2',
+            title: 'Sony WH-1000XM5 - Garantie 6 mois',
+            price: '289,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Paris 9e',
+            url: '#'
+          }
+        ];
+      } else {
+        // no-results case
+        scrapedProducts = [];
       }
       
       setProducts(scrapedProducts);
