@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { X, ExternalLink, ThumbsUp, ThumbsDown, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface Product {
@@ -20,36 +20,46 @@ interface BrowserExtensionProps {
 const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasAlternatives, setHasAlternatives] = useState(true);
 
   useEffect(() => {
     // Simulate API call to get second-hand products
     const timer = setTimeout(() => {
-      setProducts([
-        {
-          id: '1',
-          title: 'Echo Dot (4ème génération) - Très bon état',
-          price: '29,00 €',
-          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-          location: 'Paris',
-          url: '#'
-        },
-        {
-          id: '2',
-          title: 'Enceinte Echo Dot comme neuve',
-          price: '25,50 €',
-          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-          location: 'Lyon',
-          url: '#'
-        },
-        {
-          id: '3',
-          title: 'Amazon Echo Dot 4 - Bon état',
-          price: '32,00 €',
-          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-          location: 'Marseille',
-          url: '#'
-        }
-      ]);
+      // You can change this to simulate "no results" case
+      const simulateNoResults = false;
+      
+      if (simulateNoResults) {
+        setProducts([]);
+        setHasAlternatives(false);
+      } else {
+        setProducts([
+          {
+            id: '1',
+            title: 'Echo Dot (4ème génération) - Très bon état',
+            price: '29,00 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Paris',
+            url: '#'
+          },
+          {
+            id: '2',
+            title: 'Enceinte Echo Dot comme neuve',
+            price: '25,50 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Lyon',
+            url: '#'
+          },
+          {
+            id: '3',
+            title: 'Amazon Echo Dot 4 - Bon état',
+            price: '32,00 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+            location: 'Marseille',
+            url: '#'
+          }
+        ]);
+        setHasAlternatives(true);
+      }
       setLoading(false);
     }, 1500);
 
@@ -82,6 +92,12 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
           <div className="flex flex-col items-center justify-center h-full space-y-4">
             <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-sm text-gray-500">Finding alternatives...</p>
+          </div>
+        ) : !hasAlternatives ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <Search size={40} className="text-gray-300 mb-4" />
+            <p className="text-sm font-medium text-gray-700">No second-hand alternatives found</p>
+            <p className="text-xs text-gray-500 mt-2">Try again later or check other products</p>
           </div>
         ) : (
           <div className="space-y-4">

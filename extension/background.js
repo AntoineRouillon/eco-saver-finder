@@ -54,42 +54,147 @@ function getProductInfo() {
   };
 }
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "GET_ALTERNATIVES") {
-    // Simulate fetching alternatives
-    // In a real extension, this would call an API to search Leboncoin
+// Function to search Leboncoin
+function searchLeboncoin(searchTerm) {
+  // Remove brand names and common words to get better results
+  const cleanedTerm = searchTerm
+    .replace(/amazon|basics|echo|alexa|kindle|fire|prime/gi, '')
+    .replace(/\([^)]*\)/g, '')  // Remove content in parentheses
+    .trim();
+    
+  // In a real extension, this would call Leboncoin's API
+  // For demonstration, we're simulating the API response
+  return new Promise((resolve) => {
+    // Simulate network delay
     setTimeout(() => {
-      sendResponse({
-        success: true,
-        alternatives: [
+      // Generate a random number of results (0-5) for demonstration
+      // In a real extension, this would come from the API response
+      const productName = cleanedTerm.toLowerCase();
+      
+      // Simulate different results based on product name
+      let alternatives = [];
+      let count = 0;
+      
+      if (productName.includes('dot') || productName.includes('echo')) {
+        // Echo Dot-like products - 3 results
+        count = 3;
+        alternatives = [
           {
             id: '1',
-            title: message.productInfo.title + ' - Très bon état',
-            price: Number(message.productInfo.price.replace(/[^0-9,]/g, '').replace(',', '.')) * 0.6 + ' €',
-            image: message.productInfo.image,
+            title: 'Echo Dot (4ème génération) - Très bon état',
+            price: '29,00 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
             location: 'Paris',
-            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(message.productInfo.title)
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
           },
           {
             id: '2',
-            title: message.productInfo.title + ' - Comme neuf',
-            price: Number(message.productInfo.price.replace(/[^0-9,]/g, '').replace(',', '.')) * 0.7 + ' €',
-            image: message.productInfo.image,
+            title: 'Enceinte Echo Dot comme neuve',
+            price: '25,50 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
             location: 'Lyon',
-            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(message.productInfo.title)
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
           },
           {
             id: '3',
-            title: message.productInfo.title + ' - Bon état',
-            price: Number(message.productInfo.price.replace(/[^0-9,]/g, '').replace(',', '.')) * 0.5 + ' €',
-            image: message.productInfo.image,
+            title: 'Amazon Echo Dot 4 - Bon état',
+            price: '32,00 €',
+            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
             location: 'Marseille',
-            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(message.productInfo.title)
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
           }
-        ]
+        ];
+      } else if (productName.includes('ipad') || productName.includes('tablet')) {
+        // iPad/tablet - 2 results
+        count = 2;
+        alternatives = [
+          {
+            id: '1',
+            title: 'iPad Pro 11 pouces - Comme neuf',
+            price: '650,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Paris',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          },
+          {
+            id: '2',
+            title: 'iPad Air 2022 - Bon état',
+            price: '450,00 €',
+            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
+            location: 'Lyon',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          }
+        ];
+      } else if (productName.includes('monitor') || productName.includes('écran')) {
+        // Monitors - 1 result
+        count = 1;
+        alternatives = [
+          {
+            id: '1',
+            title: 'Écran PC 27 pouces 144Hz - Parfait état',
+            price: '180,00 €',
+            image: 'https://m.media-amazon.com/images/I/71mU5rpECpL._AC_SX679_.jpg',
+            location: 'Bordeaux',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          }
+        ];
+      } else if (productName.includes('headphone') || productName.includes('casque')) {
+        // Headphones - 4 results
+        count = 4;
+        alternatives = [
+          {
+            id: '1',
+            title: 'Casque Sony WH-1000XM4 - Comme neuf',
+            price: '199,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Paris',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          },
+          {
+            id: '2',
+            title: 'Casque Sony à réduction de bruit',
+            price: '180,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Lyon',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          },
+          {
+            id: '3',
+            title: 'Casque audio Sony premium',
+            price: '210,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Marseille',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          },
+          {
+            id: '4',
+            title: 'Sony WH-1000XM4 excellent état',
+            price: '220,00 €',
+            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
+            location: 'Toulouse',
+            url: 'https://www.leboncoin.fr/recherche?text=' + encodeURIComponent(cleanedTerm)
+          }
+        ];
+      } 
+      // Return 0 alternatives for other items
+      
+      resolve({
+        success: true,
+        count: count,
+        alternatives: alternatives
       });
     }, 1000);
+  });
+}
+
+// Listen for messages from content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "GET_ALTERNATIVES") {
+    // Search for alternatives on Leboncoin
+    searchLeboncoin(message.productInfo.title)
+      .then(response => {
+        sendResponse(response);
+      });
     
     return true; // Indicates we'll respond asynchronously
   }

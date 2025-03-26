@@ -10,8 +10,8 @@ function createExtensionUI() {
   // Add initial UI (collapsed state)
   container.innerHTML = `
     <div class="aaf-toggle">
-      <div class="aaf-badge">
-        <span>3</span>
+      <div class="aaf-badge" style="display: none;">
+        <span>0</span>
       </div>
       <div class="aaf-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -41,6 +41,18 @@ function createExtensionUI() {
         <div class="aaf-results" style="display: none;">
           <p class="aaf-results-count">Found 0 alternatives on Leboncoin</p>
           <div class="aaf-items"></div>
+        </div>
+        <div class="aaf-no-results" style="display: none;">
+          <div class="aaf-no-results-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.5 14.5 3 21" />
+              <path d="M9.5 14.5a5 5 0 1 1 7.1 7.1" />
+              <circle cx="15.5" cy="8.5" r="5" />
+              <path d="M19.31 19.31A7 7 0 0 0 21 15.5" />
+            </svg>
+            <p>No second-hand alternatives found</p>
+            <p class="aaf-no-results-subtitle">Try again later or check other products</p>
+          </div>
         </div>
       </div>
       <div class="aaf-footer">
@@ -77,26 +89,37 @@ function createExtensionUI() {
     container.classList.remove('aaf-expanded');
   });
 
-  // Initially expand the panel
-  setTimeout(() => {
-    container.classList.add('aaf-expanded');
-  }, 1000);
-
   return container;
 }
 
 // Render alternatives in the panel
-function renderAlternatives(alternatives) {
+function renderAlternatives(alternatives, count) {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
 
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
+  const noResults = container.querySelector('.aaf-no-results');
   const resultsCount = container.querySelector('.aaf-results-count');
   const itemsContainer = container.querySelector('.aaf-items');
+  const badge = container.querySelector('.aaf-badge');
+  const badgeCount = container.querySelector('.aaf-badge span');
 
-  // Update the count
-  resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
+  // Handle no alternatives case
+  if (count === 0) {
+    loading.style.display = 'none';
+    results.style.display = 'none';
+    noResults.style.display = 'flex';
+    badge.style.display = 'none';
+    return;
+  }
+
+  // Update the badge
+  badgeCount.textContent = count;
+  badge.style.display = 'flex';
+
+  // Update the count text
+  resultsCount.textContent = `Found ${count} alternative${count !== 1 ? 's' : ''} on Leboncoin`;
 
   // Clear previous results
   itemsContainer.innerHTML = '';
@@ -128,8 +151,9 @@ function renderAlternatives(alternatives) {
     itemsContainer.appendChild(itemElement);
   });
 
-  // Hide loading, show results
+  // Hide loading and no results, show results
   loading.style.display = 'none';
+  noResults.style.display = 'none';
   results.style.display = 'block';
 }
 
@@ -148,7 +172,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       productInfo: message.productInfo
     }, response => {
       if (response && response.success) {
-        renderAlternatives(response.alternatives);
+        // Only expand the panel if there are alternatives
+        if (response.count > 0) {
+          setTimeout(() => {
+            container.classList.add('aaf-expanded');
+          }, 500);
+        }
+        
+        renderAlternatives(response.alternatives, response.count);
       }
     });
   }
