@@ -1,0 +1,36 @@
+
+{
+  "manifest_version": 3,
+  "name": "Amazon Alternative Finder",
+  "version": "1.0.0",
+  "description": "Find second-hand alternatives from Leboncoin while browsing Amazon.fr",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "Amazon Alternative Finder"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.amazon.fr/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.amazon.fr/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}

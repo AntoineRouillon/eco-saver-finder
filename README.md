@@ -1,69 +1,74 @@
-# Welcome to your Lovable project
 
-## Project info
+# Amazon Alternative Finder
 
-**URL**: https://lovable.dev/projects/5ac109f2-fa3d-4180-a54e-f6df0a35054e
+A browser extension that helps users save money on their Amazon purchases by showing second-hand alternatives from Leboncoin.fr.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Automatically detects when you're browsing product pages on Amazon.fr
+- Shows available second-hand alternatives from Leboncoin.fr
+- Clean, minimal interface inspired by Apple design principles
+- Helps users make cost-effective and sustainable shopping decisions
 
-**Use Lovable**
+## How It Works
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5ac109f2-fa3d-4180-a54e-f6df0a35054e) and start prompting.
+When you visit a product page on Amazon.fr, the extension:
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Detects the product you're viewing
+2. Searches for similar items on Leboncoin.fr
+3. Displays matching second-hand alternatives in a sleek side panel
+4. Shows you how much you could save by buying pre-owned
 
-**Use your preferred IDE**
+## Installation Instructions
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Development Mode
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone this repository or download the source code
+2. Open Chrome and navigate to `chrome://extensions/`
+3. Enable "Developer mode" in the top-right corner
+4. Click "Load unpacked" and select the `extension` folder from this project
+5. The extension should now be installed and active
 
-Follow these steps:
+### From Package
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Download the latest release package
+2. Extract the ZIP file to a location on your computer
+3. Follow steps 2-5 from the Development Mode instructions above
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Project Structure
 
-# Step 3: Install the necessary dependencies.
-npm i
+```
+├── extension/             # Browser extension files
+│   ├── manifest.json      # Extension manifest
+│   ├── background.js      # Background service worker
+│   ├── content.js         # Content script injected into Amazon pages
+│   ├── content.css        # Styles for the extension UI
+│   └── icons/             # Extension icons
+├── src/                   # Website/demo application
+│   ├── components/        # React components
+│   └── pages/             # Page components
+└── README.md              # This file
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## Development
+
+This project consists of two parts:
+1. A React-based website that demonstrates the extension's functionality
+2. The actual browser extension in the `extension/` directory
+
+To develop the website locally:
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+To test the extension, load it in Chrome as described in the Installation Instructions.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Inspiration
 
-**Use GitHub Codespaces**
+This project was inspired by the Faircado.com browser extension, which provides a similar service across multiple platforms.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## License
 
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/5ac109f2-fa3d-4180-a54e-f6df0a35054e) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+MIT License
