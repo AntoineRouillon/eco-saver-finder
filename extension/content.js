@@ -104,6 +104,7 @@ function renderAlternatives(alternatives, count) {
   const itemsContainer = container.querySelector('.aaf-items');
   const badge = container.querySelector('.aaf-badge');
   const badgeCount = container.querySelector('.aaf-badge span');
+  const toggle = container.querySelector('.aaf-toggle');
 
   // Handle no alternatives case
   if (count === 0) {
@@ -111,12 +112,18 @@ function renderAlternatives(alternatives, count) {
     results.style.display = 'none';
     noResults.style.display = 'flex';
     badge.style.display = 'none';
+    
+    // Don't show the toggle button if no alternatives found
+    toggle.style.display = 'none';
     return;
   }
 
   // Update the badge
   badgeCount.textContent = count;
   badge.style.display = 'flex';
+  
+  // Make sure toggle is visible
+  toggle.style.display = 'flex';
 
   // Update the count text
   resultsCount.textContent = `Found ${count} alternative${count !== 1 ? 's' : ''} on Leboncoin`;
@@ -172,14 +179,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       productInfo: message.productInfo
     }, response => {
       if (response && response.success) {
+        renderAlternatives(response.alternatives, response.count);
+        
         // Only expand the panel if there are alternatives
         if (response.count > 0) {
           setTimeout(() => {
             container.classList.add('aaf-expanded');
           }, 500);
         }
-        
-        renderAlternatives(response.alternatives, response.count);
       }
     });
   }

@@ -1,4 +1,3 @@
-
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -34,6 +33,10 @@
 
 .aaf-toggle:hover {
   background-color: #f9fafb;
+}
+
+.aaf-toggle.aaf-hidden {
+  display: none; /* Hide the toggle when no results */
 }
 
 .aaf-badge {
@@ -208,8 +211,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
-
-/* ... keep existing code (for item styling) */
 
 /* Footer */
 .aaf-footer {
