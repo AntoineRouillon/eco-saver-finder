@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown, Search } from 'lucide-react';
@@ -22,13 +23,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [hasAlternatives, setHasAlternatives] = useState(false);
 
   useEffect(() => {
-    // Simulate API call to get scraped products from Leboncoin
+    // Simulate API call to get scraped products
     const timer = setTimeout(() => {
-      // Simulate different scenarios (change this to test different cases)
-      // Higher probability of showing results for better demo experience
-      const scenario = Math.random() > 0.3 ? 'no-results' : 
-                      Math.random() > 0.4 ? 'echo-dot' : 
-                      Math.random() > 0.2 ? 'ipad' : 'headphones';
+      // For demo purposes, choose a fixed scenario
+      const scenario = 'echo-dot';
       
       let scrapedProducts: Product[] = [];
       
@@ -56,44 +54,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             price: '31,90 €',
             image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
             location: 'Marseille 8e',
-            url: '#'
-          }
-        ];
-      } else if (scenario === 'ipad') {
-        scrapedProducts = [
-          {
-            id: '1',
-            title: 'iPad Pro 11" 2022 - 256 Go - Comme neuf',
-            price: '689,00 €',
-            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-            location: 'Paris 8e',
-            url: '#'
-          },
-          {
-            id: '2',
-            title: 'iPad Air 5 64Go WiFi Space Grey sous garantie',
-            price: '469,00 €',
-            image: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/ipad-pro-finish-unselect-gallery-1-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667594383539',
-            location: 'Nantes',
-            url: '#'
-          }
-        ];
-      } else if (scenario === 'headphones') {
-        scrapedProducts = [
-          {
-            id: '1',
-            title: 'Casque Sony WH-1000XM4 - Noir - Comme neuf',
-            price: '219,00 €',
-            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
-            location: 'Lille',
-            url: '#'
-          },
-          {
-            id: '2',
-            title: 'Sony WH-1000XM5 - Garantie 6 mois',
-            price: '289,00 €',
-            image: 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX679_.jpg',
-            location: 'Paris 9e',
             url: '#'
           }
         ];

@@ -173,40 +173,74 @@ function renderAlternatives(alternatives, count) {
 // Wait for product info from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "PRODUCT_INFO") {
-    // Create UI if it doesn't exist
-    let container = document.getElementById('amazon-alternative-finder');
-    if (!container) {
-      container = createExtensionUI();
-    } else {
-      // Reset if it already exists
-      container.style.display = 'block';
-      const loading = container.querySelector('.aaf-loading');
-      const results = container.querySelector('.aaf-results');
-      const noResults = container.querySelector('.aaf-no-results');
+    // Check if we have cached results in session storage first
+    chrome.storage.session.get(['leboncoinResults'], (result) => {
+      const cachedData = result.leboncoinResults;
       
-      loading.style.display = 'flex';
-      results.style.display = 'none';
-      noResults.style.display = 'none';
-    }
+      // Create UI if it doesn't exist
+      let container = document.getElementById('amazon-alternative-finder');
+      if (!container) {
+        container = createExtensionUI();
+      } else {
+        // Reset if it already exists
+        container.style.display = 'block';
+        const loading = container.querySelector('.aaf-loading');
+        const results = container.querySelector('.aaf-results');
+        const noResults = container.querySelector('.aaf-no-results');
+        
+        loading.style.display = 'flex';
+        results.style.display = 'none';
+        noResults.style.display = 'none';
+      }
 
-    // Request alternatives using the product info
-    chrome.runtime.sendMessage({
-      action: "GET_ALTERNATIVES",
-      productInfo: message.productInfo
-    }, response => {
-      if (response) {
-        renderAlternatives(response.alternatives || [], response.count || 0);
+      // If we have cached results, use them immediately
+      if (cachedData && cachedData.productTitle === message.productInfo.title) {
+        console.log('Using cached Leboncoin results');
+        renderAlternatives(cachedData.alternatives || [], cachedData.count || 0);
         
         // Only expand the panel if there are alternatives
-        if (response.count > 0) {
+        if (cachedData.count > 0) {
           setTimeout(() => {
             container.classList.add('aaf-expanded');
           }, 500);
         }
       } else {
-        // Handle case when response is undefined or null
-        renderAlternatives([], 0);
+        // Request alternatives using the product info
+        chrome.runtime.sendMessage({
+          action: "GET_ALTERNATIVES",
+          productInfo: message.productInfo
+        }, response => {
+          if (response) {
+            // Cache the results in session storage
+            chrome.storage.session.set({
+              'leboncoinResults': {
+                productTitle: message.productInfo.title,
+                count: response.count || 0,
+                alternatives: response.alternatives || [],
+                timestamp: Date.now()
+              }
+            });
+            
+            renderAlternatives(response.alternatives || [], response.count || 0);
+            
+            // Only expand the panel if there are alternatives
+            if (response.count > 0) {
+              setTimeout(() => {
+                container.classList.add('aaf-expanded');
+              }, 500);
+            }
+          } else {
+            // Handle case when response is undefined or null
+            renderAlternatives([], 0);
+          }
+        });
       }
     });
   }
 });
+
+// Add listener for Leboncoin page if this is the scraping tab
+if (window.location.href.includes('leboncoin.fr/recherche')) {
+  console.log('This is a Leboncoin scraping tab');
+  // The scraping function will be injected by the background script
+}

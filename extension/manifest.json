@@ -18,10 +18,13 @@
   },
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "tabs",
+    "storage"
   ],
   "host_permissions": [
-    "https://*.amazon.fr/*"
+    "https://*.amazon.fr/*",
+    "https://*.leboncoin.fr/*"
   ],
   "background": {
     "service_worker": "background.js"
