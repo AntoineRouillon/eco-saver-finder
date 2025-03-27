@@ -82,6 +82,62 @@ function createExtensionUI() {
   
   toggle.addEventListener('click', () => {
     container.classList.toggle('aaf-expanded');
+    
+    // Only trigger search when clicking the toggle button
+    if (container.classList.contains('aaf-expanded')) {
+      // Get product info and trigger search
+      chrome.runtime.sendMessage({ action: "GET_PRODUCT_INFO" }, (productInfo) => {
+        if (productInfo) {
+          console.log("User clicked toggle, getting alternatives for:", productInfo);
+          
+          // Check if we have cached results in session storage first
+          chrome.storage.session.get(['leboncoinResults'], (result) => {
+            const cachedData = result.leboncoinResults;
+            
+            // Reset display states
+            const loading = container.querySelector('.aaf-loading');
+            const results = container.querySelector('.aaf-results');
+            const noResults = container.querySelector('.aaf-no-results');
+            
+            loading.style.display = 'flex';
+            results.style.display = 'none';
+            noResults.style.display = 'none';
+
+            // If we have cached results, use them immediately
+            if (cachedData && cachedData.productTitle === productInfo.title) {
+              console.log('Using cached Leboncoin results');
+              renderAlternatives(cachedData.alternatives || [], cachedData.count || 0);
+            } else {
+              console.log('Requesting alternatives from background script');
+              // Request alternatives using the product info
+              chrome.runtime.sendMessage({
+                action: "GET_ALTERNATIVES",
+                productInfo: productInfo
+              }, response => {
+                console.log('Received response from background:', response);
+                
+                if (response) {
+                  // Cache the results in session storage
+                  chrome.storage.session.set({
+                    'leboncoinResults': {
+                      productTitle: productInfo.title,
+                      count: response.count || 0,
+                      alternatives: response.alternatives || [],
+                      timestamp: Date.now()
+                    }
+                  });
+                  
+                  renderAlternatives(response.alternatives || [], response.count || 0);
+                } else {
+                  // Handle case when response is undefined or null
+                  renderAlternatives([], 0);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
   });
   
   closeBtn.addEventListener('click', () => {
@@ -169,78 +225,34 @@ function renderAlternatives(alternatives, count) {
   results.style.display = 'block';
 }
 
-// Listen for product info from background script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "PRODUCT_INFO") {
-    console.log("Content script received product info:", message.productInfo);
-    
-    // Check if we have cached results in session storage first
-    chrome.storage.session.get(['leboncoinResults'], (result) => {
-      const cachedData = result.leboncoinResults;
-      
-      // Create UI if it doesn't exist
-      let container = document.getElementById('amazon-alternative-finder');
-      if (!container) {
-        container = createExtensionUI();
-      } else {
-        // Reset if it already exists
-        container.style.display = 'block';
-        const loading = container.querySelector('.aaf-loading');
-        const results = container.querySelector('.aaf-results');
-        const noResults = container.querySelector('.aaf-no-results');
-        
-        loading.style.display = 'flex';
-        results.style.display = 'none';
-        noResults.style.display = 'none';
-      }
-
-      // If we have cached results, use them immediately
-      if (cachedData && cachedData.productTitle === message.productInfo.title) {
-        console.log('Using cached Leboncoin results');
-        renderAlternatives(cachedData.alternatives || [], cachedData.count || 0);
-        
-        // Only expand the panel if there are alternatives
-        if (cachedData.count > 0) {
-          setTimeout(() => {
-            container.classList.add('aaf-expanded');
-          }, 500);
-        }
-      } else {
-        console.log('Requesting alternatives from background script');
-        // Request alternatives using the product info
-        chrome.runtime.sendMessage({
-          action: "GET_ALTERNATIVES",
-          productInfo: message.productInfo
-        }, response => {
-          console.log('Received response from background:', response);
-          
-          if (response) {
-            // Cache the results in session storage
-            chrome.storage.session.set({
-              'leboncoinResults': {
-                productTitle: message.productInfo.title,
-                count: response.count || 0,
-                alternatives: response.alternatives || [],
-                timestamp: Date.now()
-              }
-            });
-            
-            renderAlternatives(response.alternatives || [], response.count || 0);
-            
-            // Only expand the panel if there are alternatives
-            if (response.count > 0) {
-              setTimeout(() => {
-                container.classList.add('aaf-expanded');
-              }, 500);
-            }
-          } else {
-            // Handle case when response is undefined or null
-            renderAlternatives([], 0);
-          }
-        });
-      }
-    });
+// Check if we're on an Amazon product page and create the UI
+function initializeOnAmazonProductPage() {
+  if (window.location.href.match(/amazon\.fr.*\/dp\//)) {
+    console.log("Amazon product page detected, creating UI");
+    let container = document.getElementById('amazon-alternative-finder');
+    if (!container) {
+      createExtensionUI();
+    }
   }
+}
+
+// Initialize on page load
+initializeOnAmazonProductPage();
+
+// Listen for URL changes (for single-page navigation)
+let lastUrl = location.href;
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    initializeOnAmazonProductPage();
+  }
+}).observe(document, {subtree: true, childList: true});
+
+// Listen for messages from background script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // We no longer need to handle PRODUCT_INFO messages as we're not auto-displaying results
+  // We only handle messages related to the Leboncoin scraping tab
 });
 
 // Add listener for Leboncoin page if this is the scraping tab

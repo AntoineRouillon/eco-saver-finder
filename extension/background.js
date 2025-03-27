@@ -1,22 +1,5 @@
-// Listen for when a tab is updated
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Check if the page is fully loaded and the URL is from Amazon product page
-  if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
-    // Execute script to get product information
-    chrome.scripting.executeScript({
-      target: { tabId: tabId },
-      function: getProductInfo
-    }).then(results => {
-      if (results && results[0]?.result) {
-        // Send message to content script with the product info
-        chrome.tabs.sendMessage(tabId, {
-          action: "PRODUCT_INFO",
-          productInfo: results[0].result
-        });
-      }
-    });
-  }
-});
+// We no longer need to listen for tab updates since we're not auto-triggering
+// Keep the product info extraction function for when it's requested
 
 // Function to extract product information
 function getProductInfo() {
@@ -55,6 +38,24 @@ function getProductInfo() {
 
 // Listen for messages
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "GET_PRODUCT_INFO") {
+    console.log('Background received GET_PRODUCT_INFO message');
+    
+    // Execute script to get product information
+    chrome.scripting.executeScript({
+      target: { tabId: sender.tab.id },
+      function: getProductInfo
+    }).then(results => {
+      if (results && results[0]?.result) {
+        sendResponse(results[0].result);
+      } else {
+        sendResponse(null);
+      }
+    });
+    
+    return true; // Indicates we'll respond asynchronously
+  }
+  
   if (message.action === "GET_ALTERNATIVES") {
     console.log('Background received GET_ALTERNATIVES message', message);
     
