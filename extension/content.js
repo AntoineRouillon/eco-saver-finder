@@ -1,4 +1,7 @@
 
+// Variable to store product information
+let currentProductInfo = null;
+
 // Create and inject extension UI
 function createExtensionUI() {
   // Create container for the extension
@@ -11,7 +14,7 @@ function createExtensionUI() {
   container.innerHTML = `
     <div class="aaf-toggle">
       <div class="aaf-badge">
-        <span>3</span>
+        <span>?</span>
       </div>
       <div class="aaf-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -71,18 +74,42 @@ function createExtensionUI() {
   
   toggle.addEventListener('click', () => {
     container.classList.toggle('aaf-expanded');
+    
+    // If we're expanding and have product info but no alternatives loaded yet, fetch them
+    if (container.classList.contains('aaf-expanded') && currentProductInfo) {
+      requestAlternatives(currentProductInfo);
+    }
   });
   
   closeBtn.addEventListener('click', () => {
     container.classList.remove('aaf-expanded');
   });
 
-  // Initially expand the panel
-  setTimeout(() => {
-    container.classList.add('aaf-expanded');
-  }, 1000);
-
   return container;
+}
+
+// Function to request alternatives from the background script
+function requestAlternatives(productInfo) {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const loading = container.querySelector('.aaf-loading');
+  const results = container.querySelector('.aaf-results');
+  
+  // Show loading state
+  if (loading && results) {
+    loading.style.display = 'flex';
+    results.style.display = 'none';
+  }
+  
+  // Request alternatives from background script
+  chrome.runtime.sendMessage({
+    action: "GET_ALTERNATIVES",
+    productInfo: productInfo
+  }, response => {
+    console.log("Got response from background script:", response);
+    // The actual alternatives will come through a separate message
+  });
 }
 
 // Render alternatives in the panel
@@ -94,62 +121,111 @@ function renderAlternatives(alternatives) {
   const results = container.querySelector('.aaf-results');
   const resultsCount = container.querySelector('.aaf-results-count');
   const itemsContainer = container.querySelector('.aaf-items');
+  const badge = container.querySelector('.aaf-badge span');
 
-  // Update the count
-  resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
+  // Update the badge count
+  if (badge) {
+    badge.textContent = alternatives.length;
+  }
+
+  // Update the count text
+  if (resultsCount) {
+    resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
+  }
 
   // Clear previous results
-  itemsContainer.innerHTML = '';
+  if (itemsContainer) {
+    itemsContainer.innerHTML = '';
 
-  // Add each alternative
-  alternatives.forEach(item => {
-    const itemElement = document.createElement('div');
-    itemElement.className = 'aaf-item';
-    itemElement.innerHTML = `
-      <div class="aaf-item-image">
-        <img src="${item.image}" alt="${item.title}">
-        <div class="aaf-item-location">${item.location}</div>
-      </div>
-      <div class="aaf-item-content">
-        <h4 class="aaf-item-title">${item.title}</h4>
-        <div class="aaf-item-footer">
-          <span class="aaf-item-price">${item.price}</span>
-          <a href="${item.url}" target="_blank" class="aaf-item-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            View
-          </a>
+    // Add each alternative
+    alternatives.forEach(item => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'aaf-item';
+      itemElement.innerHTML = `
+        <div class="aaf-item-image">
+          <img src="${item.image}" alt="${item.title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
+          <div class="aaf-item-location">${item.location}</div>
         </div>
-      </div>
-    `;
-    itemsContainer.appendChild(itemElement);
-  });
+        <div class="aaf-item-content">
+          <h4 class="aaf-item-title">${item.title}</h4>
+          <div class="aaf-item-footer">
+            <span class="aaf-item-price">${item.price}</span>
+            <a href="${item.url}" target="_blank" class="aaf-item-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              View
+            </a>
+          </div>
+        </div>
+      `;
+      itemsContainer.appendChild(itemElement);
+    });
+  }
 
   // Hide loading, show results
-  loading.style.display = 'none';
-  results.style.display = 'block';
+  if (loading && results) {
+    loading.style.display = 'none';
+    results.style.display = 'block';
+  }
+
+  // Store the alternatives in sessionStorage for persistence
+  try {
+    sessionStorage.setItem('aaf_alternatives', JSON.stringify(alternatives));
+  } catch (error) {
+    console.error("Error storing alternatives in sessionStorage:", error);
+  }
 }
 
-// Wait for product info from background script
+// Check if the current URL is an Amazon product page
+function isAmazonProductPage() {
+  return window.location.href.match(/amazon\.fr.*\/dp\//);
+}
+
+// Initialize the extension UI
+function initExtension() {
+  if (isAmazonProductPage()) {
+    console.log("Amazon product page detected. Initializing extension...");
+    createExtensionUI();
+    
+    // Try to load alternatives from sessionStorage
+    try {
+      const storedAlternatives = sessionStorage.getItem('aaf_alternatives');
+      if (storedAlternatives) {
+        renderAlternatives(JSON.parse(storedAlternatives));
+      }
+    } catch (error) {
+      console.error("Error loading alternatives from sessionStorage:", error);
+    }
+  }
+}
+
+// Listen for product info from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "PRODUCT_INFO") {
-    // Create UI if it doesn't exist
+    console.log("Received product info:", message.productInfo);
+    
+    // Store the product info
+    currentProductInfo = message.productInfo;
+    
+    // Initialize UI if it doesn't exist
     let container = document.getElementById('amazon-alternative-finder');
     if (!container) {
       container = createExtensionUI();
     }
-
-    // Request alternatives using the product info
-    chrome.runtime.sendMessage({
-      action: "GET_ALTERNATIVES",
-      productInfo: message.productInfo
-    }, response => {
-      if (response && response.success) {
-        renderAlternatives(response.alternatives);
-      }
-    });
+  } else if (message.action === "ALTERNATIVES_FOUND") {
+    console.log("Received alternatives:", message.alternatives);
+    
+    // Render the alternatives in the UI
+    renderAlternatives(message.alternatives);
   }
 });
+
+// Initialize the extension when the DOM is fully loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initExtension);
+} else {
+  initExtension();
+}
