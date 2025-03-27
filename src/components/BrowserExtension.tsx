@@ -1,11 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
-import ProductCard from './ProductCard';
-import LoadingState from './LoadingState';
-import EmptyState from './EmptyState';
-import FeedbackFooter from './FeedbackFooter';
+import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface Product {
   id: string;
@@ -23,57 +20,41 @@ interface BrowserExtensionProps {
 const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasAlternatives, setHasAlternatives] = useState(false);
 
   useEffect(() => {
-    // Simulate API call to get scraped products
+    // Simulate API call to get second-hand products
     const timer = setTimeout(() => {
-      // For demo purposes, choose a fixed scenario
-      const scenario = 'echo-dot';
-      
-      let scrapedProducts: Product[] = [];
-      
-      if (scenario === 'echo-dot') {
-        scrapedProducts = [
-          {
-            id: '1',
-            title: 'Echo Dot (4ème génération) - État parfait',
-            price: '29,50 €',
-            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-            location: 'Paris 15e',
-            url: '#'
-          },
-          {
-            id: '2',
-            title: 'Enceinte Amazon Echo Dot 4 neuve',
-            price: '27,00 €',
-            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-            location: 'Lyon 6e',
-            url: '#'
-          },
-          {
-            id: '3',
-            title: 'Enceinte connectée Echo Dot 4 avec Alexa',
-            price: '31,90 €',
-            image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
-            location: 'Marseille 8e',
-            url: '#'
-          }
-        ];
-      }
-      
-      setProducts(scrapedProducts);
-      setHasAlternatives(scrapedProducts.length > 0);
+      setProducts([
+        {
+          id: '1',
+          title: 'Echo Dot (4ème génération) - Très bon état',
+          price: '29,00 €',
+          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+          location: 'Paris',
+          url: '#'
+        },
+        {
+          id: '2',
+          title: 'Enceinte Echo Dot comme neuve',
+          price: '25,50 €',
+          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+          location: 'Lyon',
+          url: '#'
+        },
+        {
+          id: '3',
+          title: 'Amazon Echo Dot 4 - Bon état',
+          price: '32,00 €',
+          image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
+          location: 'Marseille',
+          url: '#'
+        }
+      ]);
       setLoading(false);
     }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
-
-  // If no alternatives are found, don't display the extension at all
-  if (!loading && !hasAlternatives) {
-    return null; // Return null to not render anything when no alternatives are found
-  }
 
   return (
     <motion.div
@@ -98,9 +79,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
 
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
-          <LoadingState />
-        ) : !hasAlternatives ? (
-          <EmptyState />
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm text-gray-500">Finding alternatives...</p>
+          </div>
         ) : (
           <div className="space-y-4">
             <p className="text-xs text-gray-500 mb-4">
@@ -108,13 +90,66 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             </p>
             
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow"
+              >
+                <div className="relative aspect-w-4 aspect-h-3 bg-gray-100">
+                  <img 
+                    src={product.image} 
+                    alt={product.title} 
+                    className="object-cover w-full h-full"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
+                    {product.location}
+                  </div>
+                </div>
+                <div className="p-3">
+                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2 h-10">
+                    {product.title}
+                  </h4>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-blue-600 font-medium">{product.price}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-gray-600 hover:text-blue-600 p-1 h-auto"
+                    >
+                      <ExternalLink size={14} className="mr-1" />
+                      View
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
 
-      <FeedbackFooter />
+      <div className="border-t border-gray-100 p-3 bg-gray-50">
+        <div className="text-xs text-gray-500 mb-2">Was this helpful?</div>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs border-gray-200"
+          >
+            <ThumbsUp size={14} className="mr-1" />
+            Yes
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs border-gray-200"
+          >
+            <ThumbsDown size={14} className="mr-1" />
+            No
+          </Button>
+        </div>
+      </div>
     </motion.div>
   );
 };

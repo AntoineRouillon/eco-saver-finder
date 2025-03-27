@@ -18,24 +18,19 @@
   },
   "permissions": [
     "activeTab",
-    "scripting",
-    "tabs",
-    "storage",
-    "webNavigation"
+    "scripting"
   ],
   "host_permissions": [
-    "https://*.amazon.fr/*",
-    "https://*.leboncoin.fr/*"
+    "https://*.amazon.fr/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.amazon.fr/*", "https://*.leboncoin.fr/*"],
+      "matches": ["https://*.amazon.fr/*"],
       "js": ["content.js"],
-      "css": ["content.css"],
-      "run_at": "document_end"
+      "css": ["content.css"]
     }
   ]
 }
