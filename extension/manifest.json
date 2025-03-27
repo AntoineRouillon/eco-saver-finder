@@ -20,7 +20,8 @@
     "activeTab",
     "scripting",
     "tabs",
-    "storage"
+    "storage",
+    "webNavigation"
   ],
   "host_permissions": [
     "https://*.amazon.fr/*",
@@ -31,7 +32,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.amazon.fr/*"],
+      "matches": ["https://*.amazon.fr/*", "https://*.leboncoin.fr/*"],
       "js": ["content.js"],
       "css": ["content.css"]
     }

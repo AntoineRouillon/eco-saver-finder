@@ -1,4 +1,3 @@
-
 // Create and inject extension UI
 function createExtensionUI() {
   // Create container for the extension
@@ -61,7 +60,7 @@ function createExtensionUI() {
           <button class="aaf-feedback-btn aaf-yes-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M7 10v12"></path>
-              <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
+              <path d="M15 5.88 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
             </svg>
             Yes
           </button>
@@ -170,9 +169,11 @@ function renderAlternatives(alternatives, count) {
   results.style.display = 'block';
 }
 
-// Wait for product info from background script
+// Listen for product info from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "PRODUCT_INFO") {
+    console.log("Content script received product info:", message.productInfo);
+    
     // Check if we have cached results in session storage first
     chrome.storage.session.get(['leboncoinResults'], (result) => {
       const cachedData = result.leboncoinResults;
@@ -205,11 +206,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }, 500);
         }
       } else {
+        console.log('Requesting alternatives from background script');
         // Request alternatives using the product info
         chrome.runtime.sendMessage({
           action: "GET_ALTERNATIVES",
           productInfo: message.productInfo
         }, response => {
+          console.log('Received response from background:', response);
+          
           if (response) {
             // Cache the results in session storage
             chrome.storage.session.set({
@@ -241,6 +245,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Add listener for Leboncoin page if this is the scraping tab
 if (window.location.href.includes('leboncoin.fr/recherche')) {
-  console.log('This is a Leboncoin scraping tab');
-  // The scraping function will be injected by the background script
+  console.log('This is a Leboncoin scraping tab - content script loaded');
 }

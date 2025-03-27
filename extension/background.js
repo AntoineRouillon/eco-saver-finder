@@ -53,6 +53,22 @@ function getProductInfo() {
   };
 }
 
+// Listen for messages
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "GET_ALTERNATIVES") {
+    console.log('Background received GET_ALTERNATIVES message', message);
+    
+    // Search for alternatives on Leboncoin using the pinned tab approach
+    scrapeLeboncoin(message.productInfo.title)
+      .then(response => {
+        console.log('Scraping complete, sending response:', response);
+        sendResponse(response);
+      });
+    
+    return true; // Indicates we'll respond asynchronously
+  }
+});
+
 // Function to scrape Leboncoin via a hidden tab
 function scrapeLeboncoin(searchTerm) {
   return new Promise((resolve) => {
@@ -75,14 +91,20 @@ function scrapeLeboncoin(searchTerm) {
         pinned: true 
       }, 
       (newTab) => {
+        console.log('Created pinned tab with ID:', newTab.id);
+        
         // Listen for a message from the scraping tab
         const tabListener = (message, sender, sendResponse) => {
-          if (message.action === "SCRAPED_DATA" && sender.tab.id === newTab.id) {
+          if (message.action === "SCRAPED_DATA" && sender.tab && sender.tab.id === newTab.id) {
+            console.log('Received SCRAPED_DATA from tab', newTab.id, message);
+            
             // Remove the listener once we've got our data
             chrome.runtime.onMessage.removeListener(tabListener);
             
             // Close the scraping tab
-            chrome.tabs.remove(newTab.id);
+            chrome.tabs.remove(newTab.id, () => {
+              console.log('Closed scraping tab', newTab.id);
+            });
             
             // Return the data
             if (message.alternatives && message.alternatives.length > 0) {
@@ -110,7 +132,14 @@ function scrapeLeboncoin(searchTerm) {
         // Set a timeout to close the tab if something goes wrong (15 seconds)
         setTimeout(() => {
           chrome.runtime.onMessage.removeListener(tabListener);
-          chrome.tabs.remove(newTab.id);
+          
+          chrome.tabs.get(newTab.id, (tab) => {
+            if (tab) {
+              chrome.tabs.remove(newTab.id, () => {
+                console.log('Closed scraping tab (timeout)', newTab.id);
+              });
+            }
+          });
           
           // Return demo data on timeout
           console.log('Timeout while scraping, falling back to demo data');
@@ -123,10 +152,18 @@ function scrapeLeboncoin(searchTerm) {
           });
         }, 15000);
         
-        // Execute script in the new tab to scrape data
-        chrome.scripting.executeScript({
-          target: { tabId: newTab.id },
-          function: scrapeDataFromLeboncoin
+        // Wait for tab to load before executing script
+        chrome.tabs.onUpdated.addListener(function listener(updatedTabId, changeInfo) {
+          if (updatedTabId === newTab.id && changeInfo.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+            
+            console.log('Pinned tab loaded, injecting scraper');
+            // Execute script in the new tab to scrape data
+            chrome.scripting.executeScript({
+              target: { tabId: newTab.id },
+              function: scrapeDataFromLeboncoin
+            });
+          }
         });
       }
     );
@@ -135,64 +172,67 @@ function scrapeLeboncoin(searchTerm) {
 
 // Function to be executed in the context of Leboncoin tab
 function scrapeDataFromLeboncoin() {
-  // Wait for the page to fully load
-  window.addEventListener('load', function() {
-    // Give an additional second for any JavaScript to run
-    setTimeout(() => {
-      try {
-        console.log('Scraping Leboncoin results...');
-        
-        // Find all product items
-        const itemElements = document.querySelectorAll('a[data-qa-id="aditem_container"]');
-        
-        let alternatives = [];
-        
-        if (itemElements && itemElements.length > 0) {
-          // Process each item
-          itemElements.forEach((item, index) => {
-            // Skip if we already have enough results
-            if (index >= 5) return;
+  console.log('Starting to scrape Leboncoin results...');
+  
+  // Wait for the page to load
+  setTimeout(() => {
+    try {
+      console.log('Scraping Leboncoin results...');
+      
+      // Find all product items
+      const itemElements = document.querySelectorAll('a[data-qa-id="aditem_container"]');
+      
+      let alternatives = [];
+      
+      if (itemElements && itemElements.length > 0) {
+        console.log('Found ' + itemElements.length + ' items');
+        // Process each item
+        itemElements.forEach((item, index) => {
+          // Skip if we already have enough results
+          if (index >= 5) return;
+          
+          try {
+            // Extract item details
+            const titleElement = item.querySelector('[data-qa-id="aditem_title"]');
+            const priceElement = item.querySelector('[data-qa-id="aditem_price"]');
+            const locationElement = item.querySelector('[data-qa-id="aditem_location"]');
+            const imageElement = item.querySelector('img');
             
-            try {
-              // Extract item details
-              const titleElement = item.querySelector('[data-qa-id="aditem_title"]');
-              const priceElement = item.querySelector('[data-qa-id="aditem_price"]');
-              const locationElement = item.querySelector('[data-qa-id="aditem_location"]');
-              const imageElement = item.querySelector('img');
-              
-              // Only add if we have the minimum required data
-              if (titleElement && priceElement) {
-                alternatives.push({
-                  id: index.toString(),
-                  title: titleElement.textContent.trim(),
-                  price: priceElement.textContent.trim(),
-                  image: imageElement ? imageElement.src : '',
-                  location: locationElement ? locationElement.textContent.trim() : '',
-                  url: item.href
-                });
-              }
-            } catch (error) {
-              console.error('Error parsing item:', error);
+            // Only add if we have the minimum required data
+            if (titleElement && priceElement) {
+              alternatives.push({
+                id: index.toString(),
+                title: titleElement.textContent.trim(),
+                price: priceElement.textContent.trim(),
+                image: imageElement ? imageElement.src : '',
+                location: locationElement ? locationElement.textContent.trim() : '',
+                url: item.href
+              });
             }
-          });
-        }
-        
-        // Send the data back to the background script
-        chrome.runtime.sendMessage({
-          action: "SCRAPED_DATA",
-          alternatives: alternatives
+          } catch (error) {
+            console.error('Error parsing item:', error);
+          }
         });
-        
-      } catch (error) {
-        console.error('Error during scraping:', error);
-        // Send empty result on error
-        chrome.runtime.sendMessage({
-          action: "SCRAPED_DATA",
-          alternatives: []
-        });
+      } else {
+        console.log('No items found on the page');
       }
-    }, 1000);
-  });
+      
+      console.log('Sending scraped data back:', alternatives);
+      // Send the data back to the background script
+      chrome.runtime.sendMessage({
+        action: "SCRAPED_DATA",
+        alternatives: alternatives
+      });
+      
+    } catch (error) {
+      console.error('Error during scraping:', error);
+      // Send empty result on error
+      chrome.runtime.sendMessage({
+        action: "SCRAPED_DATA",
+        alternatives: []
+      });
+    }
+  }, 2000); // Give time for any dynamic content to load
 }
 
 // Helper function to create demo alternatives based on search term
@@ -269,16 +309,3 @@ function createDemoAlternatives(searchTerm, searchUrl) {
   // Default case: return empty array
   return [];
 }
-
-// Listen for messages
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "GET_ALTERNATIVES") {
-    // Search for alternatives on Leboncoin using the pinned tab approach
-    scrapeLeboncoin(message.productInfo.title)
-      .then(response => {
-        sendResponse(response);
-      });
-    
-    return true; // Indicates we'll respond asynchronously
-  }
-});
