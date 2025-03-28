@@ -1,4 +1,3 @@
-
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -344,4 +343,56 @@
   border-radius: 4px;
   font-size: 13px;
   text-align: center;
+}
+
+/* Raw HTML display */
+.aaf-item-raw-html {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
+  font-family: monospace;
+  font-size: 11px;
+  overflow: auto;
+  white-space: pre-wrap;
+  max-height: 300px;
+  word-break: break-all;
+}
+
+.aaf-item:hover .aaf-item-raw-html {
+  max-height: 0;
+}
+
+/* Show HTML button */
+.aaf-show-html-btn {
+  width: 100%;
+  padding: 6px;
+  margin-top: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.aaf-show-html-btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* Debug button for raw HTML */
+.aaf-debug-toggle {
+  font-size: 11px;
+  color: #999;
+  text-align: center;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.aaf-debug-toggle:hover {
+  background: #eee;
 }
