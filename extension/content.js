@@ -171,7 +171,7 @@ function createCardFromRawHTML(item) {
     url = 'https://www.leboncoin.fr' + url;
   }
   
-  // Build the item card HTML
+  // Build the item card HTML without the Show HTML button and its functionality
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
@@ -192,27 +192,12 @@ function createCardFromRawHTML(item) {
         </a>
       </div>
     </div>
-    <button class="aaf-show-html-btn">Show HTML</button>
     <div class="aaf-item-raw-html" style="display: none;">
       ${item.html}
     </div>
   `;
   
-  // Add event listener for the "Show HTML" button
-  const showHtmlBtn = itemElement.querySelector('.aaf-show-html-btn');
-  const rawHtml = itemElement.querySelector('.aaf-item-raw-html');
-  
-  if (showHtmlBtn && rawHtml) {
-    showHtmlBtn.addEventListener('click', () => {
-      if (rawHtml.style.display === 'none') {
-        rawHtml.style.display = 'block';
-        showHtmlBtn.textContent = 'Hide HTML';
-      } else {
-        rawHtml.style.display = 'none';
-        showHtmlBtn.textContent = 'Show HTML';
-      }
-    });
-  }
+  // The Show HTML button and its event listener are removed
   
   return itemElement;
 }
