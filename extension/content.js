@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -7,6 +8,8 @@ let currentFilter = {
   type: 'none', // 'none', 'price-asc', 'price-desc', 'date-asc', 'date-desc'
   label: 'No filter' // Display label
 };
+// Store the current URL to detect page changes
+let currentUrl = window.location.href;
 
 // Create and inject extension UI
 function createExtensionUI() {
@@ -484,7 +487,8 @@ function renderAlternatives(alternatives) {
   
   // Store the alternatives in sessionStorage for persistence
   try {
-    sessionStorage.setItem('aaf_alternatives', JSON.stringify(alternatives));
+    // Store with URL key to differentiate between products
+    sessionStorage.setItem(`aaf_alternatives_${window.location.pathname}`, JSON.stringify(alternatives));
   } catch (error) {
     console.error("Error storing alternatives in sessionStorage:", error);
   }
@@ -495,15 +499,41 @@ function isAmazonProductPage() {
   return window.location.href.match(/amazon\.fr.*\/dp\//);
 }
 
+// Reset the UI state when navigating to a new product
+function resetUI() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  // Hide badge
+  const badge = container.querySelector('.aaf-badge');
+  if (badge) {
+    badge.classList.remove('active');
+  }
+  
+  // Reset alternatives
+  allAlternatives = [];
+  
+  // Show loading if panel is expanded
+  if (container.classList.contains('aaf-expanded')) {
+    const loading = container.querySelector('.aaf-loading');
+    const results = container.querySelector('.aaf-results');
+    
+    if (loading && results) {
+      loading.style.display = 'flex';
+      results.style.display = 'none';
+    }
+  }
+}
+
 // Initialize the extension UI
 function initExtension() {
   if (isAmazonProductPage()) {
     console.log("Amazon product page detected. Initializing extension...");
     createExtensionUI();
     
-    // Try to load alternatives from sessionStorage
+    // Try to load alternatives from sessionStorage for the current URL
     try {
-      const storedAlternatives = sessionStorage.getItem('aaf_alternatives');
+      const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
       if (storedAlternatives) {
         const parsedAlternatives = JSON.parse(storedAlternatives);
         console.log("Loaded alternatives from sessionStorage:", parsedAlternatives);
@@ -512,6 +542,9 @@ function initExtension() {
     } catch (error) {
       console.error("Error loading alternatives from sessionStorage:", error);
     }
+    
+    // Set up URL change detection
+    currentUrl = window.location.href;
   }
 }
 
@@ -544,3 +577,15 @@ if (document.readyState === 'loading') {
 } else {
   initExtension();
 }
+
+// Set up URL change detection with MutationObserver to reset badge when navigating to a new product
+let lastUrl = location.href; 
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    console.log('URL changed to', url);
+    resetUI();
+  }
+}).observe(document, {subtree: true, childList: true});
+
