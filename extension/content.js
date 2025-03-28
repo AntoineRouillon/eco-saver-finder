@@ -1,4 +1,3 @@
-
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -10,6 +9,8 @@ let currentFilter = {
 };
 // Store the current URL to detect page changes
 let currentUrl = window.location.href;
+// Object to cache alternatives by product URL
+let alternativesCache = {};
 
 // Create and inject extension UI
 function createExtensionUI() {
@@ -132,7 +133,13 @@ function createExtensionUI() {
     
     // If we're expanding and have product info but no alternatives loaded yet, fetch them
     if (container.classList.contains('aaf-expanded') && currentProductInfo) {
-      requestAlternatives(currentProductInfo);
+      // Check if we have cached alternatives for this product
+      if (alternativesCache[window.location.href]) {
+        console.log("Using cached alternatives for:", window.location.href);
+        renderAlternatives(alternativesCache[window.location.href]);
+      } else {
+        requestAlternatives(currentProductInfo);
+      }
     }
   });
   
@@ -217,6 +224,13 @@ function requestAlternatives(productInfo) {
   if (loading && results) {
     loading.style.display = 'flex';
     results.style.display = 'none';
+  }
+  
+  // Check if we have cached alternatives for this product
+  if (alternativesCache[window.location.href]) {
+    console.log("Using cached alternatives for:", window.location.href);
+    renderAlternatives(alternativesCache[window.location.href]);
+    return;
   }
   
   // Request alternatives from background script
@@ -445,6 +459,9 @@ function renderAlternatives(alternatives) {
   // Store all alternatives for filtering
   allAlternatives = [...alternatives];
   
+  // Cache the alternatives for this product URL
+  alternativesCache[window.location.href] = alternatives;
+  
   // Update the badge count and make it visible
   if (badge) {
     badge.querySelector('span').textContent = alternatives.length;
@@ -489,6 +506,9 @@ function renderAlternatives(alternatives) {
   try {
     // Store with URL key to differentiate between products
     sessionStorage.setItem(`aaf_alternatives_${window.location.pathname}`, JSON.stringify(alternatives));
+    
+    // Also store the entire cache
+    sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
   } catch (error) {
     console.error("Error storing alternatives in sessionStorage:", error);
   }
@@ -522,6 +542,12 @@ function resetUI() {
       loading.style.display = 'flex';
       results.style.display = 'none';
     }
+    
+    // If we have cached alternatives for this URL, display them
+    if (alternativesCache[window.location.href]) {
+      console.log("Using cached alternatives after URL change:", window.location.href);
+      renderAlternatives(alternativesCache[window.location.href]);
+    }
   }
 }
 
@@ -531,13 +557,28 @@ function initExtension() {
     console.log("Amazon product page detected. Initializing extension...");
     createExtensionUI();
     
-    // Try to load alternatives from sessionStorage for the current URL
+    // Try to load alternatives cache from sessionStorage
     try {
-      const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
-      if (storedAlternatives) {
-        const parsedAlternatives = JSON.parse(storedAlternatives);
-        console.log("Loaded alternatives from sessionStorage:", parsedAlternatives);
-        renderAlternatives(parsedAlternatives);
+      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
+      if (storedCache) {
+        alternativesCache = JSON.parse(storedCache);
+        console.log("Loaded alternatives cache from sessionStorage:", alternativesCache);
+      }
+      
+      // Check if we have cached alternatives for the current URL
+      if (alternativesCache[window.location.href]) {
+        console.log("Found cached alternatives for current URL:", window.location.href);
+        renderAlternatives(alternativesCache[window.location.href]);
+      } else {
+        // Try loading URL-specific alternatives from sessionStorage
+        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
+        if (storedAlternatives) {
+          const parsedAlternatives = JSON.parse(storedAlternatives);
+          console.log("Loaded alternatives from sessionStorage:", parsedAlternatives);
+          renderAlternatives(parsedAlternatives);
+          // Also add to the cache
+          alternativesCache[window.location.href] = parsedAlternatives;
+        }
       }
     } catch (error) {
       console.error("Error loading alternatives from sessionStorage:", error);
@@ -568,6 +609,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     // Render the alternatives in the UI
     renderAlternatives(message.alternatives);
+    
+    // Cache the alternatives for this product URL
+    if (message.alternatives && message.alternatives.length > 0) {
+      alternativesCache[window.location.href] = message.alternatives;
+      
+      // Update sessionStorage with the new cache
+      try {
+        sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
+      } catch (error) {
+        console.error("Error storing alternatives cache in sessionStorage:", error);
+      }
+    }
   }
 });
 
@@ -588,4 +641,3 @@ new MutationObserver(() => {
     resetUI();
   }
 }).observe(document, {subtree: true, childList: true});
-
