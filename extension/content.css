@@ -1,4 +1,3 @@
-
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -50,6 +49,11 @@
   font-weight: 500;
   font-size: 14px;
   white-space: nowrap;
+}
+
+.aaf-toggle-text.has-alternatives {
+  color: #2563EB;
+  font-weight: 600;
 }
 
 .aaf-badge {

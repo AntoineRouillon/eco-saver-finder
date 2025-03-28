@@ -23,9 +23,6 @@ function createExtensionUI() {
   // Add initial UI (collapsed state)
   container.innerHTML = `
     <div class="aaf-toggle">
-      <div class="aaf-badge">
-        <span>0</span>
-      </div>
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="Amazon Alternative Finder">
       <span class="aaf-toggle-text">Search on leboncoin</span>
     </div>
@@ -433,7 +430,7 @@ function renderAlternatives(alternatives) {
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
   const resultsCount = container.querySelector('.aaf-results-count');
-  const badge = container.querySelector('.aaf-badge');
+  const toggleText = container.querySelector('.aaf-toggle-text');
 
   // Hide loading state
   if (loading) {
@@ -449,9 +446,10 @@ function renderAlternatives(alternatives) {
       container.querySelector('.aaf-items').innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
     }
     
-    // Hide the badge when no results
-    if (badge) {
-      badge.classList.remove('active');
+    // Reset toggle text if no results
+    if (toggleText) {
+      toggleText.textContent = "Search on leboncoin";
+      toggleText.classList.remove('has-alternatives');
     }
     
     return;
@@ -463,10 +461,10 @@ function renderAlternatives(alternatives) {
   // Cache the alternatives for this product URL
   alternativesCache[window.location.href] = alternatives;
   
-  // Update the badge count and make it visible
-  if (badge) {
-    badge.querySelector('span').textContent = alternatives.length;
-    badge.classList.add('active');
+  // Update the toggle text with the count
+  if (toggleText) {
+    toggleText.textContent = `${alternatives.length} alternatives`;
+    toggleText.classList.add('has-alternatives');
   }
 
   // Update the count text
@@ -525,10 +523,11 @@ function resetUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
   
-  // Hide badge
-  const badge = container.querySelector('.aaf-badge');
-  if (badge) {
-    badge.classList.remove('active');
+  // Reset toggle text
+  const toggleText = container.querySelector('.aaf-toggle-text');
+  if (toggleText) {
+    toggleText.textContent = "Search on leboncoin";
+    toggleText.classList.remove('has-alternatives');
   }
   
   // Reset alternatives
