@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -113,20 +114,44 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
               const scrapedItems = results[0].result;
               console.log("Scraped items:", scrapedItems);
               
-              // Cache the results
-              scrapedDataCache[cacheKey] = scrapedItems;
-              
-              // Send the results to the content script
-              chrome.tabs.sendMessage(sourceTabId, {
-                action: "ALTERNATIVES_FOUND",
-                alternatives: scrapedItems
-              });
+              // Make sure we have actual items
+              if (Array.isArray(scrapedItems) && scrapedItems.length > 0) {
+                // Cache the results
+                scrapedDataCache[cacheKey] = scrapedItems;
+                
+                // Send the results to the content script
+                chrome.tabs.sendMessage(sourceTabId, {
+                  action: "ALTERNATIVES_FOUND",
+                  alternatives: scrapedItems
+                });
+              } else if (scrapedItems.debug) {
+                // Handle the debug case - send empty alternatives to break loading state
+                chrome.tabs.sendMessage(sourceTabId, {
+                  action: "ALTERNATIVES_FOUND",
+                  alternatives: [],
+                  error: "No items found"
+                });
+              }
               
               // Close the pinned tab after scraping
+              chrome.tabs.remove(newTab.id);
+            } else {
+              // Send empty array to break loading state
+              chrome.tabs.sendMessage(sourceTabId, {
+                action: "ALTERNATIVES_FOUND",
+                alternatives: [],
+                error: "No results from scraping"
+              });
               chrome.tabs.remove(newTab.id);
             }
           }).catch(error => {
             console.error("Error scraping Leboncoin:", error);
+            // Send error to content script to break loading state
+            chrome.tabs.sendMessage(sourceTabId, {
+              action: "ALTERNATIVES_FOUND",
+              alternatives: [],
+              error: error.toString()
+            });
             chrome.tabs.remove(newTab.id);
           });
         }, 3000); // Wait 3 seconds for the page to fully load
@@ -139,11 +164,17 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     // Add the tab update listener
     chrome.tabs.onUpdated.addListener(onTabLoaded);
     
-    // Set a timeout to close the tab if scraping takes too long
+    // Set a timeout to close the tab and send back empty results if scraping takes too long
     setTimeout(() => {
       chrome.tabs.get(newTab.id, (tab) => {
         if (tab) {
           console.log("Closing tab due to timeout");
+          // Send empty array to break loading state
+          chrome.tabs.sendMessage(sourceTabId, {
+            action: "ALTERNATIVES_FOUND",
+            alternatives: [],
+            error: "Scraping timeout"
+          });
           chrome.tabs.remove(newTab.id);
         }
       });
@@ -151,6 +182,12 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     
   } catch (error) {
     console.error("Error opening Leboncoin tab:", error);
+    // Send error to content script to break loading state
+    chrome.tabs.sendMessage(sourceTabId, {
+      action: "ALTERNATIVES_FOUND",
+      alternatives: [],
+      error: error.toString()
+    });
   }
 }
 
@@ -166,7 +203,19 @@ function scrapeLeboncoinData() {
     
     console.log(`Found ${itemArticles.length} article elements`);
     
-    // Map through each article to extract complete HTML
+    if (!itemArticles || itemArticles.length === 0) {
+      // Try waiting a bit longer and check if ads are loading
+      return {
+        items: [],
+        debug: {
+          pageHTML: document.documentElement.outerHTML.substring(0, 10000),
+          pageTitle: document.title,
+          pageURL: window.location.href
+        }
+      };
+    }
+    
+    // Map through each article to extract data
     const items = Array.from(itemArticles).slice(0, 5).map(article => {
       // Store the full HTML of the article
       const html = article.outerHTML;
