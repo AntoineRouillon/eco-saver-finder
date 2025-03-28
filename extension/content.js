@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 
@@ -191,10 +192,27 @@ function createCardFromRawHTML(item) {
         </a>
       </div>
     </div>
+    <button class="aaf-show-html-btn">Show HTML</button>
     <div class="aaf-item-raw-html" style="display: none;">
       ${item.html}
     </div>
   `;
+  
+  // Add event listener for the "Show HTML" button
+  const showHtmlBtn = itemElement.querySelector('.aaf-show-html-btn');
+  const rawHtml = itemElement.querySelector('.aaf-item-raw-html');
+  
+  if (showHtmlBtn && rawHtml) {
+    showHtmlBtn.addEventListener('click', () => {
+      if (rawHtml.style.display === 'none') {
+        rawHtml.style.display = 'block';
+        showHtmlBtn.textContent = 'Hide HTML';
+      } else {
+        rawHtml.style.display = 'none';
+        showHtmlBtn.textContent = 'Show HTML';
+      }
+    });
+  }
   
   return itemElement;
 }
