@@ -1,4 +1,3 @@
-
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -17,47 +16,58 @@
   position: absolute;
   right: 0;
   top: 0;
-  background-color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #2563EB;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-right: none;
-  border-radius: 4px 0 0 4px;
-  width: 48px;
-  height: 48px;
+  border-radius: 8px 0 0 8px;
+  min-width: 200px;
+  height: 54px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 16px;
   cursor: pointer;
-  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.08);
-  color: #2563EB;
-  transition: all 0.2s ease;
+  box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .aaf-toggle:hover {
-  background-color: #f9fafb;
+  background-color: #1d4ed8;
+  box-shadow: -3px 3px 15px rgba(0, 0, 0, 0.2);
+  transform: translateX(-5px);
 }
 
 .aaf-toggle img {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
+  margin-right: 12px;
+}
+
+.aaf-toggle-text {
+  font-size: 14px;
+  white-space: nowrap;
+  margin-left: 10px;
 }
 
 .aaf-badge {
   position: absolute;
   top: -6px;
   right: -6px;
-  background-color: #2563EB;
+  background-color: #f97316;
   color: white;
   border-radius: 10px;
   padding: 0 6px;
   font-size: 10px;
   font-weight: bold;
-  min-width: 18px;
-  height: 18px;
+  min-width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.4);
   opacity: 0;
   transform: scale(0.8);
   transition: opacity 0.3s ease, transform 0.3s ease;
