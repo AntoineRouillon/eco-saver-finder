@@ -1,5 +1,12 @@
 // Variable to store product information
 let currentProductInfo = null;
+// Variable to store all alternatives for filtering
+let allAlternatives = [];
+// Current filter settings
+let currentFilter = {
+  type: 'none', // 'none', 'price', 'date'
+  direction: 'asc' // 'asc', 'desc'
+};
 
 // Create and inject extension UI
 function createExtensionUI() {
@@ -41,7 +48,24 @@ function createExtensionUI() {
           <p>Finding alternatives...</p>
         </div>
         <div class="aaf-results" style="display: none;">
-          <p class="aaf-results-count">Found 0 alternatives on Leboncoin</p>
+          <div class="aaf-filter-controls">
+            <p class="aaf-results-count">Found 0 alternatives on Leboncoin</p>
+            <div class="aaf-filters">
+              <div class="aaf-filter-label">Sort by:</div>
+              <button class="aaf-filter-btn" data-filter="price">
+                Price
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="aaf-filter-icon">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <button class="aaf-filter-btn" data-filter="date">
+                Date
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="aaf-filter-icon">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
           <div class="aaf-items"></div>
         </div>
       </div>
@@ -84,7 +108,60 @@ function createExtensionUI() {
     container.classList.remove('aaf-expanded');
   });
 
+  // Add filter button listeners
+  const priceFilterBtn = container.querySelector('.aaf-filter-btn[data-filter="price"]');
+  const dateFilterBtn = container.querySelector('.aaf-filter-btn[data-filter="date"]');
+  
+  priceFilterBtn.addEventListener('click', () => {
+    toggleFilter('price');
+  });
+  
+  dateFilterBtn.addEventListener('click', () => {
+    toggleFilter('date');
+  });
+
   return container;
+}
+
+// Toggle filter type and direction
+function toggleFilter(filterType) {
+  // If already filtering by this type, toggle direction
+  if (currentFilter.type === filterType) {
+    currentFilter.direction = currentFilter.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Otherwise, set new filter type with default ascending direction
+    currentFilter.type = filterType;
+    currentFilter.direction = 'asc';
+  }
+  
+  // Update UI to reflect current filter
+  updateFilterUI();
+  
+  // Re-render alternatives with the current filter
+  if (allAlternatives.length > 0) {
+    renderFilteredAlternatives();
+  }
+}
+
+// Update the filter button UI to reflect the current filter
+function updateFilterUI() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  // Reset all filter buttons
+  const filterButtons = container.querySelectorAll('.aaf-filter-btn');
+  filterButtons.forEach(btn => {
+    btn.classList.remove('aaf-filter-active', 'aaf-filter-asc', 'aaf-filter-desc');
+  });
+  
+  // If we have an active filter, update the corresponding button
+  if (currentFilter.type !== 'none') {
+    const activeButton = container.querySelector(`.aaf-filter-btn[data-filter="${currentFilter.type}"]`);
+    if (activeButton) {
+      activeButton.classList.add('aaf-filter-active');
+      activeButton.classList.add(`aaf-filter-${currentFilter.direction}`);
+    }
+  }
 }
 
 // Function to request alternatives from the background script
@@ -169,6 +246,20 @@ function createCardFromRawHTML(item) {
   if (url && url.startsWith('/')) {
     url = 'https://www.leboncoin.fr' + url;
   }
+
+  // Extract date if available (for sorting)
+  let dateInfo = '';
+  const dateElement = article.querySelector('[data-test-id="ad-date"]') || 
+                     article.querySelector('.text-caption[aria-label*="il y a"]');
+  if (dateElement) {
+    dateInfo = dateElement.textContent.trim();
+    // Store as data attribute for sorting
+    itemElement.dataset.date = dateInfo;
+  }
+  
+  // Store numeric price for sorting
+  const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
+  itemElement.dataset.price = isNaN(numericPrice) ? '0' : numericPrice.toString();
   
   // Build the item card HTML
   itemElement.innerHTML = `
@@ -196,8 +287,6 @@ function createCardFromRawHTML(item) {
     </div>
   `;
   
-  // We've removed the "Show HTML" button and its event listener
-  
   return itemElement;
 }
 
@@ -205,6 +294,78 @@ function createCardFromRawHTML(item) {
 function extractTextContent(parentElement, selector) {
   const element = parentElement.querySelector(selector);
   return element ? element.textContent.trim() : null;
+}
+
+// Apply current filters to alternatives and render them
+function renderFilteredAlternatives() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const itemsContainer = container.querySelector('.aaf-items');
+  if (!itemsContainer) return;
+  
+  // Clear the container
+  itemsContainer.innerHTML = '';
+  
+  // Create a copy of the alternatives to sort
+  const filteredAlternatives = [...allAlternatives];
+  
+  // Apply sorting if a filter is active
+  if (currentFilter.type !== 'none') {
+    filteredAlternatives.sort((a, b) => {
+      const elemA = document.createElement('div');
+      const elemB = document.createElement('div');
+      
+      // Create temporary elements to extract comparable values
+      const cardA = createCardFromRawHTML({ ...a });
+      const cardB = createCardFromRawHTML({ ...b });
+      
+      if (!cardA || !cardB) return 0;
+      
+      let valueA, valueB;
+      
+      if (currentFilter.type === 'price') {
+        valueA = parseFloat(cardA.dataset.price) || 0;
+        valueB = parseFloat(cardB.dataset.price) || 0;
+      } else if (currentFilter.type === 'date') {
+        // For date, we're using the date text which may be relative
+        // This is a simplification; ideally we'd parse these into actual dates
+        valueA = cardA.dataset.date || '';
+        valueB = cardB.dataset.date || '';
+        
+        // Simple heuristic for relative date sorting (not perfect but a starting point)
+        if (valueA.includes('min') && valueB.includes('h')) return -1;
+        if (valueA.includes('h') && valueB.includes('min')) return 1;
+        if (valueA.includes('h') && valueB.includes('h')) {
+          const hoursA = parseInt(valueA.match(/\d+/)[0]) || 0;
+          const hoursB = parseInt(valueB.match(/\d+/)[0]) || 0;
+          return hoursA - hoursB;
+        }
+        if (valueA.includes('j') && !valueB.includes('j')) return 1;
+        if (!valueA.includes('j') && valueB.includes('j')) return -1;
+        if (valueA.includes('j') && valueB.includes('j')) {
+          const daysA = parseInt(valueA.match(/\d+/)[0]) || 0;
+          const daysB = parseInt(valueB.match(/\d+/)[0]) || 0;
+          return daysA - daysB;
+        }
+        return valueA.localeCompare(valueB);
+      }
+      
+      // Apply sort direction
+      const sortMultiplier = currentFilter.direction === 'asc' ? 1 : -1;
+      return (valueA - valueB) * sortMultiplier;
+    });
+  }
+  
+  // Render the sorted alternatives
+  filteredAlternatives.forEach(item => {
+    if (item.html) {
+      const itemElement = createCardFromRawHTML(item);
+      if (itemElement) {
+        itemsContainer.appendChild(itemElement);
+      }
+    }
+  });
 }
 
 // Render alternatives in the panel
@@ -217,7 +378,6 @@ function renderAlternatives(alternatives) {
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
   const resultsCount = container.querySelector('.aaf-results-count');
-  const itemsContainer = container.querySelector('.aaf-items');
   const badge = container.querySelector('.aaf-badge span');
 
   // Hide loading state
@@ -228,10 +388,10 @@ function renderAlternatives(alternatives) {
   // Check if alternatives is an array and has items
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     // Display no results message
-    if (results && resultsCount && itemsContainer) {
+    if (results && resultsCount) {
       results.style.display = 'block';
       resultsCount.textContent = "No alternatives found";
-      itemsContainer.innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
+      container.querySelector('.aaf-items').innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
     }
     
     // Update the badge count
@@ -242,6 +402,9 @@ function renderAlternatives(alternatives) {
     return;
   }
 
+  // Store all alternatives for filtering
+  allAlternatives = [...alternatives];
+  
   // Update the badge count
   if (badge) {
     badge.textContent = alternatives.length;
@@ -252,19 +415,25 @@ function renderAlternatives(alternatives) {
     resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
   }
 
-  // Clear previous results and add new ones
-  if (itemsContainer) {
-    itemsContainer.innerHTML = '';
-
-    // Add each alternative as a card
-    alternatives.forEach(item => {
-      if (item.html) {
-        const itemElement = createCardFromRawHTML(item);
-        if (itemElement) {
-          itemsContainer.appendChild(itemElement);
+  // Apply any active filters and render
+  if (currentFilter.type !== 'none') {
+    renderFilteredAlternatives();
+  } else {
+    // If no filter is active, render normally
+    const itemsContainer = container.querySelector('.aaf-items');
+    if (itemsContainer) {
+      itemsContainer.innerHTML = '';
+  
+      // Add each alternative as a card
+      alternatives.forEach(item => {
+        if (item.html) {
+          const itemElement = createCardFromRawHTML(item);
+          if (itemElement) {
+            itemsContainer.appendChild(itemElement);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   // Show results
@@ -272,6 +441,9 @@ function renderAlternatives(alternatives) {
     results.style.display = 'block';
   }
 
+  // Reset filter buttons to default state
+  updateFilterUI();
+  
   // Store the alternatives in sessionStorage for persistence
   try {
     sessionStorage.setItem('aaf_alternatives', JSON.stringify(alternatives));
