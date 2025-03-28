@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -167,12 +166,13 @@ function scrapeLeboncoinData() {
     
     console.log(`Found ${itemArticles.length} article elements`);
     
-    // Map through each article to extract data
+    // Map through each article to extract complete HTML
     const items = Array.from(itemArticles).slice(0, 5).map(article => {
       // Store the full HTML of the article
       const html = article.outerHTML;
       
-      // Extract title
+      // Extract minimal data for list display
+      // Get title
       const titleElement = article.querySelector('[data-test-id="adcard-title"]') || 
                           article.querySelector('p.text-body-1.text-on-surface') ||
                           article.querySelector('h2') ||
@@ -180,24 +180,16 @@ function scrapeLeboncoinData() {
       
       const title = titleElement ? titleElement.textContent.trim() : 'No title found';
       
-      // Extract price
+      // Get price
       const priceElement = article.querySelector('[data-test-id="price"]') || 
                            article.querySelector('p.text-callout.text-on-surface') ||
-                           article.querySelector('span.price') ||
-                           article.querySelector('p:contains("€")');
+                           article.querySelector('span.price');
       
       const price = priceElement ? priceElement.textContent.trim() : 'No price found';
       
-      // Extract image
-      const imageElement = article.querySelector('img') || article.querySelector('picture img');
+      // Get image
+      const imageElement = article.querySelector('img');
       const image = imageElement ? imageElement.src : '';
-      
-      // Extract location
-      const locationElement = article.querySelector('.text-caption.text-neutral:last-child') || 
-                              article.querySelector('p[aria-label*="Située à"]') ||
-                              article.querySelector('p.text-caption.text-neutral:nth-child(2)');
-      
-      const location = locationElement ? locationElement.textContent.trim() : 'No location found';
       
       // Extract URL - fix the incomplete URL issue
       const linkElement = article.querySelector('a');
@@ -208,23 +200,12 @@ function scrapeLeboncoinData() {
         url = 'https://www.leboncoin.fr' + url;
       }
       
-      // Check for delivery option
-      const hasDelivery = !!article.querySelector('span[data-spark-component="tag"]:contains("Livraison possible")') ||
-                          !!article.querySelector('*:contains("Livraison possible")');
-      
-      // Check if it's from a pro seller
-      const isPro = !!article.querySelector('span[data-spark-component="tag"]:contains("Pro")') ||
-                    !!article.querySelector('*:contains("Pro")');
-      
       return {
         id: Math.random().toString(36).substring(2, 15),
         title,
         price,
         image,
-        location,
         url,
-        hasDelivery,
-        isPro,
         html  // Store the full HTML of the article
       };
     }).filter(item => item.title !== 'No title found'); // Filter out items with no title
@@ -233,7 +214,6 @@ function scrapeLeboncoinData() {
     
     // If no items were found, return debugging information
     if (items.length === 0) {
-      // Get all articles HTML for debugging
       const allArticlesHTML = Array.from(document.querySelectorAll('article')).map(a => a.outerHTML);
       
       return {
