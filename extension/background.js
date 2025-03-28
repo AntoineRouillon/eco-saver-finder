@@ -107,6 +107,51 @@ function trimProductTitle(title) {
   return title;
 }
 
+// Function to check if the page has fully loaded
+function checkPageLoaded(tabId) {
+  return new Promise((resolve) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      function: () => {
+        // Check if document is in 'complete' state and all resources are loaded
+        return document.readyState === 'complete' && 
+               typeof document.querySelectorAll === 'function';
+      }
+    }).then(results => {
+      const isLoaded = results && results[0]?.result === true;
+      resolve(isLoaded);
+    }).catch(error => {
+      console.error("Error checking page load status:", error);
+      resolve(false);
+    });
+  });
+}
+
+// Function to wait until the page is fully loaded
+async function waitForPageLoad(tabId, timeout = 30000) {
+  console.log("Waiting for page to fully load...");
+  
+  const startTime = Date.now();
+  
+  // Check page load status every 500ms
+  while (Date.now() - startTime < timeout) {
+    const isLoaded = await checkPageLoaded(tabId);
+    
+    if (isLoaded) {
+      console.log("Page fully loaded after", (Date.now() - startTime), "ms");
+      // Additional delay to ensure dynamic content is rendered
+      return new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    
+    // Wait 500ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
+  console.warn("Page load timeout reached after", timeout, "ms");
+  // Return a resolved promise to continue with scraping anyway
+  return Promise.resolve();
+}
+
 // Function to open a pinned tab to Leboncoin with search query
 async function openLeboncoinTab(searchQuery, sourceTabId) {
   console.log("Opening Leboncoin tab with query:", searchQuery);
@@ -153,10 +198,16 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     });
     
     // Add listener for when the tab is loaded
-    const onTabLoaded = (tabId, changeInfo) => {
+    const onTabLoaded = async (tabId, changeInfo) => {
       if (tabId === newTab.id && changeInfo.status === 'complete') {
-        // Wait for the page to fully render
-        setTimeout(() => {
+        // Remove this listener after it's been triggered
+        chrome.tabs.onUpdated.removeListener(onTabLoaded);
+        
+        try {
+          // Wait for the page to be fully loaded before scraping
+          console.log("Page initial load complete, now waiting for full content to load...");
+          await waitForPageLoad(newTab.id);
+          
           // Execute script to scrape data from Leboncoin
           chrome.scripting.executeScript({
             target: { tabId: newTab.id },
@@ -206,10 +257,16 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
             });
             chrome.tabs.remove(newTab.id);
           });
-        }, 3000); // Wait 3 seconds for the page to fully load
-        
-        // Remove this listener after it's been used
-        chrome.tabs.onUpdated.removeListener(onTabLoaded);
+        } catch (error) {
+          console.error("Error waiting for page to load:", error);
+          // Send error to content script
+          chrome.tabs.sendMessage(sourceTabId, {
+            action: "ALTERNATIVES_FOUND",
+            alternatives: [],
+            error: "Error waiting for page to load: " + error.toString()
+          });
+          chrome.tabs.remove(newTab.id);
+        }
       }
     };
     
@@ -230,7 +287,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
           chrome.tabs.remove(newTab.id);
         }
       });
-    }, 20000); // 20 seconds timeout
+    }, 30000); // 30 seconds timeout (increased from 20 to account for additional waiting)
     
   } catch (error) {
     console.error("Error opening Leboncoin tab:", error);
