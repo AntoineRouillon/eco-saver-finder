@@ -1,4 +1,3 @@
-
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -21,14 +20,9 @@ function createExtensionUI() {
   container.innerHTML = `
     <div class="aaf-toggle">
       <div class="aaf-badge">
-        <span>?</span>
+        <span>0</span>
       </div>
-      <div class="aaf-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 16v-8h-8" />
-          <path d="M8 8v8h8" />
-        </svg>
-      </div>
+      <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="Amazon Alternative Finder">
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
@@ -421,7 +415,7 @@ function renderAlternatives(alternatives) {
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
   const resultsCount = container.querySelector('.aaf-results-count');
-  const badge = container.querySelector('.aaf-badge span');
+  const badge = container.querySelector('.aaf-badge');
 
   // Hide loading state
   if (loading) {
@@ -437,9 +431,9 @@ function renderAlternatives(alternatives) {
       container.querySelector('.aaf-items').innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
     }
     
-    // Update the badge count
+    // Hide the badge when no results
     if (badge) {
-      badge.textContent = "0";
+      badge.classList.remove('active');
     }
     
     return;
@@ -448,9 +442,10 @@ function renderAlternatives(alternatives) {
   // Store all alternatives for filtering
   allAlternatives = [...alternatives];
   
-  // Update the badge count
+  // Update the badge count and make it visible
   if (badge) {
-    badge.textContent = alternatives.length;
+    badge.querySelector('span').textContent = alternatives.length;
+    badge.classList.add('active');
   }
 
   // Update the count text
