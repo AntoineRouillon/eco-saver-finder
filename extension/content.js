@@ -114,6 +114,8 @@ function requestAlternatives(productInfo) {
 
 // Render alternatives in the panel
 function renderAlternatives(alternatives) {
+  console.log("Rendering alternatives:", alternatives);
+  
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
 
@@ -122,6 +124,21 @@ function renderAlternatives(alternatives) {
   const resultsCount = container.querySelector('.aaf-results-count');
   const itemsContainer = container.querySelector('.aaf-items');
   const badge = container.querySelector('.aaf-badge span');
+
+  // Check if alternatives is an array
+  if (!Array.isArray(alternatives)) {
+    console.error("Alternatives is not an array:", alternatives);
+    
+    // Display error in the UI
+    if (results && loading && itemsContainer) {
+      loading.style.display = 'none';
+      results.style.display = 'block';
+      resultsCount.textContent = "Error fetching alternatives";
+      itemsContainer.innerHTML = '<div class="aaf-error">Could not retrieve alternatives. Please try again later.</div>';
+    }
+    
+    return;
+  }
 
   // Update the badge count
   if (badge) {
@@ -141,6 +158,16 @@ function renderAlternatives(alternatives) {
     alternatives.forEach(item => {
       const itemElement = document.createElement('div');
       itemElement.className = 'aaf-item';
+      
+      // Create badges for Pro and Delivery options
+      let badges = '';
+      if (item.isPro) {
+        badges += '<span class="aaf-badge-pro">Pro</span>';
+      }
+      if (item.hasDelivery) {
+        badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
+      }
+      
       itemElement.innerHTML = `
         <div class="aaf-item-image">
           <img src="${item.image}" alt="${item.title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
@@ -148,6 +175,7 @@ function renderAlternatives(alternatives) {
         </div>
         <div class="aaf-item-content">
           <h4 class="aaf-item-title">${item.title}</h4>
+          <div class="aaf-item-badges">${badges}</div>
           <div class="aaf-item-footer">
             <span class="aaf-item-price">${item.price}</span>
             <a href="${item.url}" target="_blank" class="aaf-item-link">
@@ -194,7 +222,9 @@ function initExtension() {
     try {
       const storedAlternatives = sessionStorage.getItem('aaf_alternatives');
       if (storedAlternatives) {
-        renderAlternatives(JSON.parse(storedAlternatives));
+        const parsedAlternatives = JSON.parse(storedAlternatives);
+        console.log("Loaded alternatives from sessionStorage:", parsedAlternatives);
+        renderAlternatives(parsedAlternatives);
       }
     } catch (error) {
       console.error("Error loading alternatives from sessionStorage:", error);
@@ -204,6 +234,8 @@ function initExtension() {
 
 // Listen for product info from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Content script received message:", message);
+  
   if (message.action === "PRODUCT_INFO") {
     console.log("Received product info:", message.productInfo);
     

@@ -158,30 +158,63 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
 // Function that will be injected into the Leboncoin page to scrape data
 function scrapeLeboncoinData() {
   try {
-    // Get all item cards
-    const itemCards = document.querySelectorAll('[data-test-id="ad-card"]');
+    console.log("Starting to scrape Leboncoin data");
     
-    // Map through each card to extract data
-    const items = Array.from(itemCards).slice(0, 5).map(card => {
+    // Get all item articles - trying different possible selectors
+    const itemArticles = document.querySelectorAll('article[data-test-id="ad"]') || 
+                         document.querySelectorAll('article[data-qa-id="aditem_container"]') ||
+                         document.querySelectorAll('article');
+    
+    console.log(`Found ${itemArticles.length} article elements`);
+    
+    // Store the full HTML of all articles for debugging
+    const articleHTMLs = Array.from(itemArticles).slice(0, 5).map(article => article.outerHTML);
+    
+    // Map through each article to extract data
+    const items = Array.from(itemArticles).slice(0, 5).map(article => {
       // Extract title
-      const titleElement = card.querySelector('[data-test-id="ad-title"]');
-      const title = titleElement ? titleElement.textContent.trim() : '';
+      const titleElement = article.querySelector('[data-test-id="adcard-title"]') || 
+                          article.querySelector('p.text-body-1.text-on-surface') ||
+                          article.querySelector('h2') ||
+                          article.querySelector('p:not([data-test-id])');
+      
+      const title = titleElement ? titleElement.textContent.trim() : 'No title found';
       
       // Extract price
-      const priceElement = card.querySelector('[data-test-id="ad-price"]');
-      const price = priceElement ? priceElement.textContent.trim() : '';
+      const priceElement = article.querySelector('[data-test-id="price"]') || 
+                           article.querySelector('p.text-callout.text-on-surface') ||
+                           article.querySelector('span.price') ||
+                           article.querySelector('p:contains("€")');
+      
+      const price = priceElement ? priceElement.textContent.trim() : 'No price found';
       
       // Extract image
-      const imageElement = card.querySelector('img');
+      const imageElement = article.querySelector('img') || article.querySelector('picture img');
       const image = imageElement ? imageElement.src : '';
       
       // Extract location
-      const locationElement = card.querySelector('[data-test-id="ad-location"]');
-      const location = locationElement ? locationElement.textContent.trim() : '';
+      const locationElement = article.querySelector('.text-caption.text-neutral:last-child') || 
+                              article.querySelector('p[aria-label*="Située à"]') ||
+                              article.querySelector('p.text-caption.text-neutral:nth-child(2)');
       
-      // Extract URL
-      const linkElement = card.querySelector('a');
-      const url = linkElement ? linkElement.href : '';
+      const location = locationElement ? locationElement.textContent.trim() : 'No location found';
+      
+      // Extract URL - fix the incomplete URL issue
+      const linkElement = article.querySelector('a');
+      let url = linkElement ? linkElement.href : '';
+      
+      // If the URL is relative, make it absolute
+      if (url && url.startsWith('/')) {
+        url = 'https://www.leboncoin.fr' + url;
+      }
+      
+      // Check for delivery option
+      const hasDelivery = !!article.querySelector('span[data-spark-component="tag"]:contains("Livraison possible")') ||
+                          !!article.querySelector('*:contains("Livraison possible")');
+      
+      // Check if it's from a pro seller
+      const isPro = !!article.querySelector('span[data-spark-component="tag"]:contains("Pro")') ||
+                    !!article.querySelector('*:contains("Pro")');
       
       return {
         id: Math.random().toString(36).substring(2, 15),
@@ -189,14 +222,34 @@ function scrapeLeboncoinData() {
         price,
         image,
         location,
-        url
+        url,
+        hasDelivery: hasDelivery || false,
+        isPro: isPro || false,
+        html: article.outerHTML // Store the full HTML for debugging
       };
-    }).filter(item => item.title && item.price); // Filter out items with no title or price
+    }).filter(item => item.title !== 'No title found'); // Filter out items with no title
+    
+    console.log(`Processed ${items.length} items`);
+    
+    // If no items were found, return the HTML of the articles for debugging
+    if (items.length === 0) {
+      return {
+        items: [],
+        debug: {
+          articleCount: itemArticles.length,
+          articleHTMLs: articleHTMLs
+        }
+      };
+    }
     
     return items;
   } catch (error) {
     console.error("Error scraping Leboncoin:", error);
-    return [];
+    return {
+      items: [],
+      error: error.toString(),
+      stack: error.stack
+    };
   }
 }
 
