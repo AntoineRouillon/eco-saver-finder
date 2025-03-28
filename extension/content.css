@@ -17,29 +17,39 @@
   position: absolute;
   right: 0;
   top: 0;
-  background-color: #fff;
+  background-color: #FF6E14;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-right: none;
   border-radius: 4px 0 0 4px;
-  width: 48px;
+  width: auto;
+  min-width: 200px;
   height: 48px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 0 16px;
   cursor: pointer;
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.08);
-  color: #2563EB;
+  color: white;
   transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .aaf-toggle:hover {
-  background-color: #f9fafb;
+  background-color: #E55A00;
+  box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .aaf-toggle img {
   width: 24px;
   height: 24px;
   object-fit: contain;
+  margin-right: 10px;
+}
+
+.aaf-toggle-text {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .aaf-badge {

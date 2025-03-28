@@ -27,6 +27,7 @@ function createExtensionUI() {
         <span>0</span>
       </div>
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="Amazon Alternative Finder">
+      <span class="aaf-toggle-text">Search on leboncoin</span>
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
