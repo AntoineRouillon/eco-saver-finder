@@ -1,5 +1,5 @@
 
-// Import our new summarizer utility
+// Import our summarizer utility
 import { summarizeTitle } from './utils/summarizer.js';
 
 // Cache to store scraped data
