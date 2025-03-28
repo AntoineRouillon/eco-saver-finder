@@ -112,6 +112,40 @@ function requestAlternatives(productInfo) {
   });
 }
 
+// Parse data from HTML string - helper function to extract info from HTML if needed
+function parseDataFromHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const article = doc.querySelector('article');
+  
+  if (!article) return null;
+  
+  // Use the article element to extract data
+  const titleElement = article.querySelector('[data-test-id="adcard-title"]') || 
+                      article.querySelector('p.text-body-1.text-on-surface') ||
+                      article.querySelector('h2') ||
+                      article.querySelector('p:not([data-test-id])');
+  
+  const priceElement = article.querySelector('[data-test-id="price"]') || 
+                       article.querySelector('p.text-callout.text-on-surface') ||
+                       article.querySelector('span.price');
+  
+  const locationElement = article.querySelector('.text-caption.text-neutral:last-child') || 
+                          article.querySelector('p[aria-label*="Située à"]') ||
+                          article.querySelector('p.text-caption.text-neutral:nth-child(2)');
+  
+  const hasDelivery = !!article.textContent.includes('Livraison possible');
+  const isPro = !!article.textContent.includes('Pro');
+  
+  return {
+    title: titleElement ? titleElement.textContent.trim() : 'Unknown title',
+    price: priceElement ? priceElement.textContent.trim() : 'Unknown price',
+    location: locationElement ? locationElement.textContent.trim() : 'Unknown location',
+    hasDelivery,
+    isPro
+  };
+}
+
 // Render alternatives in the panel
 function renderAlternatives(alternatives) {
   console.log("Rendering alternatives:", alternatives);
@@ -168,6 +202,20 @@ function renderAlternatives(alternatives) {
         badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
       }
       
+      // Try to reextract data if needed from HTML
+      if (item.html && (!item.title || item.title === 'No title found')) {
+        const extractedData = parseDataFromHTML(item.html);
+        if (extractedData) {
+          item = { ...item, ...extractedData };
+        }
+      }
+      
+      // Fix incomplete URLs
+      if (item.url && item.url.startsWith('/')) {
+        item.url = 'https://www.leboncoin.fr' + item.url;
+      }
+      
+      // Create full HTML for the item
       itemElement.innerHTML = `
         <div class="aaf-item-image">
           <img src="${item.image}" alt="${item.title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">

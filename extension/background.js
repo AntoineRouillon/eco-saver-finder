@@ -167,11 +167,11 @@ function scrapeLeboncoinData() {
     
     console.log(`Found ${itemArticles.length} article elements`);
     
-    // Store the full HTML of all articles for debugging
-    const articleHTMLs = Array.from(itemArticles).slice(0, 5).map(article => article.outerHTML);
-    
     // Map through each article to extract data
     const items = Array.from(itemArticles).slice(0, 5).map(article => {
+      // Store the full HTML of the article
+      const html = article.outerHTML;
+      
       // Extract title
       const titleElement = article.querySelector('[data-test-id="adcard-title"]') || 
                           article.querySelector('p.text-body-1.text-on-surface') ||
@@ -223,21 +223,25 @@ function scrapeLeboncoinData() {
         image,
         location,
         url,
-        hasDelivery: hasDelivery || false,
-        isPro: isPro || false,
-        html: article.outerHTML // Store the full HTML for debugging
+        hasDelivery,
+        isPro,
+        html  // Store the full HTML of the article
       };
     }).filter(item => item.title !== 'No title found'); // Filter out items with no title
     
     console.log(`Processed ${items.length} items`);
     
-    // If no items were found, return the HTML of the articles for debugging
+    // If no items were found, return debugging information
     if (items.length === 0) {
+      // Get all articles HTML for debugging
+      const allArticlesHTML = Array.from(document.querySelectorAll('article')).map(a => a.outerHTML);
+      
       return {
         items: [],
         debug: {
-          articleCount: itemArticles.length,
-          articleHTMLs: articleHTMLs
+          pageHTML: document.documentElement.outerHTML.substring(0, 10000), // First 10000 chars
+          articleCount: document.querySelectorAll('article').length,
+          articleHTML: allArticlesHTML
         }
       };
     }
@@ -248,7 +252,8 @@ function scrapeLeboncoinData() {
     return {
       items: [],
       error: error.toString(),
-      stack: error.stack
+      stack: error.stack,
+      pageHTML: document.documentElement.outerHTML.substring(0, 10000) // First 10000 chars for debugging
     };
   }
 }
