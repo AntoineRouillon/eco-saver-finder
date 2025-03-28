@@ -17,7 +17,7 @@
   position: absolute;
   right: 0;
   top: 0;
-  background-color: #FF6E14;
+  background-color: #2563EB;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-right: none;
   border-radius: 4px 0 0 4px;
@@ -35,7 +35,7 @@
 }
 
 .aaf-toggle:hover {
-  background-color: #E55A00;
+  background-color: #1D4ED8;
   box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
 }
 
