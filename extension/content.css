@@ -155,7 +155,7 @@
   margin-bottom: 16px;
 }
 
-/* Filter Button and Options */
+/* Dropdown Menu Styles */
 .aaf-filter-controls {
   display: flex;
   justify-content: space-between;
@@ -163,33 +163,31 @@
   margin-bottom: 16px;
 }
 
-.aaf-filter-button {
+.aaf-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.aaf-dropdown-button {
   background-color: white;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  width: 32px;
-  height: 32px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  gap: 6px;
   color: #64748b;
   transition: all 0.2s ease;
-  position: relative;
 }
 
-.aaf-filter-button:hover {
+.aaf-dropdown-button:hover {
   background-color: #f9fafb;
   border-color: rgba(0, 0, 0, 0.2);
 }
 
-.aaf-filter-button.active {
-  color: #2563EB;
-  border-color: #2563EB;
-  background-color: #f0f7ff;
-}
-
-.aaf-filter-menu {
+.aaf-dropdown-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 5px);
@@ -197,56 +195,41 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 180px;
+  min-width: 150px;
   display: none;
   z-index: 1000;
   animation: fadeIn 0.2s ease;
 }
 
-.aaf-show-filter-menu {
+.aaf-show-dropdown {
   display: block;
 }
 
-.aaf-filter-option {
+.aaf-dropdown-item {
   padding: 8px 12px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.aaf-filter-option:hover {
+.aaf-dropdown-item:hover {
   background-color: #f0f9ff;
   color: #2563EB;
 }
 
-.aaf-filter-option.aaf-active {
+.aaf-dropdown-item.aaf-active {
   background-color: #e0f2fe;
   color: #2563EB;
   font-weight: 500;
 }
 
-.aaf-filter-option:first-child {
+.aaf-dropdown-item:first-child {
   border-radius: 4px 4px 0 0;
 }
 
-.aaf-filter-option:last-child {
+.aaf-dropdown-item:last-child {
   border-radius: 0 0 4px 4px;
-}
-
-.aaf-filter-option-text {
-  flex-grow: 1;
-}
-
-.aaf-filter-option-icon {
-  opacity: 0;
-}
-
-.aaf-filter-option.aaf-active .aaf-filter-option-icon {
-  opacity: 1;
 }
 
 /* Items */
