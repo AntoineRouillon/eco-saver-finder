@@ -36,5 +36,11 @@
       "js": ["content.js"],
       "css": ["content.css"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["https://*.amazon.fr/*"]
+    }
   ]
 }
