@@ -1,3 +1,7 @@
+
+// Import our new summarizer utility
+import { summarizeTitle } from './utils/summarizer.js';
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -60,24 +64,30 @@ function getProductInfo() {
 
 // Function to open a pinned tab to Leboncoin with search query
 async function openLeboncoinTab(searchQuery, sourceTabId) {
-  console.log("Opening Leboncoin tab with query:", searchQuery);
+  console.log("Original query:", searchQuery);
+  
+  // Summarize the title to get a better search query
+  const summarizedQuery = await summarizeTitle(searchQuery);
+  console.log("Summarized query:", summarizedQuery);
   
   // Check if we have cached data for this query
-  const cacheKey = searchQuery.trim().toLowerCase();
+  const cacheKey = summarizedQuery.trim().toLowerCase();
   if (scrapedDataCache[cacheKey]) {
     console.log("Using cached data for query:", cacheKey);
     
     // Send the cached data to the content script
     chrome.tabs.sendMessage(sourceTabId, {
       action: "ALTERNATIVES_FOUND",
-      alternatives: scrapedDataCache[cacheKey]
+      alternatives: scrapedDataCache[cacheKey],
+      originalQuery: searchQuery,
+      summarizedQuery: summarizedQuery
     });
     
     return;
   }
   
   // Create the search URL for Leboncoin
-  const searchUrl = `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(searchQuery)}`;
+  const searchUrl = `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(summarizedQuery)}`;
   
   try {
     // Open a new pinned tab with the search URL
@@ -90,7 +100,8 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     // Store the source tab ID and query for later reference
     const scrapingData = {
       sourceTabId: sourceTabId,
-      query: searchQuery,
+      query: summarizedQuery,
+      originalQuery: searchQuery,
       timestamp: Date.now()
     };
     
