@@ -28,13 +28,15 @@
     "https://*.leboncoin.fr/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["https://*.amazon.fr/*"],
       "js": ["content.js"],
-      "css": ["content.css"]
+      "css": ["content.css"],
+      "type": "module"
     }
   ]
 }
