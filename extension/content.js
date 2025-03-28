@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -50,20 +51,27 @@ function createExtensionUI() {
         <div class="aaf-results" style="display: none;">
           <div class="aaf-filter-controls">
             <p class="aaf-results-count">Found 0 alternatives on Leboncoin</p>
-            <div class="aaf-filters">
-              <div class="aaf-filter-label">Sort by:</div>
-              <button class="aaf-filter-btn" data-filter="price">
-                Price
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="aaf-filter-icon">
+            <div class="aaf-dropdown-container">
+              <button class="aaf-dropdown-button">
+                <span>Sort by</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
-              <button class="aaf-filter-btn" data-filter="date">
-                Date
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="aaf-filter-icon">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
+              <div class="aaf-dropdown-menu">
+                <div class="aaf-dropdown-item" data-filter="price" data-direction="asc">
+                  <span>Price (Low to High)</span>
+                </div>
+                <div class="aaf-dropdown-item" data-filter="price" data-direction="desc">
+                  <span>Price (High to Low)</span>
+                </div>
+                <div class="aaf-dropdown-item" data-filter="date" data-direction="asc">
+                  <span>Date (Newest First)</span>
+                </div>
+                <div class="aaf-dropdown-item" data-filter="date" data-direction="desc">
+                  <span>Date (Oldest First)</span>
+                </div>
+              </div>
             </div>
           </div>
           <div class="aaf-items"></div>
@@ -108,39 +116,41 @@ function createExtensionUI() {
     container.classList.remove('aaf-expanded');
   });
 
-  // Add filter button listeners
-  const priceFilterBtn = container.querySelector('.aaf-filter-btn[data-filter="price"]');
-  const dateFilterBtn = container.querySelector('.aaf-filter-btn[data-filter="date"]');
+  // Add dropdown toggle listener
+  const dropdownButton = container.querySelector('.aaf-dropdown-button');
+  const dropdownMenu = container.querySelector('.aaf-dropdown-menu');
   
-  priceFilterBtn.addEventListener('click', () => {
-    toggleFilter('price');
+  dropdownButton.addEventListener('click', () => {
+    dropdownMenu.classList.toggle('aaf-show-dropdown');
   });
   
-  dateFilterBtn.addEventListener('click', () => {
-    toggleFilter('date');
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.aaf-dropdown-container')) {
+      const allDropdowns = document.querySelectorAll('.aaf-dropdown-menu');
+      allDropdowns.forEach(dropdown => dropdown.classList.remove('aaf-show-dropdown'));
+    }
+  });
+
+  // Add dropdown item listeners
+  const dropdownItems = container.querySelectorAll('.aaf-dropdown-item');
+  dropdownItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const filterType = item.getAttribute('data-filter');
+      const direction = item.getAttribute('data-direction');
+      
+      // Update filter and close dropdown
+      if (filterType && direction) {
+        currentFilter.type = filterType;
+        currentFilter.direction = direction;
+        updateFilterUI();
+        renderFilteredAlternatives();
+        dropdownMenu.classList.remove('aaf-show-dropdown');
+      }
+    });
   });
 
   return container;
-}
-
-// Toggle filter type and direction
-function toggleFilter(filterType) {
-  // If already filtering by this type, toggle direction
-  if (currentFilter.type === filterType) {
-    currentFilter.direction = currentFilter.direction === 'asc' ? 'desc' : 'asc';
-  } else {
-    // Otherwise, set new filter type with default ascending direction
-    currentFilter.type = filterType;
-    currentFilter.direction = 'asc';
-  }
-  
-  // Update UI to reflect current filter
-  updateFilterUI();
-  
-  // Re-render alternatives with the current filter
-  if (allAlternatives.length > 0) {
-    renderFilteredAlternatives();
-  }
 }
 
 // Update the filter button UI to reflect the current filter
@@ -148,20 +158,38 @@ function updateFilterUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
   
-  // Reset all filter buttons
-  const filterButtons = container.querySelectorAll('.aaf-filter-btn');
-  filterButtons.forEach(btn => {
-    btn.classList.remove('aaf-filter-active', 'aaf-filter-asc', 'aaf-filter-desc');
-  });
+  const dropdownButton = container.querySelector('.aaf-dropdown-button span');
+  if (!dropdownButton) return;
   
-  // If we have an active filter, update the corresponding button
-  if (currentFilter.type !== 'none') {
-    const activeButton = container.querySelector(`.aaf-filter-btn[data-filter="${currentFilter.type}"]`);
-    if (activeButton) {
-      activeButton.classList.add('aaf-filter-active');
-      activeButton.classList.add(`aaf-filter-${currentFilter.direction}`);
+  // Update dropdown button text based on current filter
+  if (currentFilter.type === 'price') {
+    if (currentFilter.direction === 'asc') {
+      dropdownButton.textContent = 'Price: Low to High';
+    } else {
+      dropdownButton.textContent = 'Price: High to Low';
     }
+  } else if (currentFilter.type === 'date') {
+    if (currentFilter.direction === 'asc') {
+      dropdownButton.textContent = 'Date: Newest First';
+    } else {
+      dropdownButton.textContent = 'Date: Oldest First';
+    }
+  } else {
+    dropdownButton.textContent = 'Sort by';
   }
+  
+  // Update active state in dropdown menu
+  const dropdownItems = container.querySelectorAll('.aaf-dropdown-item');
+  dropdownItems.forEach(item => {
+    item.classList.remove('aaf-active');
+    
+    const itemFilter = item.getAttribute('data-filter');
+    const itemDirection = item.getAttribute('data-direction');
+    
+    if (itemFilter === currentFilter.type && itemDirection === currentFilter.direction) {
+      item.classList.add('aaf-active');
+    }
+  });
 }
 
 // Function to request alternatives from the background script

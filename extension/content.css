@@ -155,6 +155,84 @@
   margin-bottom: 16px;
 }
 
+/* Dropdown Menu Styles */
+.aaf-filter-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.aaf-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.aaf-dropdown-button {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.aaf-dropdown-button:hover {
+  background-color: #f9fafb;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.aaf-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  display: none;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.aaf-show-dropdown {
+  display: block;
+}
+
+.aaf-dropdown-item {
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.aaf-dropdown-item:hover {
+  background-color: #f0f9ff;
+  color: #2563EB;
+}
+
+.aaf-dropdown-item.aaf-active {
+  background-color: #e0f2fe;
+  color: #2563EB;
+  font-weight: 500;
+}
+
+.aaf-dropdown-item:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.aaf-dropdown-item:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+/* Items */
 .aaf-items {
   display: flex;
   flex-direction: column;
@@ -361,8 +439,6 @@
   word-break: break-all;
   display: none;
 }
-
-/* Removed the show-html-btn CSS */
 
 /* Debug button for raw HTML */
 .aaf-debug-toggle {
