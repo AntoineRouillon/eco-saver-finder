@@ -1,4 +1,3 @@
-
 // Variable to store product information
 let currentProductInfo = null;
 

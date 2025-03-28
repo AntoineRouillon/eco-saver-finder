@@ -59,12 +59,65 @@ function getProductInfo() {
   };
 }
 
+/**
+ * Function to trim the product title to improve search results
+ * Cuts the title after the first comma, colon, or dash
+ */
+function trimProductTitle(title) {
+  if (!title) return '';
+  
+  // Find the first occurrence of a comma, colon, or dash
+  const commaIndex = title.indexOf(',');
+  const colonIndex = title.indexOf(':');
+  const dashIndex = title.indexOf(' - ');
+  
+  let cutIndex = title.length;
+  
+  // Find the earliest delimiter
+  if (commaIndex !== -1) {
+    cutIndex = commaIndex;
+  }
+  
+  if (colonIndex !== -1 && colonIndex < cutIndex) {
+    cutIndex = colonIndex;
+  }
+  
+  if (dashIndex !== -1 && dashIndex < cutIndex) {
+    cutIndex = dashIndex;
+  }
+  
+  // If we found a delimiter, cut the title
+  if (cutIndex < title.length) {
+    return title.substring(0, cutIndex).trim();
+  }
+  
+  // If the title is still very long, cut it to a reasonable length
+  if (title.length > 60) {
+    const words = title.split(' ');
+    let shortTitle = '';
+    for (let i = 0; i < words.length; i++) {
+      if ((shortTitle + ' ' + words[i]).length <= 60) {
+        shortTitle += (i === 0 ? '' : ' ') + words[i];
+      } else {
+        break;
+      }
+    }
+    return shortTitle;
+  }
+  
+  return title;
+}
+
 // Function to open a pinned tab to Leboncoin with search query
 async function openLeboncoinTab(searchQuery, sourceTabId) {
   console.log("Opening Leboncoin tab with query:", searchQuery);
   
+  // Apply the trimming function to the search query
+  const trimmedQuery = trimProductTitle(searchQuery);
+  console.log("Trimmed query for better search results:", trimmedQuery);
+  
   // Check if we have cached data for this query
-  const cacheKey = searchQuery.trim().toLowerCase();
+  const cacheKey = trimmedQuery.trim().toLowerCase();
   if (scrapedDataCache[cacheKey]) {
     console.log("Using cached data for query:", cacheKey);
     
@@ -78,7 +131,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
   }
   
   // Create the search URL for Leboncoin
-  const searchUrl = `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(searchQuery)}`;
+  const searchUrl = `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(trimmedQuery)}`;
   
   try {
     // Open a new pinned tab with the search URL
@@ -91,7 +144,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     // Store the source tab ID and query for later reference
     const scrapingData = {
       sourceTabId: sourceTabId,
-      query: searchQuery,
+      query: trimmedQuery,
       timestamp: Date.now()
     };
     
