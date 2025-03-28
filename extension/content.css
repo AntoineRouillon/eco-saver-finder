@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -358,28 +359,10 @@
   white-space: pre-wrap;
   max-height: 300px;
   word-break: break-all;
+  display: none;
 }
 
-.aaf-item:hover .aaf-item-raw-html {
-  max-height: 0;
-}
-
-/* Show HTML button */
-.aaf-show-html-btn {
-  width: 100%;
-  padding: 6px;
-  margin-top: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.aaf-show-html-btn:hover {
-  background-color: #e0e0e0;
-}
+/* Removed the show-html-btn CSS */
 
 /* Debug button for raw HTML */
 .aaf-debug-toggle {
