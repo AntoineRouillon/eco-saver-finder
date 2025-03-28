@@ -112,49 +112,51 @@ function requestAlternatives(productInfo) {
   });
 }
 
-// Create a formatted card from the raw HTML
-function createCardFromHTML(item) {
-  // Create a container for the item
+// Create a card from the raw article HTML
+function createCardFromRawHTML(item) {
   const itemElement = document.createElement('div');
   itemElement.className = 'aaf-item';
   
-  // Extract basic data for display
+  // Parse the HTML
   const parser = new DOMParser();
-  const articleDoc = parser.parseFromString(item.html, 'text/html');
-  const article = articleDoc.querySelector('article');
+  const doc = parser.parseFromString(item.html, 'text/html');
+  const article = doc.querySelector('article');
   
-  // Extract title from the article
-  const titleElement = article.querySelector('[data-test-id="adcard-title"]') || 
-                       article.querySelector('p.text-body-1.text-on-surface') ||
-                       article.querySelector('h2') ||
-                       article.querySelector('p:not([data-test-id])');
+  if (!article) {
+    console.error('No article element found in HTML');
+    return null;
+  }
   
-  // Extract price from the article
-  const priceElement = article.querySelector('[data-test-id="price"]') || 
-                      article.querySelector('p.text-callout.text-on-surface') ||
-                      article.querySelector('span.price');
+  // Try to extract basic information for display
+  // Price
+  const price = extractTextContent(article, '[data-test-id="price"]') || 
+                extractTextContent(article, '.text-callout.text-on-surface') || 
+                'Price not available';
   
-  // Extract location from the article
-  const locationElement = article.querySelector('.text-caption.text-neutral:last-child') || 
-                         article.querySelector('p[aria-label*="Située à"]') ||
-                         article.querySelector('p.text-caption.text-neutral:nth-child(2)');
+  // Title
+  const title = extractTextContent(article, '[data-test-id="adcard-title"]') || 
+                extractTextContent(article, '.text-body-1.text-on-surface') ||
+                extractTextContent(article, 'h2') || 
+                'Item title';
   
-  // Extract pro badge
+  // Location
+  const location = extractTextContent(article, '.text-caption.text-neutral:last-child') || 
+                  extractTextContent(article, 'p[aria-label*="Située à"]') || 
+                  extractTextContent(article, '.text-caption.text-neutral') || 
+                  'Location not available';
+  
+  // Image
+  let imageUrl = '';
+  const imgElement = article.querySelector('img');
+  if (imgElement && imgElement.src) {
+    imageUrl = imgElement.src;
+  }
+  
+  // Check for badges
   const isPro = article.textContent.includes('Pro');
-  
-  // Extract delivery option
   const hasDelivery = article.textContent.includes('Livraison possible');
   
-  // Extract image from the article
-  const imageElement = article.querySelector('img');
-  
-  // Get the data
-  const title = titleElement ? titleElement.textContent.trim() : item.title;
-  const price = priceElement ? priceElement.textContent.trim() : item.price;
-  const location = locationElement ? locationElement.textContent.trim() : 'Unknown location';
-  const image = imageElement ? imageElement.src : item.image;
-  
-  // Create badges HTML
+  // Create badge HTML
   let badges = '';
   if (isPro) {
     badges += '<span class="aaf-badge-pro">Pro</span>';
@@ -163,16 +165,16 @@ function createCardFromHTML(item) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
   }
   
-  // Ensure URL is absolute
-  let url = item.url;
+  // Get URL (if available)
+  let url = item.url || '#';
   if (url && url.startsWith('/')) {
     url = 'https://www.leboncoin.fr' + url;
   }
   
-  // Build the HTML for the card
+  // Build the item card HTML
   itemElement.innerHTML = `
     <div class="aaf-item-image">
-      <img src="${image}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
+      <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
       <div class="aaf-item-location">${location}</div>
     </div>
     <div class="aaf-item-content">
@@ -190,10 +192,35 @@ function createCardFromHTML(item) {
         </a>
       </div>
     </div>
-    <div class="aaf-item-raw-html" style="display: none;">${item.html}</div>
+    <button class="aaf-show-html-btn">Show HTML</button>
+    <div class="aaf-item-raw-html" style="display: none;">
+      ${item.html}
+    </div>
   `;
   
+  // Add event listener for the "Show HTML" button
+  const showHtmlBtn = itemElement.querySelector('.aaf-show-html-btn');
+  const rawHtml = itemElement.querySelector('.aaf-item-raw-html');
+  
+  if (showHtmlBtn && rawHtml) {
+    showHtmlBtn.addEventListener('click', () => {
+      if (rawHtml.style.display === 'none') {
+        rawHtml.style.display = 'block';
+        showHtmlBtn.textContent = 'Hide HTML';
+      } else {
+        rawHtml.style.display = 'none';
+        showHtmlBtn.textContent = 'Show HTML';
+      }
+    });
+  }
+  
   return itemElement;
+}
+
+// Helper function to extract text content from elements
+function extractTextContent(parentElement, selector) {
+  const element = parentElement.querySelector(selector);
+  return element ? element.textContent.trim() : null;
 }
 
 // Render alternatives in the panel
@@ -209,16 +236,23 @@ function renderAlternatives(alternatives) {
   const itemsContainer = container.querySelector('.aaf-items');
   const badge = container.querySelector('.aaf-badge span');
 
-  // Check if alternatives is an array
-  if (!Array.isArray(alternatives)) {
-    console.error("Alternatives is not an array:", alternatives);
-    
-    // Display error in the UI
-    if (results && loading && itemsContainer) {
-      loading.style.display = 'none';
+  // Hide loading state
+  if (loading) {
+    loading.style.display = 'none';
+  }
+
+  // Check if alternatives is an array and has items
+  if (!Array.isArray(alternatives) || alternatives.length === 0) {
+    // Display no results message
+    if (results && resultsCount && itemsContainer) {
       results.style.display = 'block';
-      resultsCount.textContent = "Error fetching alternatives";
-      itemsContainer.innerHTML = '<div class="aaf-error">Could not retrieve alternatives. Please try again later.</div>';
+      resultsCount.textContent = "No alternatives found";
+      itemsContainer.innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
+    }
+    
+    // Update the badge count
+    if (badge) {
+      badge.textContent = "0";
     }
     
     return;
@@ -234,22 +268,23 @@ function renderAlternatives(alternatives) {
     resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
   }
 
-  // Clear previous results
+  // Clear previous results and add new ones
   if (itemsContainer) {
     itemsContainer.innerHTML = '';
 
-    // Add each alternative as a formatted card
+    // Add each alternative as a card
     alternatives.forEach(item => {
       if (item.html) {
-        const itemElement = createCardFromHTML(item);
-        itemsContainer.appendChild(itemElement);
+        const itemElement = createCardFromRawHTML(item);
+        if (itemElement) {
+          itemsContainer.appendChild(itemElement);
+        }
       }
     });
   }
 
-  // Hide loading, show results
-  if (loading && results) {
-    loading.style.display = 'none';
+  // Show results
+  if (results) {
     results.style.display = 'block';
   }
 
