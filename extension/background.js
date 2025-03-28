@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -269,7 +268,7 @@ function scrapeLeboncoinData() {
     }
     
     // Map through each article to extract data
-    const items = Array.from(itemArticles).slice(0, 5).map(article => {
+    const items = Array.from(itemArticles).map(article => {
       // Store the full HTML of the article
       const html = article.outerHTML;
       
