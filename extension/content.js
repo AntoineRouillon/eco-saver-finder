@@ -275,9 +275,6 @@ function createCardFromRawHTML(item) {
   // Date - utiliser la nouvelle fonction extractDate
   const date = extractDate(article);
 
-  // Date - extraire la date de l'annonce
-  const date = extractDate(article);
-
   // Image
   let imageUrl = '';
   const imgElement = article.querySelector('img');
@@ -309,13 +306,7 @@ function createCardFromRawHTML(item) {
   }
 
   // Stocker la date pour le tri
-<<<<<<< HEAD
-  if (date) {
-    itemElement.dataset.date = date;
-  }
-=======
   itemElement.dataset.date = date;
->>>>>>> a2dc5556654a635154ac19e69cf7ecc80932e9c4
 
   // Stocker le prix numérique pour le tri
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
@@ -361,35 +352,9 @@ function extractTextContent(parentElement, selector) {
   return element ? element.textContent.trim() : null;
 }
 
-// Fonction pour extraire la date de l'annonce
-function extractDate(article) {
-  // Chercher l'élément avec aria-label contenant "il y a" qui est généralement la date
-  const dateElement = article.querySelector('p[aria-label*="il y a"]') ||
-                      article.querySelector('p[aria-label="Aujourd\'hui"]');
-
-  if (dateElement) {
-    return dateElement.textContent.trim();
-  }
-
-  // Chercher parmi tous les éléments text-caption pour trouver une indication de date
-  const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-  for (const caption of allCaptions) {
-    const text = caption.textContent.trim();
-    if (text.startsWith("il y a") || text === "Aujourd'hui" || text === "Hier") {
-      return text;
-    }
-  }
-
-  return null;
-}
-
-// Fonction améliorée pour extraire la localisation avec précision
+// Fonction améliorée pour extraire la localisation avec plus de précision
 function extractLocation(article) {
-<<<<<<< HEAD
-  // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
-=======
   // Essayer d'abord les sélecteurs spécifiques avec aria-label contenant "Située à"
->>>>>>> a2dc5556654a635154ac19e69cf7ecc80932e9c4
   const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
   if (locationWithAriaLabel) {
     // Extrait uniquement la partie ville de l'aria-label
@@ -397,50 +362,16 @@ function extractLocation(article) {
     const match = ariaLabel.match(/Située à ([^\.]+)/);
     return match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
   }
-<<<<<<< HEAD
-
-  // Sélecteurs alternatifs par ordre de précision
-=======
   
   // Sélecteurs alternatifs par ordre de précision, en excluant explicitement les dates
->>>>>>> a2dc5556654a635154ac19e69cf7ecc80932e9c4
   const selectors = [
     'p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
     '.adcard_8f3833cd8 p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
     'div:last-child > p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
   ];
-
+  
   // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
   for (const selector of selectors) {
-<<<<<<< HEAD
-    const element = article.querySelector(selector);
-    if (element) {
-      const text = element.textContent.trim();
-      // Éviter de capturer la date (commence souvent par "il y a")
-      if (text && !text.startsWith("il y a") && text !== "Aujourd'hui" && text !== "Hier") {
-        location = text;
-        break;
-      }
-    }
-  }
-
-  // Si on n'a toujours pas trouvé, on essaie une approche plus générique
-  if (!location) {
-    // Chercher tous les éléments text-caption et analyser leur contenu
-    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-    for (const caption of allCaptions) {
-      const text = caption.textContent.trim();
-      // Éviter les textes qui semblent être des dates ou des catégories
-      if (text && !text.includes('il y a') && !text.includes('Tech') &&
-          text !== "Aujourd'hui" && text !== "Hier") {
-        location = text;
-        break;
-      }
-    }
-  }
-
-  return location || 'Lieu non disponible';
-=======
     const elements = Array.from(article.querySelectorAll(selector));
     // Filter out elements that are likely not location (e.g., category, date)
     const locationCandidate = elements.find(el => {
@@ -487,7 +418,6 @@ function extractDate(article) {
   }
   
   return '';
->>>>>>> a2dc5556654a635154ac19e69cf7ecc80932e9c4
 }
 
 // Appliquer les filtres actuels aux alternatives et les afficher
