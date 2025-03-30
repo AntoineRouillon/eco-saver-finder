@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -167,7 +166,8 @@ function checkNoResults(tabId) {
         const noResultsTexts = [
           "Aucune annonce",
           "Pas de résultat",
-          "Aucun résultat"
+          "Aucun résultat",
+          "Désolés, nous n'avons pas ça sous la main"
         ];
         
         const hasNoResultsText = noResultsTexts.some(text => 
@@ -176,6 +176,8 @@ function checkNoResults(tabId) {
         
         // Check for common "no results" UI patterns
         const noResultSelectors = [
+          // Main selector provided by user
+          'p[data-test-id="noErrorMainMessage"]',
           // Original selectors
           '#noResultMessages',
           '.noResultMessages',
@@ -212,7 +214,8 @@ function checkNoResults(tabId) {
           hasNoResultElement, 
           noAdItems,
           pageTitle: document.title,
-          bodyText: pageText.substring(0, 200) // First 200 chars for debugging
+          bodyText: pageText.substring(0, 200), // First 200 chars for debugging
+          specificElementFound: document.querySelector('p[data-test-id="noErrorMainMessage"]') !== null
         });
         
         // If we have text indicating no results OR a no-result element OR no ad items, consider it "no results"
