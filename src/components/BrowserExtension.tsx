@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -60,30 +59,24 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fonction améliorée pour extraire la localisation avec précision
   const extractLocation = (article) => {
-    // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
     const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
     if (locationWithAriaLabel) {
-      // Extrait uniquement la partie ville de l'aria-label
       const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
       const match = ariaLabel.match(/Située à ([^,]+)/);
       return match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
     }
     
-    // Sélecteurs alternatifs par ordre de précision
     const selectors = [
       'p.text-caption.text-neutral:last-of-type',
       '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child',
       'div:last-child > p.text-caption.text-neutral:last-child',
     ];
     
-    // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
     for (const selector of selectors) {
       const element = article.querySelector(selector);
       if (element) {
         const text = element.textContent.trim();
-        // Éviter de capturer la date (commence souvent par "il y a")
         if (text && !text.startsWith("il y a")) {
           return text;
         }
@@ -100,14 +93,12 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     if (!article) return null;
     
-    // Nous ne récupérons plus le badge Pro
-    const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
-    const location = extractLocation(article);
-    
-    return {
-      hasDelivery: deliveryBadge,
-      location: location
+    const htmlData = {
+      hasDelivery: article.querySelector('.text-on-support-container') !== null,
+      location: extractLocation(article)
     };
+    
+    return htmlData;
   };
 
   const renderNoResults = () => {
@@ -193,7 +184,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 
                 {products.map((product) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
-                  // Utiliser soit la localisation extraite du HTML, soit celle du produit
                   const location = htmlData?.location || product.location;
                   
                   return (
@@ -211,29 +201,23 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           alt={product.title} 
                           className="object-cover w-full h-full"
                         />
-                        <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                          {location}
-                        </div>
                       </div>
                       <div className="p-3">
                         <h4 className="text-sm font-medium text-gray-900 line-clamp-2 h-10">
                           {product.title}
                         </h4>
                         
-                        {htmlData && (
-                          <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                            {/* Suppression du badge Pro */}
-                            {htmlData.hasDelivery ? (
-                              <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
-                                Livraison possible
-                              </span>
-                            ) : (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                                {location}
-                              </span>
-                            )}
-                          </div>
-                        )}
+                        <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                            {location}
+                          </span>
+
+                          {htmlData?.hasDelivery && (
+                            <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
+                              Livraison possible
+                            </span>
+                          )}
+                        </div>
                         
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-[#4AB07B] font-medium">{product.price}</span>
@@ -242,7 +226,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                             size="sm"
                             className="text-xs text-gray-600 hover:text-[#4AB07B] p-1 h-auto"
                             onClick={(e) => {
-                              e.stopPropagation(); // Empêcher le clic sur la carte de se déclencher
+                              e.stopPropagation();
                               window.open(product.url, '_blank');
                             }}
                           >
