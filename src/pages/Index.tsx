@@ -11,7 +11,7 @@ const Index = () => {
     <div className="bg-neutral-50 min-h-screen">
       {/* Hero Section */}
       <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-neutral-50 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-green-50 to-neutral-50 z-0"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -20,7 +20,7 @@ const Index = () => {
             className="text-center space-y-4"
           >
             <div className="mb-2">
-              <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-blue-50 text-blue-800 rounded-full">
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-green-50 text-green-800 rounded-full">
                 Smart Shopping
               </span>
             </div>
@@ -33,7 +33,7 @@ const Index = () => {
             <div className="mt-8 flex justify-center gap-4">
               <Button 
                 onClick={() => setShowDemo(true)}
-                className="px-5 py-6 rounded-xl bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="px-5 py-6 rounded-xl bg-[#4AB07B] hover:bg-[#3d9366] transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 See how it works
               </Button>
