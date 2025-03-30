@@ -2,7 +2,8 @@
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
-  top: 120px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 0;
   z-index: 9999;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

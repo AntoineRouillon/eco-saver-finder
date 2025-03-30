@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -211,7 +210,9 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-gray-500">
-                    {products.length} alternatives trouvées sur Leboncoin
+                    {products.length === 1 
+                      ? "1 alternative trouvée sur Leboncoin" 
+                      : `${products.length} alternatives trouvées sur Leboncoin`}
                   </p>
                   <Button
                     variant="outline"
