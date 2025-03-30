@@ -80,7 +80,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <svg 
-          className="w-16 h-16 mb-4 text-blue-600" 
+          className="w-16 h-16 mb-4 text-[#4AB07B]" 
           xmlns="http://www.w3.org/2000/svg" 
           viewBox="0 0 121.7 122.88"
           fill="currentColor"
@@ -102,7 +102,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     >
       <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <div>
-          <div className="text-xs font-medium text-blue-600">Amazon Alternative Finder</div>
+          <div className="text-xs font-medium text-[#4AB07B]">Amazon Alternative Finder</div>
           <h3 className="text-sm font-medium">Second-hand alternatives</h3>
         </div>
         <button
@@ -192,7 +192,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                               </span>
                             )}
                             {htmlData.hasDelivery && (
-                              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
+                              <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
                                 Livraison possible
                               </span>
                             )}
@@ -200,11 +200,11 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                         )}
                         
                         <div className="mt-2 flex items-center justify-between">
-                          <span className="text-blue-600 font-medium">{product.price}</span>
+                          <span className="text-[#4AB07B] font-medium">{product.price}</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-xs text-gray-600 hover:text-blue-600 p-1 h-auto"
+                            className="text-xs text-gray-600 hover:text-[#4AB07B] p-1 h-auto"
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click from firing
                               window.open(product.url, '_blank');

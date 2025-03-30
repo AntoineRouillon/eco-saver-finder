@@ -160,8 +160,8 @@ const Index = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                <div className="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <span className="text-blue-600 font-medium">{step.step}</span>
+                <div className="bg-green-50 w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-[#4AB07B] font-medium">{step.step}</span>
                 </div>
                 <h3 className="text-xl font-medium text-center text-gray-900 mb-3">{step.title}</h3>
                 <p className="text-gray-500 text-center">{step.description}</p>
