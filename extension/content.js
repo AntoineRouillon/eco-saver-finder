@@ -268,11 +268,8 @@ function createCardFromRawHTML(item) {
                 extractTextContent(article, 'h2') ||
                 'Titre de l\'article';
 
-  // Emplacement
-  const location = extractTextContent(article, '.text-caption.text-neutral:last-child') ||
-                  extractTextContent(article, 'p[aria-label*="Située à"]') ||
-                  extractTextContent(article, '.text-caption.text-neutral') ||
-                  'Lieu non disponible';
+  // Emplacement - utiliser notre fonction améliorée
+  const location = extractLocation(article);
 
   // Image
   let imageUrl = '';
@@ -348,10 +345,62 @@ function createCardFromRawHTML(item) {
   return itemElement;
 }
 
-// Fonction auxiliaire pour extraire le contenu textuel des éléments
+// Fonction auxiliaire pour extraire le contenu textuel des éléments avec une meilleure précision
 function extractTextContent(parentElement, selector) {
   const element = parentElement.querySelector(selector);
   return element ? element.textContent.trim() : null;
+}
+
+// Fonction améliorée pour extraire la localisation avec plus de précision
+function extractLocation(article) {
+  // Essayer d'abord les sélecteurs spécifiques à la localisation
+  let location = null;
+  
+  // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
+  const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
+  if (locationWithAriaLabel) {
+    // Extrait uniquement la partie ville de l'aria-label
+    const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
+    const match = ariaLabel.match(/Située à ([^,]+)/);
+    location = match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
+    return location;
+  }
+  
+  // Sélecteurs alternatifs par ordre de précision
+  const selectors = [
+    'p.text-caption.text-neutral:last-of-type', // Souvent le dernier paragraphe avec cette classe est la localisation
+    '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child', // Sélecteur plus spécifique
+    'div:last-child > p.text-caption.text-neutral:last-child', // Cibler le dernier élément de localisation
+  ];
+  
+  // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
+  for (const selector of selectors) {
+    const element = article.querySelector(selector);
+    if (element) {
+      const text = element.textContent.trim();
+      // Éviter de capturer la date (commence souvent par "il y a")
+      if (text && !text.startsWith("il y a")) {
+        location = text;
+        break;
+      }
+    }
+  }
+  
+  // Si on n'a toujours pas trouvé, on essaie une approche plus générique
+  if (!location) {
+    // Chercher tous les éléments text-caption et analyser leur contenu
+    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
+    for (const caption of allCaptions) {
+      const text = caption.textContent.trim();
+      // Éviter les textes qui semblent être des dates
+      if (text && !text.includes('il y a') && !text.includes('Tech')) {
+        location = text;
+        break;
+      }
+    }
+  }
+  
+  return location || 'Lieu non disponible';
 }
 
 // Appliquer les filtres actuels aux alternatives et les afficher

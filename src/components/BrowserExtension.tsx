@@ -60,7 +60,40 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const extractDataFromHTML = (html: string) => {
+  // Fonction améliorée pour extraire la localisation avec précision
+  const extractLocation = (article) => {
+    // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
+    const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
+    if (locationWithAriaLabel) {
+      // Extrait uniquement la partie ville de l'aria-label
+      const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
+      const match = ariaLabel.match(/Située à ([^,]+)/);
+      return match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
+    }
+    
+    // Sélecteurs alternatifs par ordre de précision
+    const selectors = [
+      'p.text-caption.text-neutral:last-of-type',
+      '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child',
+      'div:last-child > p.text-caption.text-neutral:last-child',
+    ];
+    
+    // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
+    for (const selector of selectors) {
+      const element = article.querySelector(selector);
+      if (element) {
+        const text = element.textContent.trim();
+        // Éviter de capturer la date (commence souvent par "il y a")
+        if (text && !text.startsWith("il y a")) {
+          return text;
+        }
+      }
+    }
+    
+    return 'Lieu non disponible';
+  };
+
+  const extractDataFromHTML = (html) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const article = doc.querySelector('article');
@@ -69,9 +102,11 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     // Nous ne récupérons plus le badge Pro
     const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
+    const location = extractLocation(article);
     
     return {
-      hasDelivery: deliveryBadge
+      hasDelivery: deliveryBadge,
+      location: location
     };
   };
 
@@ -158,6 +193,8 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 
                 {products.map((product) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
+                  // Utiliser soit la localisation extraite du HTML, soit celle du produit
+                  const location = htmlData?.location || product.location;
                   
                   return (
                     <motion.div
@@ -175,7 +212,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           className="object-cover w-full h-full"
                         />
                         <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                          {product.location}
+                          {location}
                         </div>
                       </div>
                       <div className="p-3">
@@ -192,7 +229,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                                {product.location}
+                                {location}
                               </span>
                             )}
                           </div>
