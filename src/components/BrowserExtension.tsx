@@ -65,15 +65,15 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   }, []);
 
   // Improved function to extract the location from the Leboncoin HTML
-  const extractLocation = (article) => {
+  const extractLocation = (article: Element): string => {
     // Look for elements with aria-label containing "Située à"
     const locationElements = Array.from(article.querySelectorAll('p[aria-label*="Située à"]'));
     if (locationElements.length > 0) {
-      const locationEl = locationElements[0];
+      const locationEl = locationElements[0] as HTMLElement;
       // Extract city from aria-label or use full text content
       const ariaLabel = locationEl.getAttribute('aria-label') || '';
       const match = ariaLabel.match(/Située à ([^\.]+)/);
-      return match ? match[1].trim() : locationEl.textContent.trim();
+      return match ? match[1].trim() : locationEl.textContent?.trim() || 'Lieu non disponible';
     }
     
     // Fallback selectors if the specific aria-label is not found
@@ -87,15 +87,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
       const elements = Array.from(article.querySelectorAll(selector));
       // Filter out elements that are likely not location (e.g., category, date)
       const locationCandidate = elements.find(el => {
-        const text = el.textContent.trim();
-        const ariaLabel = el.getAttribute('aria-label') || '';
+        const element = el as HTMLElement;
+        const text = element.textContent?.trim() || '';
+        const ariaLabel = element.getAttribute('aria-label') || '';
         return !ariaLabel.includes('Date de dépôt') && 
                !ariaLabel.includes('Catégorie') && 
                text.length > 0;
-      });
+      }) as HTMLElement | undefined;
       
       if (locationCandidate) {
-        return locationCandidate.textContent.trim();
+        return locationCandidate.textContent?.trim() || 'Lieu non disponible';
       }
     }
     
@@ -103,23 +104,24 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   };
 
   // New function to extract the date from the Leboncoin HTML
-  const extractDate = (article) => {
+  const extractDate = (article: Element): string => {
     // Look for elements with aria-label containing "Date de dépôt"
     const dateElements = Array.from(article.querySelectorAll('p[aria-label*="Date de dépôt"]'));
     if (dateElements.length > 0) {
-      return dateElements[0].textContent.trim();
+      const dateEl = dateElements[0] as HTMLElement;
+      return dateEl.textContent?.trim() || '';
     }
     
     // Fallback to data-test-id for date
-    const dateWithTestId = article.querySelector('[data-test-id="ad-date"]');
+    const dateWithTestId = article.querySelector('[data-test-id="ad-date"]') as HTMLElement | null;
     if (dateWithTestId) {
-      return dateWithTestId.textContent.trim();
+      return dateWithTestId.textContent?.trim() || '';
     }
     
     return '';
   };
 
-  const extractDataFromHTML = (html) => {
+  const extractDataFromHTML = (html: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const article = doc.querySelector('article');
