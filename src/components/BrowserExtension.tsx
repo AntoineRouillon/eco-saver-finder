@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, ExternalLink, ThumbsUp, ThumbsDown, SearchX } from 'lucide-react';
+import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface Product {
@@ -78,42 +78,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     };
   };
 
-  // No Results UI component
-  const NoResultsUI = () => (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-      <div className="relative w-24 h-24 mb-6">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-teal-500 flex items-center justify-center">
-            <div className="w-10 h-10">
-              <div className="relative">
-                {/* Sleeping face */}
-                <div className="absolute top-1/2 left-1/4 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute top-1/2 right-1/4 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full"></div>
-                {/* Arc lines for closed eyes */}
-                <div className="absolute top-[40%] left-[25%] w-2 h-1 border-t-2 border-white rounded"></div>
-                <div className="absolute top-[40%] right-[25%] w-2 h-1 border-t-2 border-white rounded"></div>
-              </div>
-            </div>
-          </div>
-          {/* Handle */}
-          <div className="absolute bottom-1 right-1 w-3 h-10 bg-teal-500 rounded-full transform rotate-45"></div>
-        </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-300 rounded-full"></div>
-        <div className="absolute top-1/4 right-1/4 w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-        <div className="absolute bottom-1/3 left-1/5 w-2 h-2 bg-green-400 rounded-full"></div>
-        <div className="absolute top-1/2 right-0 w-1 h-1 bg-pink-300 rounded-full"></div>
-        <div className="absolute bottom-0 left-1/3 w-1.5 h-1.5 bg-purple-300 rounded-full"></div>
-      </div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-2">No Result Found</h3>
-      <p className="text-gray-500 text-sm max-w-[200px]">
-        We can't find any item matching your search
-      </p>
-    </div>
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 300 }}
@@ -143,74 +107,68 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
           </div>
         ) : (
           <div className="space-y-4">
-            {products.length > 0 ? (
-              <>
-                <p className="text-xs text-gray-500 mb-4">
-                  Found {products.length} alternatives on Leboncoin
-                </p>
-                
-                {products.map((product) => {
-                  // Extract badges from HTML
-                  const htmlData = product.html ? extractDataFromHTML(product.html) : null;
-                  
-                  return (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow"
-                    >
-                      <div className="relative aspect-w-4 aspect-h-3 bg-gray-100">
-                        <img 
-                          src={product.image} 
-                          alt={product.title} 
-                          className="object-cover w-full h-full"
-                        />
-                        <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                          {product.location}
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-sm font-medium text-gray-900 line-clamp-2 h-10">
-                          {product.title}
-                        </h4>
-                        
-                        {/* Display badges based on HTML data */}
-                        {htmlData && (
-                          <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                            {htmlData.isPro && (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                                Pro
-                              </span>
-                            )}
-                            {htmlData.hasDelivery && (
-                              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
-                                Livraison possible
-                              </span>
-                            )}
-                          </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Found {products.length} alternatives on Leboncoin
+            </p>
+            
+            {products.map((product) => {
+              // Extract badges from HTML
+              const htmlData = product.html ? extractDataFromHTML(product.html) : null;
+              
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow"
+                >
+                  <div className="relative aspect-w-4 aspect-h-3 bg-gray-100">
+                    <img 
+                      src={product.image} 
+                      alt={product.title} 
+                      className="object-cover w-full h-full"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
+                      {product.location}
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h4 className="text-sm font-medium text-gray-900 line-clamp-2 h-10">
+                      {product.title}
+                    </h4>
+                    
+                    {/* Display badges based on HTML data */}
+                    {htmlData && (
+                      <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                        {htmlData.isPro && (
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                            Pro
+                          </span>
                         )}
-                        
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-blue-600 font-medium">{product.price}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs text-gray-600 hover:text-blue-600 p-1 h-auto"
-                          >
-                            <ExternalLink size={14} className="mr-1" />
-                            View
-                          </Button>
-                        </div>
+                        {htmlData.hasDelivery && (
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
+                            Livraison possible
+                          </span>
+                        )}
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </>
-            ) : (
-              <NoResultsUI />
-            )}
+                    )}
+                    
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-blue-600 font-medium">{product.price}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-gray-600 hover:text-blue-600 p-1 h-auto"
+                      >
+                        <ExternalLink size={14} className="mr-1" />
+                        View
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
