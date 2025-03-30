@@ -241,82 +241,6 @@ function requestAlternatives(productInfo) {
   });
 }
 
-// Fonction pour extraire la date à partir de l'article
-function extractDate(article) {
-  // Sélecteur précis pour la date - élément avec data-test-id="ad-date"
-  const dateElement = article.querySelector('[data-test-id="ad-date"]');
-  if (dateElement) {
-    return dateElement.textContent.trim();
-  }
-  
-  // Sélecteur alternatif - élément avec aria-label contenant "Publiée"
-  const dateWithAriaLabel = article.querySelector('p[aria-label*="Publiée"]');
-  if (dateWithAriaLabel) {
-    return dateWithAriaLabel.textContent.trim();
-  }
-  
-  // Recherche générique de texte contenant "il y a"
-  const allTextElements = article.querySelectorAll('p.text-caption.text-neutral');
-  for (const element of allTextElements) {
-    const text = element.textContent.trim();
-    if (text && (text.includes('il y a') || text.includes('aujourd\'hui') || text.includes('hier'))) {
-      return text;
-    }
-  }
-  
-  return null;
-}
-
-// Fonction améliorée pour extraire la localisation avec plus de précision
-function extractLocation(article) {
-  // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
-  const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
-  if (locationWithAriaLabel) {
-    // Extrait uniquement la partie ville de l'aria-label
-    const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
-    const match = ariaLabel.match(/Située à ([^,]+)/);
-    location = match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
-    return location;
-  }
-  
-  // Sélecteurs alternatifs par ordre de précision
-  const selectors = [
-    'p.text-caption.text-neutral:last-of-type',
-    '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child',
-    'div:last-child > p.text-caption.text-neutral:last-child',
-  ];
-  
-  // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
-  for (const selector of selectors) {
-    const element = article.querySelector(selector);
-    if (element) {
-      const text = element.textContent.trim();
-      // Éviter de capturer la date (commence souvent par "il y a")
-      if (text && !text.startsWith("il y a") && !text.includes("aujourd'hui") && !text.includes("hier")) {
-        location = text;
-        break;
-      }
-    }
-  }
-  
-  // Si on n'a toujours pas trouvé, on essaie une approche plus générique
-  if (!location) {
-    // Chercher tous les éléments text-caption et analyser leur contenu
-    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-    for (const caption of allCaptions) {
-      const text = caption.textContent.trim();
-      // Éviter les textes qui semblent être des dates
-      if (text && !text.includes('il y a') && !text.includes('Tech') && 
-          !text.includes("aujourd'hui") && !text.includes("hier")) {
-        location = text;
-        break;
-      }
-    }
-  }
-  
-  return location || 'Lieu non disponible';
-}
-
 // Créer une carte à partir du HTML brut de l'article
 function createCardFromRawHTML(item) {
   const itemElement = document.createElement('div');
@@ -347,13 +271,6 @@ function createCardFromRawHTML(item) {
   // Emplacement - utiliser notre fonction améliorée
   const location = extractLocation(article);
 
-<<<<<<< Updated upstream
-  // Date - utiliser notre nouvelle fonction d'extraction
-=======
-  // Date - extraire la date de l'annonce
->>>>>>> Stashed changes
-  const date = extractDate(article);
-
   // Image
   let imageUrl = '';
   const imgElement = article.querySelector('img');
@@ -380,9 +297,14 @@ function createCardFromRawHTML(item) {
   }
 
   // Extraire la date si disponible (pour le tri)
-  let dateInfo = date || '';
-  // Stocker comme attribut data pour le tri
-  itemElement.dataset.date = dateInfo;
+  let dateInfo = '';
+  const dateElement = article.querySelector('[data-test-id="ad-date"]') ||
+                     article.querySelector('.text-caption[aria-label*="il y a"]');
+  if (dateElement) {
+    dateInfo = dateElement.textContent.trim();
+    // Stocker comme attribut data pour le tri
+    itemElement.dataset.date = dateInfo;
+  }
 
   // Stocker le prix numérique pour le tri
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
@@ -397,7 +319,6 @@ function createCardFromRawHTML(item) {
   // Construire le HTML de la carte d'article
   itemElement.innerHTML = `
     <div class="aaf-item-image">
-      ${date ? `<div class="aaf-item-date">${date}</div>` : ''}
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
       <div class="aaf-item-location">${location}</div>
     </div>
@@ -430,32 +351,11 @@ function extractTextContent(parentElement, selector) {
   return element ? element.textContent.trim() : null;
 }
 
-<<<<<<< Updated upstream
-=======
-// Fonction pour extraire la date de l'annonce
-function extractDate(article) {
-  // Chercher l'élément avec aria-label contenant "il y a" qui est généralement la date
-  const dateElement = article.querySelector('p[aria-label*="il y a"]') ||
-                      article.querySelector('p[aria-label="Aujourd\'hui"]');
-
-  if (dateElement) {
-    return dateElement.textContent.trim();
-  }
-
-  // Chercher parmi tous les éléments text-caption pour trouver une indication de date
-  const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-  for (const caption of allCaptions) {
-    const text = caption.textContent.trim();
-    if (text.startsWith("il y a") || text === "Aujourd'hui" || text === "Hier") {
-      return text;
-    }
-  }
-
-  return null;
-}
-
-// Fonction améliorée pour extraire la localisation avec précision
+// Fonction améliorée pour extraire la localisation avec plus de précision
 function extractLocation(article) {
+  // Essayer d'abord les sélecteurs spécifiques à la localisation
+  let location = null;
+  
   // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
   const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
   if (locationWithAriaLabel) {
@@ -465,46 +365,44 @@ function extractLocation(article) {
     location = match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
     return location;
   }
-
+  
   // Sélecteurs alternatifs par ordre de précision
   const selectors = [
     'p.text-caption.text-neutral:last-of-type', // Souvent le dernier paragraphe avec cette classe est la localisation
     '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child', // Sélecteur plus spécifique
     'div:last-child > p.text-caption.text-neutral:last-child', // Cibler le dernier élément de localisation
   ];
-
+  
   // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
   for (const selector of selectors) {
     const element = article.querySelector(selector);
     if (element) {
       const text = element.textContent.trim();
       // Éviter de capturer la date (commence souvent par "il y a")
-      if (text && !text.startsWith("il y a") && text !== "Aujourd'hui" && text !== "Hier") {
+      if (text && !text.startsWith("il y a")) {
         location = text;
         break;
       }
     }
   }
-
+  
   // Si on n'a toujours pas trouvé, on essaie une approche plus générique
   if (!location) {
     // Chercher tous les éléments text-caption et analyser leur contenu
     const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
     for (const caption of allCaptions) {
       const text = caption.textContent.trim();
-      // Éviter les textes qui semblent être des dates ou des catégories
-      if (text && !text.includes('il y a') && !text.includes('Tech') &&
-          text !== "Aujourd'hui" && text !== "Hier") {
+      // Éviter les textes qui semblent être des dates
+      if (text && !text.includes('il y a') && !text.includes('Tech')) {
         location = text;
         break;
       }
     }
   }
-
+  
   return location || 'Lieu non disponible';
 }
 
->>>>>>> Stashed changes
 // Appliquer les filtres actuels aux alternatives et les afficher
 function renderFilteredAlternatives() {
   const container = document.getElementById('amazon-alternative-finder');
