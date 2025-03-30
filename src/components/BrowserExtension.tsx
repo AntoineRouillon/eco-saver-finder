@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from '@/components/ui/badge';
 
 interface Product {
   id: string;
@@ -14,7 +13,6 @@ interface Product {
   location: string;
   url: string;
   html?: string;
-  date?: string;
 }
 
 interface BrowserExtensionProps {
@@ -35,8 +33,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
           image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
           location: 'Paris',
           url: '#',
-          date: 'il y a 3 jours',
-          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Echo Dot (4ème génération) - Très bon état</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 29,00 €"><span class="">29,00 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full border-sm border-current text-support">Pro</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Paris" class="text-caption text-neutral">Paris</p><p aria-label="il y a 3 jours" class="text-caption text-neutral">il y a 3 jours</p></div></div></div></div></div></div></article>'
+          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Echo Dot (4ème génération) - Très bon état</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 29,00 €"><span class="">29,00 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full border-sm border-current text-support">Pro</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Paris" class="text-caption text-neutral">Paris</p></div></div></div></div></div></div></article>'
         },
         {
           id: '2',
@@ -45,8 +42,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
           image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
           location: 'Lyon',
           url: '#',
-          date: 'Aujourd\'hui',
-          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Enceinte Echo Dot comme neuve</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 25,50 €"><span class="">25,50 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full border-sm border-current text-support">Pro</span><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full bg-support-container text-on-support-container">Livraison possible</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Lyon" class="text-caption text-neutral">Lyon</p><p aria-label="Aujourd\'hui" class="text-caption text-neutral">Aujourd\'hui</p></div></div></div></div></div></div></article>'
+          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Enceinte Echo Dot comme neuve</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 25,50 €"><span class="">25,50 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full border-sm border-current text-support">Pro</span><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full bg-support-container text-on-support-container">Livraison possible</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Lyon" class="text-caption text-neutral">Lyon</p></div></div></div></div></div></div></article>'
         },
         {
           id: '3',
@@ -55,8 +51,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
           image: 'https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg',
           location: 'Marseille',
           url: '#',
-          date: 'il y a 2 heures',
-          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Amazon Echo Dot 4 - Bon état</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 32,00 €"><span class="">32,00 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full bg-support-container text-on-support-container">Livraison possible</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Marseille" class="text-caption text-neutral">Marseille</p><p aria-label="il y a 2 heures" class="text-caption text-neutral">il y a 2 heures</p></div></div></div></div></div></div></article>'
+          html: '<article data-test-id="ad" class="relative h-[inherit] group/adcard"><div class="flex h-[inherit] flex-col"><div class="adcard_d1a8809dc relative flex h-[inherit]"><div class="adcard_5300a9ba4 relative"><div class="relative h-full"><div class="bg-neutral-container relative box-border flex h-full min-h-auto min-w-auto items-center justify-center overflow-hidden"><img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="" class="absolute inset-0 m-auto size-full object-cover"></div></div></div><div class="adcard_8f3833cd8 m-lg relative min-w-0"><div class="flex h-full flex-col justify-between"><div class="gap-y-sm flex min-w-0 flex-col"><div class="gap-x-md flex items-start"><div class="gap-x-sm flex min-w-0 items-center"><p data-test-id="adcard-title" class="text-body-1 text-on-surface line-clamp-(--line-clamp) font-bold break-words text-ellipsis">Amazon Echo Dot 4 - Bon état</p></div></div><p class="text-callout text-on-surface leading-sz-20! flex flex-wrap items-center font-bold" data-test-id="price" aria-label="Prix: 32,00 €"><span class="">32,00 €</span></p></div><div class="mt-md gap-md flex flex-col justify-between"><div class="flex flex-wrap items-center gap-md mb-md"><span data-spark-component="tag" class="box-border inline-flex items-center justify-center gap-sm whitespace-nowrap text-caption font-bold h-sz-20 px-md rounded-full bg-support-container text-on-support-container">Livraison possible</span></div><div><p aria-label="Catégorie : Tech" class="text-caption text-neutral">Tech</p><p aria-label="Située à Marseille" class="text-caption text-neutral">Marseille</p></div></div></div></div></div></div></article>'
         }
       ]);
       setLoading(false);
@@ -98,28 +93,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return 'Lieu non disponible';
   };
 
-  // Fonction pour extraire la date de l'annonce
-  const extractDate = (article) => {
-    // Chercher l'élément avec aria-label contenant "il y a" qui est généralement la date
-    const dateElement = article.querySelector('p[aria-label*="il y a"]') || 
-                        article.querySelector('p[aria-label="Aujourd\'hui"]');
-    
-    if (dateElement) {
-      return dateElement.textContent.trim();
-    }
-    
-    // Chercher parmi tous les éléments text-caption pour trouver une indication de date
-    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-    for (const caption of allCaptions) {
-      const text = caption.textContent.trim();
-      if (text.startsWith("il y a") || text === "Aujourd'hui" || text === "Hier") {
-        return text;
-      }
-    }
-    
-    return null;
-  };
-
   const extractDataFromHTML = (html) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -127,14 +100,13 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     if (!article) return null;
     
+    // Nous ne récupérons plus le badge Pro
     const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
     const location = extractLocation(article);
-    const date = extractDate(article);
     
     return {
       hasDelivery: deliveryBadge,
-      location: location,
-      date: date
+      location: location
     };
   };
 
@@ -223,7 +195,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
                   // Utiliser soit la localisation extraite du HTML, soit celle du produit
                   const location = htmlData?.location || product.location;
-                  const date = htmlData?.date || product.date || '';
                   
                   return (
                     <motion.div
@@ -240,13 +211,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           alt={product.title} 
                           className="object-cover w-full h-full"
                         />
-                        {/* Badge de date au-dessus de l'image */}
-                        {date && (
-                          <div className="absolute top-2 left-2 bg-gray-800 bg-opacity-70 px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm">
-                            {date}
-                          </div>
-                        )}
-                        {/* Nous gardons également le badge de localisation en bas de l'image pour la visibilité */}
                         <div className="absolute bottom-2 left-2 bg-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
                           {location}
                         </div>
@@ -256,18 +220,20 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           {product.title}
                         </h4>
                         
-                        <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                          {/* Affichage conditionnel des badges sous le titre */}
-                          {htmlData?.hasDelivery ? (
-                            <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
-                              Livraison possible
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                              {location}
-                            </span>
-                          )}
-                        </div>
+                        {htmlData && (
+                          <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                            {/* Suppression du badge Pro */}
+                            {htmlData.hasDelivery ? (
+                              <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
+                                Livraison possible
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                {location}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-[#4AB07B] font-medium">{product.price}</span>
