@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -158,15 +159,68 @@ function checkNoResults(tabId) {
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: () => {
-        // Check if the "no results" message element exists
-        const noResultElement = document.getElementById('noResultMessages') || 
-                               document.querySelector('.noResultMessages') || 
-                               document.querySelector('[data-test-id="no-result-message"]');
+        // More comprehensive check for "no results" messages on Leboncoin
+        // Using multiple selectors that might indicate no results
         
-        return noResultElement !== null;
+        // Check for specific text in the page that indicates no results
+        const pageText = document.body.innerText || '';
+        const noResultsTexts = [
+          "Aucune annonce",
+          "Pas de résultat",
+          "Aucun résultat"
+        ];
+        
+        const hasNoResultsText = noResultsTexts.some(text => 
+          pageText.includes(text)
+        );
+        
+        // Check for common "no results" UI patterns
+        const noResultSelectors = [
+          // Original selectors
+          '#noResultMessages',
+          '.noResultMessages',
+          '[data-test-id="no-result-message"]',
+          // Additional selectors that might indicate no results
+          '.emptyResults',
+          '[data-qa-id="no-search-results"]',
+          '[data-testid="no-results"]',
+          '.no-result',
+          '[data-qa="no-result"]',
+          // Look for images that might be in "no results" messages
+          'img[alt*="no result"]',
+          'img[alt*="not found"]',
+          'img[src*="no-result"]',
+          // Check for specific empty state containers
+          '.empty-state-container',
+          '.zero-results'
+        ];
+        
+        const hasNoResultElement = noResultSelectors.some(selector => 
+          document.querySelector(selector) !== null
+        );
+        
+        // Check if there are no ad items (another way to detect no results)
+        const noAdItems = document.querySelectorAll('article[data-test-id="ad"]').length === 0 &&
+                        document.querySelectorAll('article[data-qa-id="aditem_container"]').length === 0 &&
+                        // Make sure there's no loading state active
+                        document.readyState === 'complete' &&
+                        !document.querySelector('.loading-spinner') &&
+                        !document.querySelector('[data-testid="loading"]');
+        
+        console.log("No results check:", { 
+          hasNoResultsText, 
+          hasNoResultElement, 
+          noAdItems,
+          pageTitle: document.title,
+          bodyText: pageText.substring(0, 200) // First 200 chars for debugging
+        });
+        
+        // If we have text indicating no results OR a no-result element OR no ad items, consider it "no results"
+        return hasNoResultsText || hasNoResultElement || noAdItems;
       }
     }).then(results => {
       const noResultsFound = results && results[0]?.result === true;
+      console.log("No results check returned:", noResultsFound);
       resolve(noResultsFound);
     }).catch(error => {
       console.error("Error checking for no results:", error);
