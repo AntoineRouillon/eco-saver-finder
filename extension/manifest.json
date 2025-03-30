@@ -3,7 +3,8 @@
   "manifest_version": 3,
   "name": "AltMarket",
   "version": "1.0.0",
-  "description": "Find second-hand alternatives from Leboncoin while browsing Amazon.fr",
+  "description": "Trouvez des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr",
+  "default_locale": "fr",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

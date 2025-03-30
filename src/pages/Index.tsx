@@ -21,27 +21,27 @@ const Index = () => {
           >
             <div className="mb-2">
               <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-green-50 text-green-800 rounded-full">
-                Smart Shopping
+                Achats Intelligents
               </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-light tracking-tight text-gray-900">
-              Save money on Amazon
+              Économisez sur Amazon
             </h1>
             <p className="mt-3 text-xl text-gray-500 max-w-2xl mx-auto">
-              Automatically find second-hand alternatives from Leboncoin while browsing Amazon.fr
+              Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button 
                 onClick={() => setShowDemo(true)}
                 className="px-5 py-6 rounded-xl bg-[#4AB07B] hover:bg-[#3d9366] transition-all duration-300 shadow-md hover:shadow-lg"
               >
-                See how it works
+                Comment ça marche
               </Button>
               <Button
                 variant="outline"
                 className="px-5 py-6 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-300"
               >
-                Download Extension
+                Télécharger l'extension
               </Button>
             </div>
           </motion.div>
@@ -58,10 +58,10 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-light text-gray-900">How it works</h2>
+            <h2 className="text-3xl font-light text-gray-900">Comment ça marche</h2>
             <p className="mt-4 text-gray-500 max-w-2xl mx-auto">
-              Our extension seamlessly integrates with your Amazon browsing experience,
-              helping you find better deals on second-hand marketplaces.
+              Notre extension s'intègre parfaitement à votre expérience de navigation sur Amazon,
+              vous aidant à trouver de meilleures offres sur les marchés d'occasion.
             </p>
           </motion.div>
 
@@ -92,21 +92,21 @@ const Index = () => {
       <section className="py-16 bg-neutral-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-light text-gray-900">Key Features</h2>
+            <h2 className="text-3xl font-light text-gray-900">Fonctionnalités clés</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: "Find Better Deals",
-                description: "Automatically search for second-hand alternatives while you browse Amazon products."
+                title: "Trouvez de meilleures offres",
+                description: "Recherchez automatiquement des alternatives d'occasion pendant que vous naviguez sur les produits Amazon."
               },
               {
-                title: "Save Money",
-                description: "Compare prices between new and used products to make smarter purchasing decisions."
+                title: "Économisez de l'argent",
+                description: "Comparez les prix entre produits neufs et d'occasion pour prendre des décisions d'achat plus intelligentes."
               },
               {
-                title: "Shop Sustainably",
-                description: "Reduce environmental impact by considering pre-owned items before buying new."
+                title: "Achetez durablement",
+                description: "Réduisez l'impact environnemental en considérant des articles d'occasion avant d'acheter neuf."
               }
             ].map((feature, index) => (
               <motion.div
@@ -131,25 +131,25 @@ const Index = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-light text-gray-900">Installation</h2>
             <p className="mt-4 text-gray-500 max-w-2xl mx-auto">
-              Getting started with our extension is quick and easy.
+              Commencer avec notre extension est rapide et facile.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 step: "1",
-                title: "Download",
-                description: "Get the extension package from our website."
+                title: "Télécharger",
+                description: "Obtenez le package d'extension depuis notre site web."
               },
               {
                 step: "2",
-                title: "Install",
-                description: "Add the extension to your browser with just a few clicks."
+                title: "Installer",
+                description: "Ajoutez l'extension à votre navigateur en quelques clics."
               },
               {
                 step: "3",
-                title: "Browse & Save",
-                description: "Start shopping on Amazon and automatically see alternatives."
+                title: "Naviguez & Économisez",
+                description: "Commencez à faire du shopping sur Amazon et voyez automatiquement les alternatives."
               }
             ].map((step, index) => (
               <motion.div
@@ -176,7 +176,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} Amazon Alternative Finder. All rights reserved.
+              © {new Date().getFullYear()} Amazon Alternative Finder. Tous droits réservés.
             </p>
           </div>
         </div>

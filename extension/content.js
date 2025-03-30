@@ -1,37 +1,37 @@
 
-// Variable to store product information
+// Variable pour stocker les informations du produit
 let currentProductInfo = null;
-// Variable to store all alternatives for filtering
+// Variable pour stocker toutes les alternatives pour le filtrage
 let allAlternatives = [];
-// Current filter settings
+// Paramètres de filtre actuels
 let currentFilter = {
   type: 'none', // 'none', 'price-asc', 'price-desc', 'date-asc', 'date-desc'
-  label: 'No filter' // Display label
+  label: 'Aucun filtre' // Étiquette à afficher
 };
-// Store the current URL to detect page changes
+// Stocker l'URL actuelle pour détecter les changements de page
 let currentUrl = window.location.href;
-// Object to cache alternatives by product URL
+// Objet pour mettre en cache les alternatives par URL de produit
 let alternativesCache = {};
 
-// Create and inject extension UI
+// Créer et injecter l'interface utilisateur de l'extension
 function createExtensionUI() {
-  // Create container for the extension
+  // Créer un conteneur pour l'extension
   const container = document.createElement('div');
   container.id = 'amazon-alternative-finder';
   container.className = 'aaf-container';
   document.body.appendChild(container);
 
-  // Add initial UI (collapsed state)
+  // Ajouter l'interface initiale (état replié)
   container.innerHTML = `
     <div class="aaf-toggle">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
-      <span class="aaf-toggle-text">Search</span>
+      <span class="aaf-toggle-text">Rechercher</span>
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
         <div>
           <div class="aaf-header-title">AltMarket</div>
-          <div class="aaf-header-subtitle">Second-hand alternatives</div>
+          <div class="aaf-header-subtitle">Alternatives d'occasion</div>
         </div>
         <button class="aaf-close-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -43,13 +43,13 @@ function createExtensionUI() {
       <div class="aaf-content">
         <div class="aaf-loading">
           <div class="aaf-spinner"></div>
-          <p>Finding alternatives...</p>
+          <p>Recherche d'alternatives...</p>
         </div>
         <div class="aaf-results" style="display: none;">
           <div class="aaf-filter-controls">
-            <p class="aaf-results-count">Found 0 alternatives on Leboncoin</p>
+            <p class="aaf-results-count">0 alternatives trouvées sur Leboncoin</p>
             <div class="aaf-filter-container">
-              <button class="aaf-filter-button" title="Filter results">
+              <button class="aaf-filter-button" title="Filtrer les résultats">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                 </svg>
@@ -61,7 +61,7 @@ function createExtensionUI() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </span>
-                  <span>No filter</span>
+                  <span>Aucun filtre</span>
                 </div>
                 <div class="aaf-filter-option" data-filter="price-asc">
                   <span class="aaf-filter-option-icon">
@@ -69,7 +69,7 @@ function createExtensionUI() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </span>
-                  <span>Price: Low to High</span>
+                  <span>Prix: Croissant</span>
                 </div>
                 <div class="aaf-filter-option" data-filter="price-desc">
                   <span class="aaf-filter-option-icon">
@@ -77,7 +77,7 @@ function createExtensionUI() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </span>
-                  <span>Price: High to Low</span>
+                  <span>Prix: Décroissant</span>
                 </div>
                 <div class="aaf-filter-option" data-filter="date-asc">
                   <span class="aaf-filter-option-icon">
@@ -85,7 +85,7 @@ function createExtensionUI() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </span>
-                  <span>Date: Newest First</span>
+                  <span>Date: Plus récent</span>
                 </div>
                 <div class="aaf-filter-option" data-filter="date-desc">
                   <span class="aaf-filter-option-icon">
@@ -93,7 +93,7 @@ function createExtensionUI() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </span>
-                  <span>Date: Oldest First</span>
+                  <span>Date: Plus ancien</span>
                 </div>
               </div>
             </div>
@@ -102,39 +102,39 @@ function createExtensionUI() {
         </div>
       </div>
       <!--<div class="aaf-footer">
-        <div class="aaf-feedback-text">Was this helpful?</div>
+        <div class="aaf-feedback-text">Est-ce que cela vous a aidé ?</div>
         <div class="aaf-feedback-buttons">
           <button class="aaf-feedback-btn aaf-yes-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M7 10v12"></path>
               <path d="M15 5.88 14 10h5.83a2 2 0 0 1-1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
             </svg>
-            Yes
+            Oui
           </button>
           <button class="aaf-feedback-btn aaf-no-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 14V2"></path>
               <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path>
             </svg>
-            No
+            Non
           </button>
         </div>
       </div> -->
     </div>
   `;
 
-  // Add event listeners
+  // Ajouter les écouteurs d'événements
   const toggle = container.querySelector('.aaf-toggle');
   const closeBtn = container.querySelector('.aaf-close-btn');
 
   toggle.addEventListener('click', () => {
     container.classList.toggle('aaf-expanded');
 
-    // If we're expanding and have product info but no alternatives loaded yet, fetch them
+    // Si nous développons et avons des informations de produit mais pas encore d'alternatives chargées, les récupérer
     if (container.classList.contains('aaf-expanded') && currentProductInfo) {
-      // Check if we have cached alternatives for this product
+      // Vérifier si nous avons des alternatives en cache pour ce produit
       if (alternativesCache[window.location.href]) {
-        console.log("Using cached alternatives for:", window.location.href);
+        console.log("Utilisation des alternatives en cache pour:", window.location.href);
         renderAlternatives(alternativesCache[window.location.href]);
       } else {
         requestAlternatives(currentProductInfo);
@@ -146,7 +146,7 @@ function createExtensionUI() {
     container.classList.remove('aaf-expanded');
   });
 
-  // Add filter button listener
+  // Ajouter l'écouteur pour le bouton de filtre
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterMenu = container.querySelector('.aaf-filter-menu');
 
@@ -155,14 +155,14 @@ function createExtensionUI() {
     filterMenu.classList.toggle('aaf-show-menu');
   });
 
-  // Add click event listeners to filter options
+  // Ajouter des écouteurs d'événements de clic aux options de filtre
   const filterOptions = container.querySelectorAll('.aaf-filter-option');
   filterOptions.forEach(option => {
     option.addEventListener('click', () => {
       const filterType = option.getAttribute('data-filter');
       const filterLabel = option.querySelector('span:last-child').textContent;
 
-      // Update filter and close menu
+      // Mettre à jour le filtre et fermer le menu
       if (filterType) {
         currentFilter.type = filterType;
         currentFilter.label = filterLabel;
@@ -173,7 +173,7 @@ function createExtensionUI() {
     });
   });
 
-  // Close filter menu when clicking outside
+  // Fermer le menu de filtre lors d'un clic à l'extérieur
   document.addEventListener('click', (event) => {
     if (!event.target.closest('.aaf-filter-container')) {
       const allFilterMenus = document.querySelectorAll('.aaf-filter-menu');
@@ -184,7 +184,7 @@ function createExtensionUI() {
   return container;
 }
 
-// Update the filter button UI to reflect the current filter
+// Mettre à jour l'interface utilisateur du bouton de filtre pour refléter le filtre actuel
 function updateFilterUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
@@ -192,14 +192,14 @@ function updateFilterUI() {
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterOptions = container.querySelectorAll('.aaf-filter-option');
 
-  // Update active state of filter button
+  // Mettre à jour l'état actif du bouton de filtre
   if (currentFilter.type === 'none') {
     filterButton.classList.remove('active');
   } else {
     filterButton.classList.add('active');
   }
 
-  // Update active state in filter menu
+  // Mettre à jour l'état actif dans le menu de filtre
   filterOptions.forEach(option => {
     option.classList.remove('aaf-active');
 
@@ -211,7 +211,7 @@ function updateFilterUI() {
   });
 }
 
-// Function to request alternatives from the background script
+// Fonction pour demander des alternatives au script d'arrière-plan
 function requestAlternatives(productInfo) {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
@@ -219,61 +219,61 @@ function requestAlternatives(productInfo) {
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
 
-  // Show loading state
+  // Afficher l'état de chargement
   if (loading && results) {
     loading.style.display = 'flex';
     results.style.display = 'none';
   }
 
-  // Check if we have cached alternatives for this product
+  // Vérifier si nous avons des alternatives en cache pour ce produit
   if (alternativesCache[window.location.href]) {
-    console.log("Using cached alternatives for:", window.location.href);
+    console.log("Utilisation des alternatives en cache pour:", window.location.href);
     renderAlternatives(alternativesCache[window.location.href]);
     return;
   }
 
-  // Request alternatives from background script
+  // Demander des alternatives au script d'arrière-plan
   chrome.runtime.sendMessage({
     action: "GET_ALTERNATIVES",
     productInfo: productInfo
   }, response => {
-    console.log("Got response from background script:", response);
-    // The actual alternatives will come through a separate message
+    console.log("Réponse reçue du script d'arrière-plan:", response);
+    // Les alternatives réelles viendront dans un message séparé
   });
 }
 
-// Create a card from the raw article HTML
+// Créer une carte à partir du HTML brut de l'article
 function createCardFromRawHTML(item) {
   const itemElement = document.createElement('div');
   itemElement.className = 'aaf-item';
 
-  // Parse the HTML
+  // Analyser le HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(item.html, 'text/html');
   const article = doc.querySelector('article');
 
   if (!article) {
-    console.error('No article element found in HTML');
+    console.error('Aucun élément article trouvé dans le HTML');
     return null;
   }
 
-  // Try to extract basic information for display
-  // Price
+  // Essayer d'extraire les informations de base pour l'affichage
+  // Prix
   const price = extractTextContent(article, '[data-test-id="price"]') ||
                 extractTextContent(article, '.text-callout.text-on-surface') ||
-                'Price not available';
+                'Prix non disponible';
 
-  // Title
+  // Titre
   const title = extractTextContent(article, '[data-test-id="adcard-title"]') ||
                 extractTextContent(article, '.text-body-1.text-on-surface') ||
                 extractTextContent(article, 'h2') ||
-                'Item title';
+                'Titre de l\'article';
 
-  // Location
+  // Emplacement
   const location = extractTextContent(article, '.text-caption.text-neutral:last-child') ||
                   extractTextContent(article, 'p[aria-label*="Située à"]') ||
                   extractTextContent(article, '.text-caption.text-neutral') ||
-                  'Location not available';
+                  'Lieu non disponible';
 
   // Image
   let imageUrl = '';
@@ -282,11 +282,11 @@ function createCardFromRawHTML(item) {
     imageUrl = imgElement.src;
   }
 
-  // Check for badges
+  // Vérifier les badges
   const isPro = article.textContent.includes('Pro');
   const hasDelivery = article.textContent.includes('Livraison possible');
 
-  // Create badge HTML
+  // Créer le HTML des badges
   let badges = '';
   if (isPro) {
     badges += '<span class="aaf-badge-pro">Pro</span>';
@@ -295,33 +295,33 @@ function createCardFromRawHTML(item) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
   }
 
-  // Get URL (if available)
+  // Obtenir l'URL (si disponible)
   let url = item.url || '#';
   if (url && url.startsWith('/')) {
     url = 'https://www.leboncoin.fr' + url;
   }
 
-  // Extract date if available (for sorting)
+  // Extraire la date si disponible (pour le tri)
   let dateInfo = '';
   const dateElement = article.querySelector('[data-test-id="ad-date"]') ||
                      article.querySelector('.text-caption[aria-label*="il y a"]');
   if (dateElement) {
     dateInfo = dateElement.textContent.trim();
-    // Store as data attribute for sorting
+    // Stocker comme attribut data pour le tri
     itemElement.dataset.date = dateInfo;
   }
 
-  // Store numeric price for sorting
+  // Stocker le prix numérique pour le tri
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
   itemElement.dataset.price = isNaN(numericPrice) ? '0' : numericPrice.toString();
 
-  // Make the entire item clickable
+  // Rendre l'élément entier cliquable
   itemElement.style.cursor = 'pointer';
   itemElement.addEventListener('click', () => {
     window.open(url, '_blank');
   });
 
-  // Build the item card HTML
+  // Construire le HTML de la carte d'article
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
@@ -338,7 +338,7 @@ function createCardFromRawHTML(item) {
             <polyline points="15 3 21 3 21 9"></polyline>
             <line x1="10" y1="14" x2="21" y2="3"></line>
           </svg>
-          View
+          Voir
         </a>
       </div>
     </div>
@@ -350,13 +350,13 @@ function createCardFromRawHTML(item) {
   return itemElement;
 }
 
-// Helper function to extract text content from elements
+// Fonction auxiliaire pour extraire le contenu textuel des éléments
 function extractTextContent(parentElement, selector) {
   const element = parentElement.querySelector(selector);
   return element ? element.textContent.trim() : null;
 }
 
-// Apply current filters to alternatives and render them
+// Appliquer les filtres actuels aux alternatives et les afficher
 function renderFilteredAlternatives() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
@@ -364,19 +364,19 @@ function renderFilteredAlternatives() {
   const itemsContainer = container.querySelector('.aaf-items');
   if (!itemsContainer) return;
 
-  // Clear the container
+  // Vider le conteneur
   itemsContainer.innerHTML = '';
 
-  // Create a copy of the alternatives to sort
+  // Créer une copie des alternatives à trier
   const filteredAlternatives = [...allAlternatives];
 
-  // Apply sorting if a filter is active
+  // Appliquer le tri si un filtre est actif
   if (currentFilter.type !== 'none') {
     filteredAlternatives.sort((a, b) => {
       const elemA = document.createElement('div');
       const elemB = document.createElement('div');
 
-      // Create temporary elements to extract comparable values
+      // Créer des éléments temporaires pour extraire des valeurs comparables
       const cardA = createCardFromRawHTML({ ...a });
       const cardB = createCardFromRawHTML({ ...b });
 
@@ -390,11 +390,11 @@ function renderFilteredAlternatives() {
         valueB = parseFloat(cardB.dataset.price) || 0;
         sortMultiplier = currentFilter.type === 'price-asc' ? 1 : -1;
       } else if (currentFilter.type.startsWith('date')) {
-        // For date, we're using the date text which may be relative
+        // Pour la date, nous utilisons le texte de date qui peut être relatif
         valueA = cardA.dataset.date || '';
         valueB = cardB.dataset.date || '';
 
-        // Simple heuristic for relative date sorting (not perfect but a starting point)
+        // Heuristique simple pour le tri de date relative (pas parfait mais un point de départ)
         if (valueA.includes('min') && valueB.includes('h')) return currentFilter.type === 'date-asc' ? -1 : 1;
         if (valueA.includes('h') && valueB.includes('min')) return currentFilter.type === 'date-asc' ? 1 : -1;
         if (valueA.includes('h') && valueB.includes('h')) {
@@ -416,7 +416,7 @@ function renderFilteredAlternatives() {
     });
   }
 
-  // Render the sorted alternatives
+  // Afficher les alternatives triées
   filteredAlternatives.forEach(item => {
     if (item.html) {
       const itemElement = createCardFromRawHTML(item);
@@ -427,9 +427,9 @@ function renderFilteredAlternatives() {
   });
 }
 
-// Render alternatives in the panel
+// Afficher les alternatives dans le panneau
 function renderAlternatives(alternatives) {
-  console.log("Rendering alternatives:", alternatives);
+  console.log("Affichage des alternatives:", alternatives);
 
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
@@ -441,75 +441,75 @@ function renderAlternatives(alternatives) {
   const filterControls = container.querySelector('.aaf-filter-controls');
   const itemsContainer = container.querySelector('.aaf-items');
 
-  // Hide loading state
+  // Masquer l'état de chargement
   if (loading) {
     loading.style.display = 'none';
   }
 
-  // Check if alternatives is an array and has items
+  // Vérifier si alternatives est un tableau et contient des éléments
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
-    // Display new no results UI
+    // Afficher la nouvelle interface pour aucun résultat
     if (results) {
       results.style.display = 'block';
 
-      // Hide the filter controls and results count
+      // Masquer les contrôles de filtre et le nombre de résultats
       if (filterControls) {
         filterControls.style.display = 'none';
       }
 
-      // Add the new no results UI
+      // Ajouter la nouvelle interface pour aucun résultat
       if (itemsContainer) {
         itemsContainer.innerHTML = `
           <div class="aaf-no-results">
             <svg class="aaf-no-results-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121.7 122.88">
               <path d="M53.62 0c14.81 0 28.21 6 37.91 15.7 9.7 9.7 15.7 23.11 15.7 37.91 0 10.83-3.21 20.91-8.74 29.35l23.2 25.29-16 14.63-22.37-24.62a53.359 53.359 0 01-29.7 8.98c-14.81 0-28.21-6-37.91-15.7C6 81.82 0 68.42 0 53.62 0 38.81 6 25.41 15.7 15.7 25.41 6 38.81 0 53.62 0zm8.01 38.91a4.747 4.747 0 016.76-.02 4.868 4.868 0 01.02 6.83l-8.17 8.29 8.18 8.3c1.85 1.88 1.82 4.92-.05 6.79-1.88 1.87-4.9 1.87-6.74-.01l-8.13-8.24-8.14 8.26a4.747 4.747 0 01-6.76.02 4.868 4.868 0 01-.02-6.83l8.17-8.3-8.18-8.3c-1.85-1.88-1.82-4.92.06-6.79 1.88-1.87 4.9-1.87 6.74.01l8.13 8.24 8.13-8.25zM87.3 19.93C78.68 11.31 66.77 5.98 53.62 5.98c-13.15 0-25.06 5.33-33.68 13.95-8.63 8.62-13.96 20.53-13.96 33.69 0 13.15 5.33 25.06 13.95 33.68 8.62 8.62 20.53 13.95 33.68 13.95 13.16 0 25.06-5.33 33.68-13.95 8.62-8.62 13.95-20.53 13.95-33.68.01-13.16-5.32-25.07-13.94-33.69z" fill-rule="evenodd" clip-rule="evenodd"/>
             </svg>
-            <div class="aaf-no-results-text">No alternative found</div>
+            <div class="aaf-no-results-text">Aucune alternative trouvée</div>
           </div>
         `;
       }
     }
 
-    // Reset toggle text if no results
+    // Réinitialiser le texte du toggle s'il n'y a pas de résultats
     if (toggleText) {
-      toggleText.textContent = "Search on leboncoin";
+      toggleText.textContent = "Rechercher sur leboncoin";
       toggleText.classList.remove('has-alternatives');
     }
 
     return;
   }
 
-  // Show filter controls for when we have results
+  // Afficher les contrôles de filtre lorsque nous avons des résultats
   if (filterControls) {
     filterControls.style.display = 'flex';
   }
 
-  // Store all alternatives for filtering
+  // Stocker toutes les alternatives pour le filtrage
   allAlternatives = [...alternatives];
 
-  // Cache the alternatives for this product URL
+  // Mettre en cache les alternatives pour cette URL de produit
   alternativesCache[window.location.href] = alternatives;
 
-  // Update the toggle text with the count
+  // Mettre à jour le texte du toggle avec le compte
   if (toggleText) {
     toggleText.textContent = `${alternatives.length} alternatives`;
     toggleText.classList.add('has-alternatives');
   }
 
-  // Update the count text
+  // Mettre à jour le texte du nombre
   if (resultsCount) {
-    resultsCount.textContent = `Found ${alternatives.length} alternatives on Leboncoin`;
+    resultsCount.textContent = `${alternatives.length} alternatives trouvées sur Leboncoin`;
   }
 
-  // Apply any active filters and render
+  // Appliquer tous les filtres actifs et afficher
   if (currentFilter.type !== 'none') {
     renderFilteredAlternatives();
   } else {
-    // If no filter is active, render normally
+    // Si aucun filtre n'est actif, afficher normalement
     if (itemsContainer) {
       itemsContainer.innerHTML = '';
 
-      // Add each alternative as a card
+      // Ajouter chaque alternative comme une carte
       alternatives.forEach(item => {
         if (item.html) {
           const itemElement = createCardFromRawHTML(item);
@@ -521,47 +521,47 @@ function renderAlternatives(alternatives) {
     }
   }
 
-  // Show results
+  // Afficher les résultats
   if (results) {
     results.style.display = 'block';
   }
 
-  // Reset filter buttons to default state
+  // Réinitialiser les boutons de filtre à l'état par défaut
   updateFilterUI();
 
-  // Store the alternatives in sessionStorage for persistence
+  // Stocker les alternatives dans sessionStorage pour la persistance
   try {
-    // Store with URL key to differentiate between products
+    // Stocker avec la clé URL pour différencier entre les produits
     sessionStorage.setItem(`aaf_alternatives_${window.location.pathname}`, JSON.stringify(alternatives));
 
-    // Also store the entire cache
+    // Stocker également l'ensemble du cache
     sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
   } catch (error) {
-    console.error("Error storing alternatives in sessionStorage:", error);
+    console.error("Erreur lors du stockage des alternatives dans sessionStorage:", error);
   }
 }
 
-// Check if the current URL is an Amazon product page
+// Vérifier si l'URL actuelle est une page de produit Amazon
 function isAmazonProductPage() {
   return window.location.href.match(/amazon\.fr.*\/dp\//);
 }
 
-// Reset the UI state when navigating to a new product
+// Réinitialiser l'état de l'interface utilisateur lors de la navigation vers un nouveau produit
 function resetUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
 
-  // Reset toggle text
+  // Réinitialiser le texte du toggle
   const toggleText = container.querySelector('.aaf-toggle-text');
   if (toggleText) {
-    toggleText.textContent = "Search on leboncoin";
+    toggleText.textContent = "Rechercher sur leboncoin";
     toggleText.classList.remove('has-alternatives');
   }
 
-  // Reset alternatives
+  // Réinitialiser les alternatives
   allAlternatives = [];
 
-  // Show loading if panel is expanded
+  // Afficher le chargement si le panneau est développé
   if (container.classList.contains('aaf-expanded')) {
     const loading = container.querySelector('.aaf-loading');
     const results = container.querySelector('.aaf-results');
@@ -571,101 +571,101 @@ function resetUI() {
       results.style.display = 'none';
     }
 
-    // If we have cached alternatives for this URL, display them
+    // Si nous avons des alternatives en cache pour cette URL, les afficher
     if (alternativesCache[window.location.href]) {
-      console.log("Using cached alternatives after URL change:", window.location.href);
+      console.log("Utilisation des alternatives en cache après changement d'URL:", window.location.href);
       renderAlternatives(alternativesCache[window.location.href]);
     }
   }
 }
 
-// Initialize the extension UI
+// Initialiser l'interface utilisateur de l'extension
 function initExtension() {
   if (isAmazonProductPage()) {
-    console.log("Amazon product page detected. Initializing extension...");
+    console.log("Page produit Amazon détectée. Initialisation de l'extension...");
     createExtensionUI();
 
-    // Try to load alternatives cache from sessionStorage
+    // Essayer de charger le cache d'alternatives depuis sessionStorage
     try {
       const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
       if (storedCache) {
         alternativesCache = JSON.parse(storedCache);
-        console.log("Loaded alternatives cache from sessionStorage:", alternativesCache);
+        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
       }
 
-      // Check if we have cached alternatives for the current URL
+      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
       if (alternativesCache[window.location.href]) {
-        console.log("Found cached alternatives for current URL:", window.location.href);
+        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
         renderAlternatives(alternativesCache[window.location.href]);
       } else {
-        // Try loading URL-specific alternatives from sessionStorage
+        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
         const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
         if (storedAlternatives) {
           const parsedAlternatives = JSON.parse(storedAlternatives);
-          console.log("Loaded alternatives from sessionStorage:", parsedAlternatives);
+          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
           renderAlternatives(parsedAlternatives);
-          // Also add to the cache
+          // Également ajouter au cache
           alternativesCache[window.location.href] = parsedAlternatives;
         }
       }
     } catch (error) {
-      console.error("Error loading alternatives from sessionStorage:", error);
+      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
     }
 
-    // Set up URL change detection
+    // Configurer la détection de changement d'URL
     currentUrl = window.location.href;
   }
 }
 
-// Listen for product info from background script
+// Écouter les infos produit du script d'arrière-plan
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Content script received message:", message);
+  console.log("Script de contenu a reçu un message:", message);
 
   if (message.action === "PRODUCT_INFO") {
-    console.log("Received product info:", message.productInfo);
+    console.log("Informations produit reçues:", message.productInfo);
 
-    // Store the product info
+    // Stocker les informations produit
     currentProductInfo = message.productInfo;
 
-    // Initialize UI if it doesn't exist
+    // Initialiser l'interface si elle n'existe pas
     let container = document.getElementById('amazon-alternative-finder');
     if (!container) {
       container = createExtensionUI();
     }
   } else if (message.action === "ALTERNATIVES_FOUND") {
-    console.log("Received alternatives:", message.alternatives);
+    console.log("Alternatives reçues:", message.alternatives);
 
-    // Render the alternatives in the UI
+    // Afficher les alternatives dans l'interface
     renderAlternatives(message.alternatives);
 
-    // Cache the alternatives for this product URL
+    // Mettre en cache les alternatives pour cette URL de produit
     if (message.alternatives && message.alternatives.length > 0) {
       alternativesCache[window.location.href] = message.alternatives;
 
-      // Update sessionStorage with the new cache
+      // Mettre à jour sessionStorage avec le nouveau cache
       try {
         sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
       } catch (error) {
-        console.error("Error storing alternatives cache in sessionStorage:", error);
+        console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
       }
     }
   }
 });
 
-// Initialize the extension when the DOM is fully loaded
+// Initialiser l'extension lorsque le DOM est entièrement chargé
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initExtension);
 } else {
   initExtension();
 }
 
-// Set up URL change detection with MutationObserver to reset badge when navigating to a new product
+// Configurer la détection de changement d'URL avec MutationObserver pour réinitialiser le badge lors de la navigation vers un nouveau produit
 let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    console.log('URL changed to', url);
+    console.log('URL changée pour', url);
     resetUI();
   }
 }).observe(document, {subtree: true, childList: true});

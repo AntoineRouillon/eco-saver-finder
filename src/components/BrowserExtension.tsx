@@ -87,7 +87,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
         >
           <path d="M53.62 0c14.81 0 28.21 6 37.91 15.7 9.7 9.7 15.7 23.11 15.7 37.91 0 10.83-3.21 20.91-8.74 29.35l23.2 25.29-16 14.63-22.37-24.62a53.359 53.359 0 01-29.7 8.98c-14.81 0-28.21-6-37.91-15.7C6 81.82 0 68.42 0 53.62 0 38.81 6 25.41 15.7 15.7 25.41 6 38.81 0 53.62 0zm8.01 38.91a4.747 4.747 0 016.76-.02 4.868 4.868 0 01.02 6.83l-8.17 8.29 8.18 8.3c1.85 1.88 1.82 4.92-.05 6.79-1.88 1.87-4.9 1.87-6.74-.01l-8.13-8.24-8.14 8.26a4.747 4.747 0 01-6.76.02 4.868 4.868 0 01-.02-6.83l8.17-8.3-8.18-8.3c-1.85-1.88-1.82-4.92.06-6.79 1.88-1.87 4.9-1.87 6.74.01l8.13 8.24 8.13-8.25zM87.3 19.93C78.68 11.31 66.77 5.98 53.62 5.98c-13.15 0-25.06 5.33-33.68 13.95-8.63 8.62-13.96 20.53-13.96 33.69 0 13.15 5.33 25.06 13.95 33.68 8.62 8.62 20.53 13.95 33.68 13.95 13.16 0 25.06-5.33 33.68-13.95 8.62-8.62 13.95-20.53 13.95-33.68.01-13.16-5.32-25.07-13.94-33.69z" fill-rule="evenodd" clip-rule="evenodd"/>
         </svg>
-        <h4 className="text-base font-medium text-gray-800">No alternative found</h4>
+        <h4 className="text-base font-medium text-gray-800">Aucune alternative trouvée</h4>
       </div>
     );
   };
@@ -102,8 +102,8 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     >
       <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <div>
-          <div className="text-xs font-medium text-[#4AB07B]">Amazon Alternative Finder</div>
-          <h3 className="text-sm font-medium">Second-hand alternatives</h3>
+          <div className="text-xs font-medium text-[#4AB07B]">AltMarket</div>
+          <h3 className="text-sm font-medium">Alternatives d'occasion</h3>
         </div>
         <button
           onClick={onClose}
@@ -144,7 +144,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-gray-500">
-                    Found {products.length} alternatives on Leboncoin
+                    {products.length} alternatives trouvées sur Leboncoin
                   </p>
                   <Button
                     variant="outline"
@@ -206,12 +206,12 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                             size="sm"
                             className="text-xs text-gray-600 hover:text-[#4AB07B] p-1 h-auto"
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent card click from firing
+                              e.stopPropagation(); // Empêcher le clic sur la carte de se déclencher
                               window.open(product.url, '_blank');
                             }}
                           >
                             <ExternalLink size={14} className="mr-1" />
-                            View
+                            Voir
                           </Button>
                         </div>
                       </div>
@@ -227,7 +227,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
       </div>
 
       <div className="border-t border-gray-100 p-3 bg-gray-50">
-        <div className="text-xs text-gray-500 mb-2">Was this helpful?</div>
+        <div className="text-xs text-gray-500 mb-2">Est-ce que cela vous a aidé ?</div>
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -235,7 +235,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             className="flex-1 h-8 text-xs border-gray-200"
           >
             <ThumbsUp size={14} className="mr-1" />
-            Yes
+            Oui
           </Button>
           <Button
             variant="outline"
@@ -243,7 +243,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             className="flex-1 h-8 text-xs border-gray-200"
           >
             <ThumbsDown size={14} className="mr-1" />
-            No
+            Non
           </Button>
         </div>
       </div>
