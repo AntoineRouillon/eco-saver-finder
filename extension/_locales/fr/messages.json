@@ -1,0 +1,77 @@
+
+{
+  "appName": {
+    "message": "AltMarket",
+    "description": "Le nom de l'extension"
+  },
+  "appDescription": {
+    "message": "Trouvez des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr",
+    "description": "La description de l'extension"
+  },
+  "toggleButtonText": {
+    "message": "Voir les alternatives",
+    "description": "Texte du bouton pour afficher les alternatives"
+  },
+  "closeButton": {
+    "message": "Fermer",
+    "description": "Texte du bouton pour fermer le panneau"
+  },
+  "loadingText": {
+    "message": "Recherche en cours...",
+    "description": "Texte affiché pendant le chargement des résultats"
+  },
+  "noResultsTitle": {
+    "message": "Aucune alternative trouvée",
+    "description": "Titre affiché lorsqu'aucune alternative n'est trouvée"
+  },
+  "noResultsText": {
+    "message": "Nous n'avons pas trouvé d'alternatives d'occasion pour ce produit sur Leboncoin.",
+    "description": "Texte affiché lorsqu'aucune alternative n'est trouvée"
+  },
+  "resultsCount": {
+    "message": "$COUNT$ alternatives trouvées",
+    "description": "Nombre d'alternatives trouvées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "filterByPrice": {
+    "message": "Prix: croissant",
+    "description": "Filtrer par prix croissant"
+  },
+  "filterByPriceDesc": {
+    "message": "Prix: décroissant",
+    "description": "Filtrer par prix décroissant"
+  },
+  "filterByRelevance": {
+    "message": "Pertinence",
+    "description": "Filtrer par pertinence"
+  },
+  "deliveryAvailable": {
+    "message": "Livraison possible",
+    "description": "Indique que la livraison est disponible"
+  },
+  "proSeller": {
+    "message": "Vendeur pro",
+    "description": "Indique un vendeur professionnel"
+  },
+  "viewItem": {
+    "message": "Voir",
+    "description": "Texte du bouton pour voir l'article"
+  },
+  "feedbackQuestion": {
+    "message": "Ces alternatives sont-elles utiles?",
+    "description": "Question pour le retour d'expérience"
+  },
+  "feedbackYes": {
+    "message": "Oui",
+    "description": "Bouton de retour positif"
+  },
+  "feedbackNo": {
+    "message": "Non",
+    "description": "Bouton de retour négatif"
+  }
+}

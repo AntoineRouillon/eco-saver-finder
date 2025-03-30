@@ -1,0 +1,77 @@
+
+{
+  "appName": {
+    "message": "AltMarket",
+    "description": "The extension name"
+  },
+  "appDescription": {
+    "message": "Find second-hand alternatives on Leboncoin while browsing Amazon.fr",
+    "description": "The extension description"
+  },
+  "toggleButtonText": {
+    "message": "View alternatives",
+    "description": "Text for the button to display alternatives"
+  },
+  "closeButton": {
+    "message": "Close",
+    "description": "Text for the close button"
+  },
+  "loadingText": {
+    "message": "Searching...",
+    "description": "Text displayed while loading results"
+  },
+  "noResultsTitle": {
+    "message": "No alternatives found",
+    "description": "Title displayed when no alternatives are found"
+  },
+  "noResultsText": {
+    "message": "We couldn't find any second-hand alternatives for this product on Leboncoin.",
+    "description": "Text displayed when no alternatives are found"
+  },
+  "resultsCount": {
+    "message": "$COUNT$ alternatives found",
+    "description": "Number of alternatives found",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "filterByPrice": {
+    "message": "Price: low to high",
+    "description": "Filter by price ascending"
+  },
+  "filterByPriceDesc": {
+    "message": "Price: high to low",
+    "description": "Filter by price descending"
+  },
+  "filterByRelevance": {
+    "message": "Relevance",
+    "description": "Filter by relevance"
+  },
+  "deliveryAvailable": {
+    "message": "Delivery available",
+    "description": "Indicates that delivery is available"
+  },
+  "proSeller": {
+    "message": "Professional seller",
+    "description": "Indicates a professional seller"
+  },
+  "viewItem": {
+    "message": "View",
+    "description": "Text for the button to view the item"
+  },
+  "feedbackQuestion": {
+    "message": "Are these alternatives useful?",
+    "description": "Question for feedback"
+  },
+  "feedbackYes": {
+    "message": "Yes",
+    "description": "Button for positive feedback"
+  },
+  "feedbackNo": {
+    "message": "No",
+    "description": "Button for negative feedback"
+  }
+}
