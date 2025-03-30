@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -284,8 +285,8 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // Wait 3 seconds to give the page time to render the "no results" message if it exists
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          // Wait 1.5 seconds to give the page time to render the "no results" message if it exists
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
           // NEW STEP: Check for "no results" message
           console.log("Checking for 'no results' message...");
