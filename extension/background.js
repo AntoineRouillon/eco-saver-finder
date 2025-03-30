@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -152,29 +153,13 @@ async function waitForPageLoad(tabId, timeout = 30000) {
   return Promise.resolve();
 }
 
-// Function to check for "no results" message on Leboncoin
+// Function to check for "no results" message on Leboncoin using only element selectors
 function checkNoResults(tabId) {
   return new Promise((resolve) => {
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: () => {
-        // More comprehensive check for "no results" messages on Leboncoin
-        // Using multiple selectors that might indicate no results
-        
-        // Check for specific text in the page that indicates no results
-        const pageText = document.body.innerText || '';
-        const noResultsTexts = [
-          "Aucune annonce",
-          "Pas de résultat",
-          "Aucun résultat",
-          "Désolés, nous n'avons pas ça sous la main"
-        ];
-        
-        const hasNoResultsText = noResultsTexts.some(text => 
-          pageText.includes(text)
-        );
-        
-        // Check for common "no results" UI patterns
+        // Only use element selectors to check for "no results"
         const noResultSelectors = [
           // Main selector provided by user
           'p[data-test-id="noErrorMainMessage"]',
@@ -197,33 +182,36 @@ function checkNoResults(tabId) {
           '.zero-results'
         ];
         
-        const hasNoResultElement = noResultSelectors.some(selector => 
-          document.querySelector(selector) !== null
-        );
+        // Check each selector and log when found
+        for (const selector of noResultSelectors) {
+          const element = document.querySelector(selector);
+          if (element) {
+            console.log(`No results detected: Found element matching selector '${selector}'`, element);
+            return { found: true, selector: selector };
+          }
+        }
         
         // Check if there are no ad items (another way to detect no results)
-        const noAdItems = document.querySelectorAll('article[data-test-id="ad"]').length === 0 &&
-                        document.querySelectorAll('article[data-qa-id="aditem_container"]').length === 0 &&
-                        // Make sure there's no loading state active
-                        document.readyState === 'complete' &&
-                        !document.querySelector('.loading-spinner') &&
-                        !document.querySelector('[data-testid="loading"]');
+        const adItems1 = document.querySelectorAll('article[data-test-id="ad"]');
+        const adItems2 = document.querySelectorAll('article[data-qa-id="aditem_container"]');
         
-        console.log("No results check:", { 
-          hasNoResultsText, 
-          hasNoResultElement, 
-          noAdItems,
-          pageTitle: document.title,
-          bodyText: pageText.substring(0, 200), // First 200 chars for debugging
-          specificElementFound: document.querySelector('p[data-test-id="noErrorMainMessage"]') !== null
-        });
+        if (adItems1.length === 0 && adItems2.length === 0 && document.readyState === 'complete') {
+          console.log('No results detected: No ad items found in the page');
+          return { found: true, selector: 'no-ad-items' };
+        }
         
-        // If we have text indicating no results OR a no-result element OR no ad items, consider it "no results"
-        return hasNoResultsText || hasNoResultElement || noAdItems;
+        return { found: false };
       }
     }).then(results => {
-      const noResultsFound = results && results[0]?.result === true;
-      console.log("No results check returned:", noResultsFound);
+      const result = results && results[0]?.result;
+      const noResultsFound = result && result.found === true;
+      
+      if (noResultsFound) {
+        console.log(`No results check returned: true (selector: ${result.selector})`);
+      } else {
+        console.log("No results check returned: false");
+      }
+      
       resolve(noResultsFound);
     }).catch(error => {
       console.error("Error checking for no results:", error);
