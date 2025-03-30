@@ -21,7 +21,7 @@
   border-right: none;
   border-radius: 4px 0 0 4px;
   width: auto;
-  min-width: 200px;
+  min-width: 150px;
   height: 48px;
   display: flex;
   align-items: center;
@@ -34,7 +34,7 @@
 }
 
 .aaf-toggle:hover {
-  background-color: #F9FAFB;
+  background-color: #F0FCF4;
   box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -373,8 +373,8 @@
 }
 
 .aaf-badge-delivery {
-  background-color: #f0fcf4;
-  color: #4AB07B;
+  color: #64748b;
+  border: 1px solid #64748b;
 }
 
 .aaf-item-footer {
