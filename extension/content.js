@@ -53,7 +53,7 @@ function createExtensionUI() {
             <p>Recherche d'alternatives...</p>
           </div>
           <div class="aaf-skeleton-loading" style="display: none;">
-            <!-- Skeleton loading cards will be added here -->
+            <!-- Just one skeleton loading card -->
             <div class="aaf-filter-controls">
               <div class="aaf-skeleton-filter" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div class="aaf-skeleton-text" style="width: 150px; height: 16px; background: #eee; border-radius: 4px;"></div>
@@ -61,7 +61,7 @@ function createExtensionUI() {
               </div>
             </div>
             <div class="aaf-skeleton-items">
-              <!-- Skeleton cards will be inserted here by JavaScript -->
+              <!-- Only one skeleton card will be inserted here -->
             </div>
           </div>
         </div>
@@ -121,51 +121,30 @@ function createExtensionUI() {
           <div class="aaf-items"></div>
         </div>
       </div>
-      <!--<div class="aaf-footer">
-        <div class="aaf-feedback-text">Est-ce que cela vous a aidé ?</div>
-        <div class="aaf-feedback-buttons">
-          <button class="aaf-feedback-btn aaf-yes-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M7 10v12"></path>
-              <path d="M15 5.88 14 10h5.83a2 2 0 0 1-1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
-            </svg>
-            Oui
-          </button>
-          <button class="aaf-feedback-btn aaf-no-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 14V2"></path>
-              <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path>
-            </svg>
-            Non
-          </button>
-        </div>
-      </div> -->
     </div>
   `;
 
-  // Create skeleton cards (similar to the React component's SkeletonProductCard)
+  // Create just one skeleton card (similar to the React component's SkeletonProductCard)
   const skeletonContainer = container.querySelector('.aaf-skeleton-items');
   if (skeletonContainer) {
-    for (let i = 0; i < 3; i++) {
-      const skeletonCard = document.createElement('div');
-      skeletonCard.className = 'aaf-skeleton-card';
-      skeletonCard.innerHTML = `
-        <div class="aaf-skeleton-image" style="width: 100%; height: 160px; background: #eee; border-radius: 8px 8px 0 0;"></div>
-        <div class="aaf-skeleton-content" style="padding: 12px;">
-          <div class="aaf-skeleton-title" style="width: 100%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 8px;"></div>
-          <div class="aaf-skeleton-subtitle" style="width: 75%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 12px;"></div>
-          <div class="aaf-skeleton-badges" style="display: flex; gap: 4px; margin-bottom: 12px;">
-            <div class="aaf-skeleton-badge" style="width: 60px; height: 20px; background: #eee; border-radius: 10px;"></div>
-            <div class="aaf-skeleton-badge" style="width: 80px; height: 20px; background: #eee; border-radius: 10px;"></div>
-          </div>
-          <div class="aaf-skeleton-footer" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="aaf-skeleton-price" style="width: 60px; height: 20px; background: #eee; border-radius: 4px;"></div>
-            <div class="aaf-skeleton-button" style="width: 60px; height: 28px; background: #eee; border-radius: 4px;"></div>
-          </div>
+    const skeletonCard = document.createElement('div');
+    skeletonCard.className = 'aaf-skeleton-card';
+    skeletonCard.innerHTML = `
+      <div class="aaf-skeleton-image" style="width: 100%; height: 160px; background: #eee; border-radius: 8px 8px 0 0;"></div>
+      <div class="aaf-skeleton-content" style="padding: 12px;">
+        <div class="aaf-skeleton-title" style="width: 100%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div class="aaf-skeleton-subtitle" style="width: 75%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div class="aaf-skeleton-badges" style="display: flex; gap: 4px; margin-bottom: 12px;">
+          <div class="aaf-skeleton-badge" style="width: 60px; height: 20px; background: #eee; border-radius: 10px;"></div>
+          <div class="aaf-skeleton-badge" style="width: 80px; height: 20px; background: #eee; border-radius: 10px;"></div>
         </div>
-      `;
-      skeletonContainer.appendChild(skeletonCard);
-    }
+        <div class="aaf-skeleton-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="aaf-skeleton-price" style="width: 60px; height: 20px; background: #eee; border-radius: 4px;"></div>
+          <div class="aaf-skeleton-button" style="width: 60px; height: 28px; background: #eee; border-radius: 4px;"></div>
+        </div>
+      </div>
+    `;
+    skeletonContainer.appendChild(skeletonCard);
   }
 
   // Ajouter les écouteurs d'événements
@@ -625,199 +604,3 @@ function renderAlternatives(alternatives) {
       alternatives.forEach(item => {
         if (item.html) {
           const itemElement = createCardFromRawHTML(item);
-          if (itemElement) {
-            itemsContainer.appendChild(itemElement);
-          }
-        }
-      });
-    }
-  }
-
-  // Afficher les résultats
-  if (results) {
-    results.style.display = 'block';
-  }
-
-  // Réinitialiser les boutons de filtre à l'état par défaut
-  updateFilterUI();
-
-  // Stocker les alternatives dans sessionStorage pour la persistance
-  try {
-    // Stocker avec la clé URL pour différencier entre les produits
-    sessionStorage.setItem(`aaf_alternatives_${window.location.pathname}`, JSON.stringify(alternatives));
-
-    // Stocker également l'ensemble du cache
-    sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
-  } catch (error) {
-    console.error("Erreur lors du stockage des alternatives dans sessionStorage:", error);
-  }
-}
-
-// Vérifier si l'URL actuelle est une page de produit Amazon
-function isAmazonProductPage() {
-  return window.location.href.match(/amazon\.fr.*\/dp\//);
-}
-
-// Réinitialiser l'état de l'interface utilisateur lors de la navigation vers un nouveau produit
-function resetUI() {
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-
-  // Réinitialiser le texte du toggle
-  const toggleText = container.querySelector('.aaf-toggle-text');
-  if (toggleText) {
-    toggleText.textContent = "Rechercher sur leboncoin";
-    toggleText.classList.remove('has-alternatives');
-  }
-
-  // Réinitialiser les alternatives
-  allAlternatives = [];
-
-  // Afficher le chargement si le panneau est développé
-  if (container.classList.contains('aaf-expanded')) {
-    const loading = container.querySelector('.aaf-loading');
-    const results = container.querySelector('.aaf-results');
-
-    if (loading && results) {
-      loading.style.display = 'flex';
-      results.style.display = 'none';
-    }
-
-    // Si nous avons des alternatives en cache pour cette URL, les afficher
-    if (alternativesCache[window.location.href]) {
-      console.log("Utilisation des alternatives en cache après changement d'URL:", window.location.href);
-      renderAlternatives(alternativesCache[window.location.href]);
-    }
-  }
-}
-
-// Initialiser l'interface utilisateur de l'extension
-function initExtension() {
-  if (isAmazonProductPage()) {
-    console.log("Page produit Amazon détectée. Initialisation de l'extension...");
-    createExtensionUI();
-
-    // Essayer de charger le cache d'alternatives depuis sessionStorage
-    try {
-      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
-      if (storedCache) {
-        alternativesCache = JSON.parse(storedCache);
-        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
-      }
-
-      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
-      if (alternativesCache[window.location.href]) {
-        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
-        renderAlternatives(alternativesCache[window.location.href]);
-      } else {
-        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
-        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
-        if (storedAlternatives) {
-          const parsedAlternatives = JSON.parse(storedAlternatives);
-          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
-          renderAlternatives(parsedAlternatives);
-          // Également ajouter au cache
-          alternativesCache[window.location.href] = parsedAlternatives;
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
-    }
-
-    // Configurer la détection de changement d'URL
-    currentUrl = window.location.href;
-  }
-}
-
-// Écouter les infos produit du script d'arrière-plan
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Script de contenu a reçu un message:", message);
-
-  if (message.action === "PRODUCT_INFO") {
-    console.log("Informations produit reçues:", message.productInfo);
-
-    // Stocker les informations produit
-    currentProductInfo = message.productInfo;
-
-    // Initialiser l'interface si elle n'existe pas
-    let container = document.getElementById('amazon-alternative-finder');
-    if (!container) {
-      container = createExtensionUI();
-    }
-  } else if (message.action === "ALTERNATIVES_FOUND") {
-    console.log("Alternatives reçues:", message.alternatives);
-
-    // Afficher les alternatives dans l'interface
-    renderAlternatives(message.alternatives);
-
-    // Mettre en cache les alternatives pour cette URL de produit
-    if (message.alternatives && message.alternatives.length > 0) {
-      alternativesCache[window.location.href] = message.alternatives;
-
-      // Mettre à jour sessionStorage avec le nouveau cache
-      try {
-        sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
-      } catch (error) {
-        console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
-      }
-    }
-  } else if (message.action === "NO_RESULTS_CHECK_COMPLETED" && message.result === false) {
-    // This message would be sent from background.js when the "No results check" returns false
-    console.log("'No results check' completed with result: false");
-    showSkeletonLoading();
-  } else if (message.action === "SCRAPING_STARTED") {
-    // Alternative way to trigger skeleton loading - when scraping has started
-    console.log("Scraping started, showing skeleton loading");
-    showSkeletonLoading();
-  }
-});
-
-// Initialiser l'extension lorsque le DOM est entièrement chargé
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initExtension);
-} else {
-  initExtension();
-}
-
-// Configurer la détection de changement d'URL avec MutationObserver pour réinitialiser le badge lors de la navigation vers un nouveau produit
-let lastUrl = location.href;
-new MutationObserver(() => {
-  const url = location.href;
-  if (url !== lastUrl) {
-    lastUrl = url;
-    console.log('URL changée pour', url);
-    resetUI();
-  }
-}).observe(document, {subtree: true, childList: true});
-
-// Function to show skeleton loading cards when scraping has started
-function showSkeletonLoading() {
-  isScrapingStarted = true;
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-  
-  const initialLoading = container.querySelector('.aaf-initial-loading');
-  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-  
-  if (initialLoading && skeletonLoading) {
-    initialLoading.style.display = 'none';
-    skeletonLoading.style.display = 'block';
-  }
-}
-
-// Function to hide skeleton loading and show results
-function hideSkeletonLoading() {
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-  
-  const loading = container.querySelector('.aaf-loading');
-  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-  
-  if (loading) {
-    loading.style.display = 'none';
-  }
-  
-  if (skeletonLoading) {
-    skeletonLoading.style.display = 'none';
-  }
-}
