@@ -11,6 +11,8 @@ let currentFilter = {
 let currentUrl = window.location.href;
 // Objet pour mettre en cache les alternatives par URL de produit
 let alternativesCache = {};
+// Variable pour suivre si le scraping a commencé (No results check returned false)
+let isScrapingStarted = false;
 
 // Fonction utilitaire pour gérer le pluriel/singulier
 function formatAlternativesCount(count) {
@@ -46,8 +48,22 @@ function createExtensionUI() {
       </div>
       <div class="aaf-content">
         <div class="aaf-loading">
-          <div class="aaf-spinner"></div>
-          <p>Recherche d'alternatives...</p>
+          <div class="aaf-initial-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px;">
+            <div class="aaf-spinner"></div>
+            <p>Recherche d'alternatives...</p>
+          </div>
+          <div class="aaf-skeleton-loading" style="display: none;">
+            <!-- Skeleton loading cards will be added here -->
+            <div class="aaf-filter-controls">
+              <div class="aaf-skeleton-filter" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div class="aaf-skeleton-text" style="width: 150px; height: 16px; background: #eee; border-radius: 4px;"></div>
+                <div class="aaf-skeleton-button" style="width: 32px; height: 32px; background: #eee; border-radius: 4px;"></div>
+              </div>
+            </div>
+            <div class="aaf-skeleton-items">
+              <!-- Skeleton cards will be inserted here by JavaScript -->
+            </div>
+          </div>
         </div>
         <div class="aaf-results" style="display: none;">
           <div class="aaf-filter-controls">
@@ -126,6 +142,31 @@ function createExtensionUI() {
       </div> -->
     </div>
   `;
+
+  // Create skeleton cards (similar to the React component's SkeletonProductCard)
+  const skeletonContainer = container.querySelector('.aaf-skeleton-items');
+  if (skeletonContainer) {
+    for (let i = 0; i < 3; i++) {
+      const skeletonCard = document.createElement('div');
+      skeletonCard.className = 'aaf-skeleton-card';
+      skeletonCard.innerHTML = `
+        <div class="aaf-skeleton-image" style="width: 100%; height: 160px; background: #eee; border-radius: 8px 8px 0 0;"></div>
+        <div class="aaf-skeleton-content" style="padding: 12px;">
+          <div class="aaf-skeleton-title" style="width: 100%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 8px;"></div>
+          <div class="aaf-skeleton-subtitle" style="width: 75%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 12px;"></div>
+          <div class="aaf-skeleton-badges" style="display: flex; gap: 4px; margin-bottom: 12px;">
+            <div class="aaf-skeleton-badge" style="width: 60px; height: 20px; background: #eee; border-radius: 10px;"></div>
+            <div class="aaf-skeleton-badge" style="width: 80px; height: 20px; background: #eee; border-radius: 10px;"></div>
+          </div>
+          <div class="aaf-skeleton-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="aaf-skeleton-price" style="width: 60px; height: 20px; background: #eee; border-radius: 4px;"></div>
+            <div class="aaf-skeleton-button" style="width: 60px; height: 28px; background: #eee; border-radius: 4px;"></div>
+          </div>
+        </div>
+      `;
+      skeletonContainer.appendChild(skeletonCard);
+    }
+  }
 
   // Ajouter les écouteurs d'événements
   const toggle = container.querySelector('.aaf-toggle');
@@ -221,11 +262,13 @@ function requestAlternatives(productInfo) {
   if (!container) return;
 
   const loading = container.querySelector('.aaf-loading');
+  const initialLoading = container.querySelector('.aaf-initial-loading');
   const results = container.querySelector('.aaf-results');
 
-  // Afficher l'état de chargement
-  if (loading && results) {
-    loading.style.display = 'flex';
+  // Afficher l'état de chargement initial (spinner)
+  if (loading && initialLoading && results) {
+    loading.style.display = 'block';
+    initialLoading.style.display = 'flex';
     results.style.display = 'none';
   }
 
@@ -505,6 +548,9 @@ function renderAlternatives(alternatives) {
   const filterControls = container.querySelector('.aaf-filter-controls');
   const itemsContainer = container.querySelector('.aaf-items');
 
+  // Hide all loading states
+  hideSkeletonLoading();
+
   // Masquer l'état de chargement
   if (loading) {
     loading.style.display = 'none';
@@ -715,6 +761,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
       }
     }
+  } else if (message.action === "NO_RESULTS_CHECK_COMPLETED" && message.result === false) {
+    // This message would be sent from background.js when the "No results check" returns false
+    console.log("'No results check' completed with result: false");
+    showSkeletonLoading();
+  } else if (message.action === "SCRAPING_STARTED") {
+    // Alternative way to trigger skeleton loading - when scraping has started
+    console.log("Scraping started, showing skeleton loading");
+    showSkeletonLoading();
   }
 });
 
@@ -735,3 +789,35 @@ new MutationObserver(() => {
     resetUI();
   }
 }).observe(document, {subtree: true, childList: true});
+
+// Function to show skeleton loading cards when scraping has started
+function showSkeletonLoading() {
+  isScrapingStarted = true;
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const initialLoading = container.querySelector('.aaf-initial-loading');
+  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
+  
+  if (initialLoading && skeletonLoading) {
+    initialLoading.style.display = 'none';
+    skeletonLoading.style.display = 'block';
+  }
+}
+
+// Function to hide skeleton loading and show results
+function hideSkeletonLoading() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const loading = container.querySelector('.aaf-loading');
+  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
+  
+  if (loading) {
+    loading.style.display = 'none';
+  }
+  
+  if (skeletonLoading) {
+    skeletonLoading.style.display = 'none';
+  }
+}
