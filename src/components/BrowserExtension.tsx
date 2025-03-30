@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
   id: string;
@@ -20,9 +21,14 @@ interface BrowserExtensionProps {
 const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState<'initial' | 'skeleton'>('initial');
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const initialTimer = setTimeout(() => {
+      setLoadingState('skeleton');
+    }, 800);
+    
+    const dataTimer = setTimeout(() => {
       setProducts([
         {
           id: '1',
@@ -53,9 +59,12 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
         }
       ]);
       setLoading(false);
-    }, 1500);
+    }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(initialTimer);
+      clearTimeout(dataTimer);
+    };
   }, []);
 
   const extractDataFromHTML = (html: string) => {
@@ -72,6 +81,45 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
       isPro: proBadge,
       hasDelivery: deliveryBadge
     };
+  };
+
+  const renderSkeletonCards = () => {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+        
+        {[1, 2, 3].map(i => (
+          <div 
+            key={`skeleton-${i}`} 
+            className="border border-gray-200 rounded-xl overflow-hidden bg-white"
+          >
+            <div className="relative aspect-square">
+              <Skeleton className="w-full h-full" />
+              <div className="absolute bottom-2 left-2">
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+            </div>
+            <div className="p-3">
+              <Skeleton className="h-5 w-full mb-1" />
+              <Skeleton className="h-5 w-4/5 mb-3" />
+              
+              <div className="flex gap-1 mb-3">
+                <Skeleton className="h-5 w-12 rounded-full" />
+                <Skeleton className="h-5 w-28 rounded-full" />
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-6 w-16 rounded-md" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderNoResults = () => {
@@ -113,10 +161,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
 
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-sm text-gray-500">Finding alternatives...</p>
-          </div>
+          <>
+            {loadingState === 'initial' ? (
+              <div className="flex flex-col items-center justify-center h-full space-y-4">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-gray-500">Finding alternatives...</p>
+              </div>
+            ) : (
+              renderSkeletonCards()
+            )}
+          </>
         ) : (
           <>
             {products.length > 0 ? (
