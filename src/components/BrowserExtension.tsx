@@ -24,6 +24,7 @@ interface BrowserExtensionProps {
 const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isScrapingStarted, setIsScrapingStarted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -62,7 +63,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
       setLoading(false);
     }, 1500);
 
-    return () => clearTimeout(timer);
+    // Simulate the "No results check" returning false after 500ms
+    // In a real implementation, this would be triggered by an actual message from the background script
+    const scrapingTimer = setTimeout(() => {
+      setIsScrapingStarted(true);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(scrapingTimer);
+    };
   }, []);
 
   // Improved function to extract the location from the Leboncoin HTML
@@ -143,6 +153,25 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     };
   };
 
+  // Component for skeleton loading cards
+  const SkeletonProductCard = () => (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <Skeleton className="w-full h-32" />
+      <div className="p-3 space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <div className="flex gap-1 mt-1">
+          <Skeleton className="h-5 w-12 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <div className="flex justify-between items-center pt-1">
+          <Skeleton className="h-5 w-16" />
+          <Skeleton className="h-8 w-16 rounded-md" />
+        </div>
+      </div>
+    </div>
+  );
+
   const renderNoResults = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
@@ -188,22 +217,21 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
               <Skeleton className="h-8 w-8 rounded-md" />
             </div>
             
-            {[1, 2, 3].map(i => (
-              <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
-                <Skeleton className="w-full h-32" />
-                <div className="p-3 space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <div className="flex gap-1 mt-1">
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <div className="flex justify-between items-center pt-1">
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-8 w-16 rounded-md" />
-                  </div>
-                </div>
+            {/* Show spinner loading or skeleton cards based on whether scraping has started */}
+            {isScrapingStarted ? (
+              // Skeleton product cards when scraping has started (No results check returned false)
+              <>
+                {[1, 2, 3].map(i => (
+                  <SkeletonProductCard key={i} />
+                ))}
+              </>
+            ) : (
+              // Initial spinner loading
+              <div className="flex flex-col items-center justify-center h-60">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-4 w-28 mt-4" />
               </div>
-            ))}
+            )}
           </div>
         ) : (
           <>
