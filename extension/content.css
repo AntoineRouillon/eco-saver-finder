@@ -323,6 +323,19 @@
   object-fit: contain;
 }
 
+/* Style pour le badge de date en haut à gauche de l'image */
+.aaf-item-date {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
 .aaf-item-location {
   position: absolute;
   bottom: 8px;
@@ -358,7 +371,7 @@
   margin-bottom: 8px;
 }
 
-/* Badge de livraison uniquement - Suppression du badge Pro */
+/* Badge de livraison */
 .aaf-badge-delivery {
   display: inline-flex;
   align-items: center;
@@ -372,7 +385,7 @@
   border: 1px solid #4AB07B;
 }
 
-/* Nouveau style pour le badge de localisation */
+/* Style pour le badge de localisation */
 .aaf-badge-location {
   display: inline-flex;
   align-items: center;
@@ -482,7 +495,7 @@
   animation-delay: 0.2s;
 }
 
-/* No results styles - Updated to use blue color and vertical centering */
+/* No results styles */
 .aaf-no-results {
   display: flex;
   flex-direction: column;

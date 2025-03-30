@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -270,6 +271,9 @@ function createCardFromRawHTML(item) {
 
   // Emplacement - utiliser notre fonction améliorée
   const location = extractLocation(article);
+  
+  // Date - extraire la date de l'annonce
+  const date = extractDate(article);
 
   // Image
   let imageUrl = '';
@@ -296,14 +300,9 @@ function createCardFromRawHTML(item) {
     url = 'https://www.leboncoin.fr' + url;
   }
 
-  // Extraire la date si disponible (pour le tri)
-  let dateInfo = '';
-  const dateElement = article.querySelector('[data-test-id="ad-date"]') ||
-                     article.querySelector('.text-caption[aria-label*="il y a"]');
-  if (dateElement) {
-    dateInfo = dateElement.textContent.trim();
-    // Stocker comme attribut data pour le tri
-    itemElement.dataset.date = dateInfo;
+  // Stocker la date pour le tri
+  if (date) {
+    itemElement.dataset.date = date;
   }
 
   // Stocker le prix numérique pour le tri
@@ -320,6 +319,7 @@ function createCardFromRawHTML(item) {
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
+      ${date ? `<div class="aaf-item-date">${date}</div>` : ''}
       <div class="aaf-item-location">${location}</div>
     </div>
     <div class="aaf-item-content">
@@ -351,11 +351,30 @@ function extractTextContent(parentElement, selector) {
   return element ? element.textContent.trim() : null;
 }
 
-// Fonction améliorée pour extraire la localisation avec plus de précision
-function extractLocation(article) {
-  // Essayer d'abord les sélecteurs spécifiques à la localisation
-  let location = null;
+// Fonction pour extraire la date de l'annonce
+function extractDate(article) {
+  // Chercher l'élément avec aria-label contenant "il y a" qui est généralement la date
+  const dateElement = article.querySelector('p[aria-label*="il y a"]') || 
+                      article.querySelector('p[aria-label="Aujourd\'hui"]');
   
+  if (dateElement) {
+    return dateElement.textContent.trim();
+  }
+  
+  // Chercher parmi tous les éléments text-caption pour trouver une indication de date
+  const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
+  for (const caption of allCaptions) {
+    const text = caption.textContent.trim();
+    if (text.startsWith("il y a") || text === "Aujourd'hui" || text === "Hier") {
+      return text;
+    }
+  }
+  
+  return null;
+}
+
+// Fonction améliorée pour extraire la localisation avec précision
+function extractLocation(article) {
   // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
   const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
   if (locationWithAriaLabel) {
@@ -379,7 +398,7 @@ function extractLocation(article) {
     if (element) {
       const text = element.textContent.trim();
       // Éviter de capturer la date (commence souvent par "il y a")
-      if (text && !text.startsWith("il y a")) {
+      if (text && !text.startsWith("il y a") && text !== "Aujourd'hui" && text !== "Hier") {
         location = text;
         break;
       }
@@ -392,8 +411,9 @@ function extractLocation(article) {
     const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
     for (const caption of allCaptions) {
       const text = caption.textContent.trim();
-      // Éviter les textes qui semblent être des dates
-      if (text && !text.includes('il y a') && !text.includes('Tech')) {
+      // Éviter les textes qui semblent être des dates ou des catégories
+      if (text && !text.includes('il y a') && !text.includes('Tech') && 
+          text !== "Aujourd'hui" && text !== "Hier") {
         location = text;
         break;
       }
