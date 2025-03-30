@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -474,14 +475,144 @@
   animation-delay: 0.2s;
 }
 
-/* Error message style */
-.aaf-error {
-  padding: 16px;
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border-radius: 4px;
-  font-size: 13px;
+/* No Results styles - updated to match the provided design */
+.aaf-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
   text-align: center;
+}
+
+.aaf-no-results-icon {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 24px;
+}
+
+.aaf-no-results-magnifier {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #0CB9B4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aaf-no-results-face {
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+
+.aaf-no-results-face::before,
+.aaf-no-results-face::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 2px;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.aaf-no-results-face::before {
+  left: 6px;
+  transform: rotate(10deg);
+}
+
+.aaf-no-results-face::after {
+  right: 6px;
+  transform: rotate(-10deg);
+}
+
+.aaf-no-results-face::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.aaf-no-results-handle {
+  position: absolute;
+  bottom: 20px;
+  right: 25px;
+  width: 12px;
+  height: 36px;
+  background-color: #0CB9B4;
+  border-radius: 6px;
+  transform: rotate(45deg);
+}
+
+.aaf-no-results-sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.aaf-sparkle-1 {
+  top: 10px;
+  left: 40px;
+  background-color: #FFD700;
+}
+
+.aaf-sparkle-2 {
+  top: 30px;
+  right: 15px;
+  width: 4px;
+  height: 4px;
+  background-color: #4CAF50;
+}
+
+.aaf-sparkle-3 {
+  bottom: 25px;
+  left: 15px;
+  width: 5px;
+  height: 5px;
+  background-color: #2196F3;
+}
+
+.aaf-sparkle-4 {
+  bottom: 10px;
+  right: 40px;
+  width: 3px;
+  height: 3px;
+  background-color: #FF69B4;
+}
+
+.aaf-sparkle-5 {
+  top: 55px;
+  left: 60px;
+  width: 4px;
+  height: 4px;
+  background-color: #9C27B0;
+}
+
+.aaf-no-results-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.aaf-no-results-text {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 200px;
+  margin: 0 auto;
+  line-height: 1.4;
 }
 
 /* Raw HTML display */

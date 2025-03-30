@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -443,7 +444,27 @@ function renderAlternatives(alternatives) {
     if (results && resultsCount) {
       results.style.display = 'block';
       resultsCount.textContent = "No alternatives found";
-      container.querySelector('.aaf-items').innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
+      
+      // Create a more friendly "no results" display
+      const noResultsHTML = `
+        <div class="aaf-no-results">
+          <div class="aaf-no-results-icon">
+            <div class="aaf-no-results-magnifier">
+              <div class="aaf-no-results-face"></div>
+            </div>
+            <div class="aaf-no-results-handle"></div>
+            <div class="aaf-no-results-sparkle aaf-sparkle-1"></div>
+            <div class="aaf-no-results-sparkle aaf-sparkle-2"></div>
+            <div class="aaf-no-results-sparkle aaf-sparkle-3"></div>
+            <div class="aaf-no-results-sparkle aaf-sparkle-4"></div>
+            <div class="aaf-no-results-sparkle aaf-sparkle-5"></div>
+          </div>
+          <h3 class="aaf-no-results-title">No Result Found</h3>
+          <p class="aaf-no-results-text">We can't find any item matching your search</p>
+        </div>
+      `;
+      
+      container.querySelector('.aaf-items').innerHTML = noResultsHTML;
     }
     
     // Reset toggle text if no results
