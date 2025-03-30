@@ -12,6 +12,11 @@ let currentUrl = window.location.href;
 // Objet pour mettre en cache les alternatives par URL de produit
 let alternativesCache = {};
 
+// Fonction utilitaire pour gérer le pluriel/singulier
+function formatAlternativesCount(count) {
+  return count === 1 ? `${count} alternative` : `${count} alternatives`;
+}
+
 // Créer et injecter l'interface utilisateur de l'extension
 function createExtensionUI() {
   // Créer un conteneur pour l'extension
@@ -549,15 +554,17 @@ function renderAlternatives(alternatives) {
   // Mettre en cache les alternatives pour cette URL de produit
   alternativesCache[window.location.href] = alternatives;
 
-  // Mettre à jour le texte du toggle avec le compte
+  // Mettre à jour le texte du toggle avec le compte (avec gestion singulier/pluriel)
   if (toggleText) {
-    toggleText.textContent = `${alternatives.length} alternatives`;
+    toggleText.textContent = formatAlternativesCount(alternatives.length);
     toggleText.classList.add('has-alternatives');
   }
 
-  // Mettre à jour le texte du nombre
+  // Mettre à jour le texte du nombre (avec gestion singulier/pluriel)
   if (resultsCount) {
-    resultsCount.textContent = `${alternatives.length} alternatives trouvées sur Leboncoin`;
+    resultsCount.textContent = alternatives.length === 1 
+      ? `${alternatives.length} alternative trouvée sur Leboncoin`
+      : `${alternatives.length} alternatives trouvées sur Leboncoin`;
   }
 
   // Appliquer tous les filtres actifs et afficher
