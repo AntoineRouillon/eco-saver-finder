@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -331,19 +332,6 @@
   padding: 4px 8px;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: 500;
-}
-
-.aaf-item-date {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   font-weight: 500;
 }
 
