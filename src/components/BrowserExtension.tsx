@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 interface Product {
   id: string;
@@ -245,6 +246,17 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           alt={product.title} 
                           className="object-cover w-full h-full"
                         />
+                        
+                        {/* Date badge positioned over the image with semi-transparent background */}
+                        {date && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <Badge 
+                              className="bg-black/40 text-white border-none backdrop-blur-sm text-xs font-medium px-2 py-0.5"
+                            >
+                              {date}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                       <div className="p-3">
                         <h4 className="text-sm font-medium text-gray-900 line-clamp-2 h-10">
@@ -260,12 +272,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
                             {location}
                           </span>
-                          
-                          {date && (
-                            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
-                              {date}
-                            </span>
-                          )}
                         </div>
                         
                         <div className="mt-2 flex items-center justify-between">
