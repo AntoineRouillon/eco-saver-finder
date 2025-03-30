@@ -25,7 +25,7 @@ function createExtensionUI() {
   container.innerHTML = `
     <div class="aaf-toggle">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
-      <span class="aaf-toggle-text">Search on leboncoin</span>
+      <span class="aaf-toggle-text">Search</span>
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">

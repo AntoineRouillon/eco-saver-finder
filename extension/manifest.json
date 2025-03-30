@@ -1,7 +1,7 @@
 
 {
   "manifest_version": 3,
-  "name": "Amazon Alternative Finder",
+  "name": "AltMarket",
   "version": "1.0.0",
   "description": "Find second-hand alternatives from Leboncoin while browsing Amazon.fr",
   "icons": {
@@ -14,7 +14,7 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png"
     },
-    "default_title": "Amazon Alternative Finder"
+    "default_title": "AltMarket"
   },
   "permissions": [
     "activeTab",
