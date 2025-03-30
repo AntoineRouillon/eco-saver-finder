@@ -282,9 +282,12 @@ function createCardFromRawHTML(item) {
   const hasDelivery = article.textContent.includes('Livraison possible');
 
   // Créer le HTML des badges
-  let badges = `<span class="aaf-badge-location">${location}</span>`;
+  let badges = '';
   if (hasDelivery) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
+  } else {
+    // Ajout du badge location si pas de livraison possible
+    badges += `<span class="aaf-badge-location">${location}</span>`;
   }
 
   // Obtenir l'URL (si disponible)
@@ -317,7 +320,7 @@ function createCardFromRawHTML(item) {
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
-      
+      <div class="aaf-item-location">${location}</div>
     </div>
     <div class="aaf-item-content">
       <h4 class="aaf-item-title">${title}</h4>
@@ -617,4 +620,99 @@ function resetUI() {
 
     // Si nous avons des alternatives en cache pour cette URL, les afficher
     if (alternativesCache[window.location.href]) {
-      console.log("Utilisation des alternatives en cache après changement d'URL:",
+      console.log("Utilisation des alternatives en cache après changement d'URL:", window.location.href);
+      renderAlternatives(alternativesCache[window.location.href]);
+    }
+  }
+}
+
+// Initialiser l'interface utilisateur de l'extension
+function initExtension() {
+  if (isAmazonProductPage()) {
+    console.log("Page produit Amazon détectée. Initialisation de l'extension...");
+    createExtensionUI();
+
+    // Essayer de charger le cache d'alternatives depuis sessionStorage
+    try {
+      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
+      if (storedCache) {
+        alternativesCache = JSON.parse(storedCache);
+        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
+      }
+
+      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
+      if (alternativesCache[window.location.href]) {
+        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
+        renderAlternatives(alternativesCache[window.location.href]);
+      } else {
+        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
+        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
+        if (storedAlternatives) {
+          const parsedAlternatives = JSON.parse(storedAlternatives);
+          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
+          renderAlternatives(parsedAlternatives);
+          // Également ajouter au cache
+          alternativesCache[window.location.href] = parsedAlternatives;
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
+    }
+
+    // Configurer la détection de changement d'URL
+    currentUrl = window.location.href;
+  }
+}
+
+// Écouter les infos produit du script d'arrière-plan
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Script de contenu a reçu un message:", message);
+
+  if (message.action === "PRODUCT_INFO") {
+    console.log("Informations produit reçues:", message.productInfo);
+
+    // Stocker les informations produit
+    currentProductInfo = message.productInfo;
+
+    // Initialiser l'interface si elle n'existe pas
+    let container = document.getElementById('amazon-alternative-finder');
+    if (!container) {
+      container = createExtensionUI();
+    }
+  } else if (message.action === "ALTERNATIVES_FOUND") {
+    console.log("Alternatives reçues:", message.alternatives);
+
+    // Afficher les alternatives dans l'interface
+    renderAlternatives(message.alternatives);
+
+    // Mettre en cache les alternatives pour cette URL de produit
+    if (message.alternatives && message.alternatives.length > 0) {
+      alternativesCache[window.location.href] = message.alternatives;
+
+      // Mettre à jour sessionStorage avec le nouveau cache
+      try {
+        sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
+      } catch (error) {
+        console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
+      }
+    }
+  }
+});
+
+// Initialiser l'extension lorsque le DOM est entièrement chargé
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initExtension);
+} else {
+  initExtension();
+}
+
+// Configurer la détection de changement d'URL avec MutationObserver pour réinitialiser le badge lors de la navigation vers un nouveau produit
+let lastUrl = location.href;
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    console.log('URL changée pour', url);
+    resetUI();
+  }
+}).observe(document, {subtree: true, childList: true});
