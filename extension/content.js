@@ -61,7 +61,7 @@ function createExtensionUI() {
               </div>
             </div>
             <div class="aaf-skeleton-items">
-              <!-- Skeleton cards will be inserted here by JavaScript -->
+              <!-- Only one skeleton card will be inserted here by JavaScript -->
             </div>
           </div>
         </div>
@@ -143,29 +143,27 @@ function createExtensionUI() {
     </div>
   `;
 
-  // Create skeleton cards (similar to the React component's SkeletonProductCard)
+  // Create only one skeleton card (instead of 3)
   const skeletonContainer = container.querySelector('.aaf-skeleton-items');
   if (skeletonContainer) {
-    for (let i = 0; i < 3; i++) {
-      const skeletonCard = document.createElement('div');
-      skeletonCard.className = 'aaf-skeleton-card';
-      skeletonCard.innerHTML = `
-        <div class="aaf-skeleton-image" style="width: 100%; height: 160px; background: #eee; border-radius: 8px 8px 0 0;"></div>
-        <div class="aaf-skeleton-content" style="padding: 12px;">
-          <div class="aaf-skeleton-title" style="width: 100%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 8px;"></div>
-          <div class="aaf-skeleton-subtitle" style="width: 75%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 12px;"></div>
-          <div class="aaf-skeleton-badges" style="display: flex; gap: 4px; margin-bottom: 12px;">
-            <div class="aaf-skeleton-badge" style="width: 60px; height: 20px; background: #eee; border-radius: 10px;"></div>
-            <div class="aaf-skeleton-badge" style="width: 80px; height: 20px; background: #eee; border-radius: 10px;"></div>
-          </div>
-          <div class="aaf-skeleton-footer" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="aaf-skeleton-price" style="width: 60px; height: 20px; background: #eee; border-radius: 4px;"></div>
-            <div class="aaf-skeleton-button" style="width: 60px; height: 28px; background: #eee; border-radius: 4px;"></div>
-          </div>
+    const skeletonCard = document.createElement('div');
+    skeletonCard.className = 'aaf-skeleton-card';
+    skeletonCard.innerHTML = `
+      <div class="aaf-skeleton-image" style="width: 100%; height: 160px; background: #eee; border-radius: 8px 8px 0 0;"></div>
+      <div class="aaf-skeleton-content" style="padding: 12px;">
+        <div class="aaf-skeleton-title" style="width: 100%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div class="aaf-skeleton-subtitle" style="width: 75%; height: 16px; background: #eee; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div class="aaf-skeleton-badges" style="display: flex; gap: 4px; margin-bottom: 12px;">
+          <div class="aaf-skeleton-badge" style="width: 60px; height: 20px; background: #eee; border-radius: 10px;"></div>
+          <div class="aaf-skeleton-badge" style="width: 80px; height: 20px; background: #eee; border-radius: 10px;"></div>
         </div>
-      `;
-      skeletonContainer.appendChild(skeletonCard);
-    }
+        <div class="aaf-skeleton-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="aaf-skeleton-price" style="width: 60px; height: 20px; background: #eee; border-radius: 4px;"></div>
+          <div class="aaf-skeleton-button" style="width: 60px; height: 28px; background: #eee; border-radius: 4px;"></div>
+        </div>
+      </div>
+    `;
+    skeletonContainer.appendChild(skeletonCard);
   }
 
   // Ajouter les écouteurs d'événements
@@ -598,7 +596,16 @@ function renderAlternatives(alternatives) {
   allAlternatives = [...alternatives];
 
   // Mettre en cache les alternatives pour cette URL de produit
-  alternativesCache[window.location.href] = alternatives;
+  if (message.alternatives && message.alternatives.length > 0) {
+    alternativesCache[window.location.href] = message.alternatives;
+
+    // Mettre à jour sessionStorage avec le nouveau cache
+    try {
+      sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
+    } catch (error) {
+      console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
+    }
+  }
 
   // Mettre à jour le texte du toggle avec le compte (avec gestion singulier/pluriel)
   if (toggleText) {
