@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -270,6 +271,9 @@ function createCardFromRawHTML(item) {
 
   // Emplacement - utiliser notre fonction améliorée
   const location = extractLocation(article);
+  
+  // Date - utiliser la nouvelle fonction extractDate
+  const date = extractDate(article);
 
   // Image
   let imageUrl = '';
@@ -285,9 +289,14 @@ function createCardFromRawHTML(item) {
   let badges = '';
   if (hasDelivery) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
-  } else {
-    // Ajout du badge location si pas de livraison possible
-    badges += `<span class="aaf-badge-location">${location}</span>`;
+  }
+  
+  // Toujours ajouter le badge location
+  badges += `<span class="aaf-badge-location">${location}</span>`;
+  
+  // Ajouter le badge de date si disponible
+  if (date) {
+    badges += `<span class="aaf-badge-date">${date}</span>`;
   }
 
   // Obtenir l'URL (si disponible)
@@ -296,15 +305,8 @@ function createCardFromRawHTML(item) {
     url = 'https://www.leboncoin.fr' + url;
   }
 
-  // Extraire la date si disponible (pour le tri)
-  let dateInfo = '';
-  const dateElement = article.querySelector('[data-test-id="ad-date"]') ||
-                     article.querySelector('.text-caption[aria-label*="il y a"]');
-  if (dateElement) {
-    dateInfo = dateElement.textContent.trim();
-    // Stocker comme attribut data pour le tri
-    itemElement.dataset.date = dateInfo;
-  }
+  // Stocker la date pour le tri
+  itemElement.dataset.date = date;
 
   // Stocker le prix numérique pour le tri
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
@@ -320,7 +322,6 @@ function createCardFromRawHTML(item) {
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
-      <div class="aaf-item-location">${location}</div>
     </div>
     <div class="aaf-item-content">
       <h4 class="aaf-item-title">${title}</h4>
@@ -353,54 +354,70 @@ function extractTextContent(parentElement, selector) {
 
 // Fonction améliorée pour extraire la localisation avec plus de précision
 function extractLocation(article) {
-  // Essayer d'abord les sélecteurs spécifiques à la localisation
-  let location = null;
-  
-  // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
+  // Essayer d'abord les sélecteurs spécifiques avec aria-label contenant "Située à"
   const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
   if (locationWithAriaLabel) {
     // Extrait uniquement la partie ville de l'aria-label
     const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
-    const match = ariaLabel.match(/Située à ([^,]+)/);
-    location = match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
-    return location;
+    const match = ariaLabel.match(/Située à ([^\.]+)/);
+    return match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
   }
   
-  // Sélecteurs alternatifs par ordre de précision
+  // Sélecteurs alternatifs par ordre de précision, en excluant explicitement les dates
   const selectors = [
-    'p.text-caption.text-neutral:last-of-type', // Souvent le dernier paragraphe avec cette classe est la localisation
-    '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child', // Sélecteur plus spécifique
-    'div:last-child > p.text-caption.text-neutral:last-child', // Cibler le dernier élément de localisation
+    'p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
+    '.adcard_8f3833cd8 p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
+    'div:last-child > p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
   ];
   
   // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
   for (const selector of selectors) {
-    const element = article.querySelector(selector);
-    if (element) {
-      const text = element.textContent.trim();
-      // Éviter de capturer la date (commence souvent par "il y a")
-      if (text && !text.startsWith("il y a")) {
-        location = text;
-        break;
-      }
+    const elements = Array.from(article.querySelectorAll(selector));
+    // Filter out elements that are likely not location (e.g., category, date)
+    const locationCandidate = elements.find(el => {
+      const text = el.textContent.trim();
+      const ariaLabel = el.getAttribute('aria-label') || '';
+      return !ariaLabel.includes('Date de dépôt') && 
+             !ariaLabel.includes('Catégorie') && 
+             text.length > 0;
+    });
+    
+    if (locationCandidate) {
+      return locationCandidate.textContent.trim();
     }
   }
   
-  // Si on n'a toujours pas trouvé, on essaie une approche plus générique
-  if (!location) {
-    // Chercher tous les éléments text-caption et analyser leur contenu
-    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
-    for (const caption of allCaptions) {
-      const text = caption.textContent.trim();
-      // Éviter les textes qui semblent être des dates
-      if (text && !text.includes('il y a') && !text.includes('Tech')) {
-        location = text;
-        break;
-      }
-    }
+  return 'Lieu non disponible';
+}
+
+// Nouvelle fonction pour extraire la date avec plus de précision
+function extractDate(article) {
+  // Rechercher les éléments avec aria-label contenant "Date de dépôt"
+  const dateWithAriaLabel = article.querySelector('p[aria-label*="Date de dépôt"]');
+  if (dateWithAriaLabel) {
+    return dateWithAriaLabel.textContent.trim();
   }
   
-  return location || 'Lieu non disponible';
+  // Rechercher les éléments avec data-test-id="ad-date"
+  const dateWithTestId = article.querySelector('[data-test-id="ad-date"]');
+  if (dateWithTestId) {
+    return dateWithTestId.textContent.trim();
+  }
+  
+  // Rechercher tous les éléments text-caption qui pourraient contenir une date
+  const allTextCaptions = Array.from(article.querySelectorAll('p.text-caption.text-neutral'));
+  const dateCandidate = allTextCaptions.find(el => {
+    const text = el.textContent.trim();
+    // Vérifier si le texte ressemble à une date
+    return /^\d{2}\/\d{2}\/\d{4}$/.test(text) || // Format: 19/03/2025
+           /^il y a \d+ (minute|minutes|heure|heures|jour|jours)$/.test(text); // Format: il y a X minutes/heures/jours
+  });
+  
+  if (dateCandidate) {
+    return dateCandidate.textContent.trim();
+  }
+  
+  return '';
 }
 
 // Appliquer les filtres actuels aux alternatives et les afficher

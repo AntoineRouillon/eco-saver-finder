@@ -1,4 +1,3 @@
-
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -323,18 +322,6 @@
   object-fit: contain;
 }
 
-.aaf-item-location {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background-color: white;
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: 500;
-}
-
 .aaf-item-content {
   padding: 12px;
 }
@@ -358,7 +345,7 @@
   margin-bottom: 8px;
 }
 
-/* Badge de livraison uniquement - Suppression du badge Pro */
+/* Badge styles */
 .aaf-badge-delivery {
   display: inline-flex;
   align-items: center;
@@ -372,7 +359,6 @@
   border: 1px solid #4AB07B;
 }
 
-/* Nouveau style pour le badge de localisation */
 .aaf-badge-location {
   display: inline-flex;
   align-items: center;
@@ -384,6 +370,19 @@
   color: #64748b;
   background-color: #f1f5f9;
   border: 1px solid #cbd5e1;
+}
+
+.aaf-badge-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: #3b82f6;
+  background-color: #eff6ff;
+  border: 1px solid #93c5fd;
 }
 
 .aaf-item-footer {
@@ -482,7 +481,7 @@
   animation-delay: 0.2s;
 }
 
-/* No results styles - Updated to use blue color and vertical centering */
+/* No results styles */
 .aaf-no-results {
   display: flex;
   flex-direction: column;
@@ -497,7 +496,7 @@
   width: 70px;
   height: 70px;
   margin-bottom: 16px;
-  fill: #4AB07B; /* Updated to green color */
+  fill: #4AB07B;
 }
 
 .aaf-no-results-text {
