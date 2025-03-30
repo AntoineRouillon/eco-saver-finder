@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -314,6 +315,12 @@ function createCardFromRawHTML(item) {
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
   itemElement.dataset.price = isNaN(numericPrice) ? '0' : numericPrice.toString();
   
+  // Make the entire item clickable
+  itemElement.style.cursor = 'pointer';
+  itemElement.addEventListener('click', () => {
+    window.open(url, '_blank');
+  });
+  
   // Build the item card HTML
   itemElement.innerHTML = `
     <div class="aaf-item-image">
@@ -325,7 +332,7 @@ function createCardFromRawHTML(item) {
       <div class="aaf-item-badges">${badges}</div>
       <div class="aaf-item-footer">
         <span class="aaf-item-price">${price}</span>
-        <a href="${url}" target="_blank" class="aaf-item-link">
+        <a href="${url}" target="_blank" class="aaf-item-link" onclick="event.stopPropagation()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>
