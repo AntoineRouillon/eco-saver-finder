@@ -265,36 +265,36 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       [`scraping_${newTab.id}`]: scrapingData 
     });
     
-    // Add listener for when the tab is loaded
+    // Wait 1.5 seconds after creating the tab before checking for no results
+    console.log("Waiting 1.5 seconds before checking for no results...");
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    console.log("Checking for 'no results' message...");
+    const noResultsFound = await checkNoResults(newTab.id);
+    
+    if (noResultsFound) {
+      console.log("'No results' message found, terminating search early.");
+      // Send empty alternatives array to trigger "no results" UI
+      chrome.tabs.sendMessage(sourceTabId, {
+        action: "ALTERNATIVES_FOUND",
+        alternatives: [],
+        error: "No results found"
+      });
+      
+      // Close the pinned tab immediately
+      chrome.tabs.remove(newTab.id);
+      return; // Exit early - we're done here since there are no results
+    }
+    
+    console.log("No 'noResultMessages' found, continuing with scraping...");
+    
+    // Add listener for when the tab is fully loaded
     const onTabLoaded = async (tabId, changeInfo) => {
       if (tabId === newTab.id && changeInfo.status === 'complete') {
         // Remove this listener after it's been triggered
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // Wait 1.5 seconds to give the page time to render the "no results" message if it exists
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Check for "no results" message
-          console.log("Checking for 'no results' message...");
-          const noResultsFound = await checkNoResults(newTab.id);
-          
-          if (noResultsFound) {
-            console.log("'No results' message found, terminating search early.");
-            // Send empty alternatives array to trigger "no results" UI
-            chrome.tabs.sendMessage(sourceTabId, {
-              action: "ALTERNATIVES_FOUND",
-              alternatives: [],
-              error: "No results found"
-            });
-            
-            // Close the pinned tab immediately
-            chrome.tabs.remove(newTab.id);
-            return; // Exit early - we're done here since there are no results
-          }
-          
-          console.log("No 'noResultMessages' found, continuing with scraping...");
-          
           // Wait for the page to be fully loaded before scraping
           console.log("Page initial load complete, now waiting for full content to load...");
           await waitForPageLoad(newTab.id);
@@ -361,7 +361,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       }
     };
     
-    // Add the tab update listener
+    // Add the tab update listener for scraping phase
     chrome.tabs.onUpdated.addListener(onTabLoaded);
     
     // Set a timeout to close the tab and send back empty results if scraping takes too long
@@ -378,7 +378,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
           chrome.tabs.remove(newTab.id);
         }
       });
-    }, 30000); // 30 seconds timeout (increased from 20 to account for additional waiting)
+    }, 30000); // 30 seconds timeout
     
   } catch (error) {
     console.error("Error opening Leboncoin tab:", error);
