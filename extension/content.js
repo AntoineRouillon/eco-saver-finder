@@ -547,30 +547,17 @@ function renderAlternatives(alternatives) {
   allAlternatives = [...alternatives];
 
   // Mettre en cache les alternatives pour cette URL de produit
-  if (message.alternatives && message.alternatives.length > 0) {
-    alternativesCache[window.location.href] = alternatives;
+  alternativesCache[window.location.href] = alternatives;
 
-    // Mettre à jour sessionStorage avec le nouveau cache
-    try {
-      sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
-    } catch (error) {
-      console.error("Erreur lors du stockage du cache d'alternatives dans sessionStorage:", error);
-    }
-  }
-
-  // Mettre à jour le texte du toggle avec le compte en gérant le pluriel
+  // Mettre à jour le texte du toggle avec le compte
   if (toggleText) {
-    toggleText.textContent = alternatives.length === 1 
-      ? "1 alternative" 
-      : `${alternatives.length} alternatives`;
+    toggleText.textContent = `${alternatives.length} alternatives`;
     toggleText.classList.add('has-alternatives');
   }
 
-  // Mettre à jour le texte du nombre en gérant le pluriel
+  // Mettre à jour le texte du nombre
   if (resultsCount) {
-    resultsCount.textContent = alternatives.length === 1
-      ? "1 alternative trouvée sur Leboncoin"
-      : `${alternatives.length} alternatives trouvées sur Leboncoin`;
+    resultsCount.textContent = `${alternatives.length} alternatives trouvées sur Leboncoin`;
   }
 
   // Appliquer tous les filtres actifs et afficher
