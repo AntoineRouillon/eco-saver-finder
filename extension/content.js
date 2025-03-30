@@ -1,3 +1,4 @@
+
 // Variable to store product information
 let currentProductInfo = null;
 // Variable to store all alternatives for filtering
@@ -431,6 +432,8 @@ function renderAlternatives(alternatives) {
   const results = container.querySelector('.aaf-results');
   const resultsCount = container.querySelector('.aaf-results-count');
   const toggleText = container.querySelector('.aaf-toggle-text');
+  const filterControls = container.querySelector('.aaf-filter-controls');
+  const itemsContainer = container.querySelector('.aaf-items');
 
   // Hide loading state
   if (loading) {
@@ -439,11 +442,26 @@ function renderAlternatives(alternatives) {
 
   // Check if alternatives is an array and has items
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
-    // Display no results message
-    if (results && resultsCount) {
+    // Display new no results UI
+    if (results) {
       results.style.display = 'block';
-      resultsCount.textContent = "No alternatives found";
-      container.querySelector('.aaf-items').innerHTML = '<div class="aaf-error">No second-hand alternatives were found. Try a different product.</div>';
+      
+      // Hide the filter controls and results count
+      if (filterControls) {
+        filterControls.style.display = 'none';
+      }
+      
+      // Add the new no results UI
+      if (itemsContainer) {
+        itemsContainer.innerHTML = `
+          <div class="aaf-no-results">
+            <svg class="aaf-no-results-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121.7 122.88">
+              <path d="M53.62 0c14.81 0 28.21 6 37.91 15.7 9.7 9.7 15.7 23.11 15.7 37.91 0 10.83-3.21 20.91-8.74 29.35l23.2 25.29-16 14.63-22.37-24.62a53.359 53.359 0 01-29.7 8.98c-14.81 0-28.21-6-37.91-15.7C6 81.82 0 68.42 0 53.62 0 38.81 6 25.41 15.7 15.7 25.41 6 38.81 0 53.62 0zm8.01 38.91a4.747 4.747 0 016.76-.02 4.868 4.868 0 01.02 6.83l-8.17 8.29 8.18 8.3c1.85 1.88 1.82 4.92-.05 6.79-1.88 1.87-4.9 1.87-6.74-.01l-8.13-8.24-8.14 8.26a4.747 4.747 0 01-6.76.02 4.868 4.868 0 01-.02-6.83l8.17-8.3-8.18-8.3c-1.85-1.88-1.82-4.92.06-6.79 1.88-1.87 4.9-1.87 6.74.01l8.13 8.24 8.13-8.25zM87.3 19.93C78.68 11.31 66.77 5.98 53.62 5.98c-13.15 0-25.06 5.33-33.68 13.95-8.63 8.62-13.96 20.53-13.96 33.69 0 13.15 5.33 25.06 13.95 33.68 8.62 8.62 20.53 13.95 33.68 13.95 13.16 0 25.06-5.33 33.68-13.95 8.62-8.62 13.95-20.53 13.95-33.68.01-13.16-5.32-25.07-13.94-33.69z" fill-rule="evenodd" clip-rule="evenodd"/>
+            </svg>
+            <div class="aaf-no-results-text">No alternative found</div>
+          </div>
+        `;
+      }
     }
     
     // Reset toggle text if no results
@@ -453,6 +471,11 @@ function renderAlternatives(alternatives) {
     }
     
     return;
+  }
+
+  // Show filter controls for when we have results
+  if (filterControls) {
+    filterControls.style.display = 'flex';
   }
 
   // Store all alternatives for filtering
@@ -477,7 +500,6 @@ function renderAlternatives(alternatives) {
     renderFilteredAlternatives();
   } else {
     // If no filter is active, render normally
-    const itemsContainer = container.querySelector('.aaf-items');
     if (itemsContainer) {
       itemsContainer.innerHTML = '';
   

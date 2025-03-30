@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -474,17 +475,38 @@
   animation-delay: 0.2s;
 }
 
-/* Error message style */
-.aaf-error {
-  padding: 16px;
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border-radius: 4px;
-  font-size: 13px;
+/* No results styles - Updated to be less alarming */
+.aaf-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  height: 100%;
   text-align: center;
 }
 
-/* Raw HTML display */
+.aaf-no-results-icon {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 16px;
+  fill: #0d9488; /* Teal color */
+}
+
+.aaf-no-results-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.aaf-no-results-subtext {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 240px;
+}
+
+/* Debug elements - Hidden by default */
 .aaf-item-raw-html {
   background-color: #f5f5f5;
   border: 1px solid #ddd;
@@ -500,7 +522,6 @@
   display: none;
 }
 
-/* Debug button for raw HTML */
 .aaf-debug-toggle {
   font-size: 11px;
   color: #999;
