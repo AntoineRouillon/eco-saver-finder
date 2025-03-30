@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
   id: string;
@@ -113,17 +115,47 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
 
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-sm text-gray-500">Finding alternatives...</p>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+            
+            {[1, 2, 3].map(i => (
+              <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
+                <Skeleton className="w-full h-32" />
+                <div className="p-3 space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="flex gap-1 mt-1">
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <div className="flex justify-between items-center pt-1">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <>
             {products.length > 0 ? (
               <div className="space-y-4">
-                <p className="text-xs text-gray-500 mb-4">
-                  Found {products.length} alternatives on Leboncoin
-                </p>
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-500">
+                    Found {products.length} alternatives on Leboncoin
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 text-xs border-gray-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                  </Button>
+                </div>
                 
                 {products.map((product) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
@@ -134,7 +166,8 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow"
+                      className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => window.open(product.url, '_blank')}
                     >
                       <div className="relative aspect-w-4 aspect-h-3 bg-gray-100">
                         <img 
@@ -172,6 +205,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                             variant="ghost"
                             size="sm"
                             className="text-xs text-gray-600 hover:text-blue-600 p-1 h-auto"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click from firing
+                              window.open(product.url, '_blank');
+                            }}
                           >
                             <ExternalLink size={14} className="mr-1" />
                             View
