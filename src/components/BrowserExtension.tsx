@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -218,8 +219,12 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
             
             {/* Show spinner loading or skeleton cards based on whether scraping has started */}
             {isScrapingStarted ? (
-              // Display only one skeleton product card
-              <SkeletonProductCard />
+              // Skeleton product cards when scraping has started (No results check returned false)
+              <>
+                {[1, 2, 3].map(i => (
+                  <SkeletonProductCard key={i} />
+                ))}
+              </>
             ) : (
               // Initial spinner loading
               <div className="flex flex-col items-center justify-center h-60">
