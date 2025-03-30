@@ -24,13 +24,13 @@ function createExtensionUI() {
   // Add initial UI (collapsed state)
   container.innerHTML = `
     <div class="aaf-toggle">
-      <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="Amazon Alternative Finder">
+      <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
       <span class="aaf-toggle-text">Search on leboncoin</span>
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
         <div>
-          <div class="aaf-header-title">Amazon Alternative Finder</div>
+          <div class="aaf-header-title">AltMarket</div>
           <div class="aaf-header-subtitle">Second-hand alternatives</div>
         </div>
         <button class="aaf-close-btn">
@@ -101,7 +101,7 @@ function createExtensionUI() {
           <div class="aaf-items"></div>
         </div>
       </div>
-      <div class="aaf-footer">
+      <!--<div class="aaf-footer">
         <div class="aaf-feedback-text">Was this helpful?</div>
         <div class="aaf-feedback-buttons">
           <button class="aaf-feedback-btn aaf-yes-btn">
@@ -119,17 +119,17 @@ function createExtensionUI() {
             No
           </button>
         </div>
-      </div>
+      </div> -->
     </div>
   `;
 
   // Add event listeners
   const toggle = container.querySelector('.aaf-toggle');
   const closeBtn = container.querySelector('.aaf-close-btn');
-  
+
   toggle.addEventListener('click', () => {
     container.classList.toggle('aaf-expanded');
-    
+
     // If we're expanding and have product info but no alternatives loaded yet, fetch them
     if (container.classList.contains('aaf-expanded') && currentProductInfo) {
       // Check if we have cached alternatives for this product
@@ -141,7 +141,7 @@ function createExtensionUI() {
       }
     }
   });
-  
+
   closeBtn.addEventListener('click', () => {
     container.classList.remove('aaf-expanded');
   });
@@ -149,19 +149,19 @@ function createExtensionUI() {
   // Add filter button listener
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterMenu = container.querySelector('.aaf-filter-menu');
-  
+
   filterButton.addEventListener('click', (event) => {
     event.stopPropagation();
     filterMenu.classList.toggle('aaf-show-menu');
   });
-  
+
   // Add click event listeners to filter options
   const filterOptions = container.querySelectorAll('.aaf-filter-option');
   filterOptions.forEach(option => {
     option.addEventListener('click', () => {
       const filterType = option.getAttribute('data-filter');
       const filterLabel = option.querySelector('span:last-child').textContent;
-      
+
       // Update filter and close menu
       if (filterType) {
         currentFilter.type = filterType;
@@ -172,7 +172,7 @@ function createExtensionUI() {
       }
     });
   });
-  
+
   // Close filter menu when clicking outside
   document.addEventListener('click', (event) => {
     if (!event.target.closest('.aaf-filter-container')) {
@@ -188,23 +188,23 @@ function createExtensionUI() {
 function updateFilterUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-  
+
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterOptions = container.querySelectorAll('.aaf-filter-option');
-  
+
   // Update active state of filter button
   if (currentFilter.type === 'none') {
     filterButton.classList.remove('active');
   } else {
     filterButton.classList.add('active');
   }
-  
+
   // Update active state in filter menu
   filterOptions.forEach(option => {
     option.classList.remove('aaf-active');
-    
+
     const optionFilter = option.getAttribute('data-filter');
-    
+
     if (optionFilter === currentFilter.type) {
       option.classList.add('aaf-active');
     }
@@ -215,23 +215,23 @@ function updateFilterUI() {
 function requestAlternatives(productInfo) {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-  
+
   const loading = container.querySelector('.aaf-loading');
   const results = container.querySelector('.aaf-results');
-  
+
   // Show loading state
   if (loading && results) {
     loading.style.display = 'flex';
     results.style.display = 'none';
   }
-  
+
   // Check if we have cached alternatives for this product
   if (alternativesCache[window.location.href]) {
     console.log("Using cached alternatives for:", window.location.href);
     renderAlternatives(alternativesCache[window.location.href]);
     return;
   }
-  
+
   // Request alternatives from background script
   chrome.runtime.sendMessage({
     action: "GET_ALTERNATIVES",
@@ -246,46 +246,46 @@ function requestAlternatives(productInfo) {
 function createCardFromRawHTML(item) {
   const itemElement = document.createElement('div');
   itemElement.className = 'aaf-item';
-  
+
   // Parse the HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(item.html, 'text/html');
   const article = doc.querySelector('article');
-  
+
   if (!article) {
     console.error('No article element found in HTML');
     return null;
   }
-  
+
   // Try to extract basic information for display
   // Price
-  const price = extractTextContent(article, '[data-test-id="price"]') || 
-                extractTextContent(article, '.text-callout.text-on-surface') || 
+  const price = extractTextContent(article, '[data-test-id="price"]') ||
+                extractTextContent(article, '.text-callout.text-on-surface') ||
                 'Price not available';
-  
+
   // Title
-  const title = extractTextContent(article, '[data-test-id="adcard-title"]') || 
+  const title = extractTextContent(article, '[data-test-id="adcard-title"]') ||
                 extractTextContent(article, '.text-body-1.text-on-surface') ||
-                extractTextContent(article, 'h2') || 
+                extractTextContent(article, 'h2') ||
                 'Item title';
-  
+
   // Location
-  const location = extractTextContent(article, '.text-caption.text-neutral:last-child') || 
-                  extractTextContent(article, 'p[aria-label*="Située à"]') || 
-                  extractTextContent(article, '.text-caption.text-neutral') || 
+  const location = extractTextContent(article, '.text-caption.text-neutral:last-child') ||
+                  extractTextContent(article, 'p[aria-label*="Située à"]') ||
+                  extractTextContent(article, '.text-caption.text-neutral') ||
                   'Location not available';
-  
+
   // Image
   let imageUrl = '';
   const imgElement = article.querySelector('img');
   if (imgElement && imgElement.src) {
     imageUrl = imgElement.src;
   }
-  
+
   // Check for badges
   const isPro = article.textContent.includes('Pro');
   const hasDelivery = article.textContent.includes('Livraison possible');
-  
+
   // Create badge HTML
   let badges = '';
   if (isPro) {
@@ -294,7 +294,7 @@ function createCardFromRawHTML(item) {
   if (hasDelivery) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
   }
-  
+
   // Get URL (if available)
   let url = item.url || '#';
   if (url && url.startsWith('/')) {
@@ -303,24 +303,24 @@ function createCardFromRawHTML(item) {
 
   // Extract date if available (for sorting)
   let dateInfo = '';
-  const dateElement = article.querySelector('[data-test-id="ad-date"]') || 
+  const dateElement = article.querySelector('[data-test-id="ad-date"]') ||
                      article.querySelector('.text-caption[aria-label*="il y a"]');
   if (dateElement) {
     dateInfo = dateElement.textContent.trim();
     // Store as data attribute for sorting
     itemElement.dataset.date = dateInfo;
   }
-  
+
   // Store numeric price for sorting
   const numericPrice = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
   itemElement.dataset.price = isNaN(numericPrice) ? '0' : numericPrice.toString();
-  
+
   // Make the entire item clickable
   itemElement.style.cursor = 'pointer';
   itemElement.addEventListener('click', () => {
     window.open(url, '_blank');
   });
-  
+
   // Build the item card HTML
   itemElement.innerHTML = `
     <div class="aaf-item-image">
@@ -346,7 +346,7 @@ function createCardFromRawHTML(item) {
       ${item.html}
     </div>
   `;
-  
+
   return itemElement;
 }
 
@@ -360,31 +360,31 @@ function extractTextContent(parentElement, selector) {
 function renderFilteredAlternatives() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-  
+
   const itemsContainer = container.querySelector('.aaf-items');
   if (!itemsContainer) return;
-  
+
   // Clear the container
   itemsContainer.innerHTML = '';
-  
+
   // Create a copy of the alternatives to sort
   const filteredAlternatives = [...allAlternatives];
-  
+
   // Apply sorting if a filter is active
   if (currentFilter.type !== 'none') {
     filteredAlternatives.sort((a, b) => {
       const elemA = document.createElement('div');
       const elemB = document.createElement('div');
-      
+
       // Create temporary elements to extract comparable values
       const cardA = createCardFromRawHTML({ ...a });
       const cardB = createCardFromRawHTML({ ...b });
-      
+
       if (!cardA || !cardB) return 0;
-      
+
       let valueA, valueB;
       let sortMultiplier = 1;
-      
+
       if (currentFilter.type.startsWith('price')) {
         valueA = parseFloat(cardA.dataset.price) || 0;
         valueB = parseFloat(cardB.dataset.price) || 0;
@@ -393,7 +393,7 @@ function renderFilteredAlternatives() {
         // For date, we're using the date text which may be relative
         valueA = cardA.dataset.date || '';
         valueB = cardB.dataset.date || '';
-        
+
         // Simple heuristic for relative date sorting (not perfect but a starting point)
         if (valueA.includes('min') && valueB.includes('h')) return currentFilter.type === 'date-asc' ? -1 : 1;
         if (valueA.includes('h') && valueB.includes('min')) return currentFilter.type === 'date-asc' ? 1 : -1;
@@ -411,11 +411,11 @@ function renderFilteredAlternatives() {
         }
         return valueA.localeCompare(valueB);
       }
-      
+
       return (valueA - valueB) * sortMultiplier;
     });
   }
-  
+
   // Render the sorted alternatives
   filteredAlternatives.forEach(item => {
     if (item.html) {
@@ -430,7 +430,7 @@ function renderFilteredAlternatives() {
 // Render alternatives in the panel
 function renderAlternatives(alternatives) {
   console.log("Rendering alternatives:", alternatives);
-  
+
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
 
@@ -451,12 +451,12 @@ function renderAlternatives(alternatives) {
     // Display new no results UI
     if (results) {
       results.style.display = 'block';
-      
+
       // Hide the filter controls and results count
       if (filterControls) {
         filterControls.style.display = 'none';
       }
-      
+
       // Add the new no results UI
       if (itemsContainer) {
         itemsContainer.innerHTML = `
@@ -469,13 +469,13 @@ function renderAlternatives(alternatives) {
         `;
       }
     }
-    
+
     // Reset toggle text if no results
     if (toggleText) {
       toggleText.textContent = "Search on leboncoin";
       toggleText.classList.remove('has-alternatives');
     }
-    
+
     return;
   }
 
@@ -486,10 +486,10 @@ function renderAlternatives(alternatives) {
 
   // Store all alternatives for filtering
   allAlternatives = [...alternatives];
-  
+
   // Cache the alternatives for this product URL
   alternativesCache[window.location.href] = alternatives;
-  
+
   // Update the toggle text with the count
   if (toggleText) {
     toggleText.textContent = `${alternatives.length} alternatives`;
@@ -508,7 +508,7 @@ function renderAlternatives(alternatives) {
     // If no filter is active, render normally
     if (itemsContainer) {
       itemsContainer.innerHTML = '';
-  
+
       // Add each alternative as a card
       alternatives.forEach(item => {
         if (item.html) {
@@ -528,12 +528,12 @@ function renderAlternatives(alternatives) {
 
   // Reset filter buttons to default state
   updateFilterUI();
-  
+
   // Store the alternatives in sessionStorage for persistence
   try {
     // Store with URL key to differentiate between products
     sessionStorage.setItem(`aaf_alternatives_${window.location.pathname}`, JSON.stringify(alternatives));
-    
+
     // Also store the entire cache
     sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
   } catch (error) {
@@ -550,27 +550,27 @@ function isAmazonProductPage() {
 function resetUI() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-  
+
   // Reset toggle text
   const toggleText = container.querySelector('.aaf-toggle-text');
   if (toggleText) {
     toggleText.textContent = "Search on leboncoin";
     toggleText.classList.remove('has-alternatives');
   }
-  
+
   // Reset alternatives
   allAlternatives = [];
-  
+
   // Show loading if panel is expanded
   if (container.classList.contains('aaf-expanded')) {
     const loading = container.querySelector('.aaf-loading');
     const results = container.querySelector('.aaf-results');
-    
+
     if (loading && results) {
       loading.style.display = 'flex';
       results.style.display = 'none';
     }
-    
+
     // If we have cached alternatives for this URL, display them
     if (alternativesCache[window.location.href]) {
       console.log("Using cached alternatives after URL change:", window.location.href);
@@ -584,7 +584,7 @@ function initExtension() {
   if (isAmazonProductPage()) {
     console.log("Amazon product page detected. Initializing extension...");
     createExtensionUI();
-    
+
     // Try to load alternatives cache from sessionStorage
     try {
       const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
@@ -592,7 +592,7 @@ function initExtension() {
         alternativesCache = JSON.parse(storedCache);
         console.log("Loaded alternatives cache from sessionStorage:", alternativesCache);
       }
-      
+
       // Check if we have cached alternatives for the current URL
       if (alternativesCache[window.location.href]) {
         console.log("Found cached alternatives for current URL:", window.location.href);
@@ -611,7 +611,7 @@ function initExtension() {
     } catch (error) {
       console.error("Error loading alternatives from sessionStorage:", error);
     }
-    
+
     // Set up URL change detection
     currentUrl = window.location.href;
   }
@@ -620,13 +620,13 @@ function initExtension() {
 // Listen for product info from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Content script received message:", message);
-  
+
   if (message.action === "PRODUCT_INFO") {
     console.log("Received product info:", message.productInfo);
-    
+
     // Store the product info
     currentProductInfo = message.productInfo;
-    
+
     // Initialize UI if it doesn't exist
     let container = document.getElementById('amazon-alternative-finder');
     if (!container) {
@@ -634,14 +634,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   } else if (message.action === "ALTERNATIVES_FOUND") {
     console.log("Received alternatives:", message.alternatives);
-    
+
     // Render the alternatives in the UI
     renderAlternatives(message.alternatives);
-    
+
     // Cache the alternatives for this product URL
     if (message.alternatives && message.alternatives.length > 0) {
       alternativesCache[window.location.href] = message.alternatives;
-      
+
       // Update sessionStorage with the new cache
       try {
         sessionStorage.setItem('aaf_alternatives_cache', JSON.stringify(alternativesCache));
@@ -660,7 +660,7 @@ if (document.readyState === 'loading') {
 }
 
 // Set up URL change detection with MutationObserver to reset badge when navigating to a new product
-let lastUrl = location.href; 
+let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
