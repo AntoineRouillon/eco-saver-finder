@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -357,7 +358,8 @@
   margin-bottom: 8px;
 }
 
-.aaf-badge-pro, .aaf-badge-delivery {
+/* Badge de livraison uniquement - Suppression du badge Pro */
+.aaf-badge-delivery {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -365,16 +367,23 @@
   font-weight: 600;
   padding: 2px 6px;
   border-radius: 10px;
+  color: #4AB07B;
+  background-color: #e0fbea;
+  border: 1px solid #4AB07B;
 }
 
-.aaf-badge-pro {
+/* Nouveau style pour le badge de localisation */
+.aaf-badge-location {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
   color: #64748b;
-  border: 1px solid #64748b;
-}
-
-.aaf-badge-delivery {
-  color: #64748b;
-  border: 1px solid #64748b;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
 }
 
 .aaf-item-footer {

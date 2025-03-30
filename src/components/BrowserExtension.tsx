@@ -67,11 +67,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     if (!article) return null;
     
-    const proBadge = article.querySelector('.text-support') !== null;
+    // Nous ne récupérons plus le badge Pro
     const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
     
     return {
-      isPro: proBadge,
       hasDelivery: deliveryBadge
     };
   };
@@ -186,14 +185,14 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                         
                         {htmlData && (
                           <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                            {htmlData.isPro && (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                                Pro
-                              </span>
-                            )}
-                            {htmlData.hasDelivery && (
+                            {/* Suppression du badge Pro */}
+                            {htmlData.hasDelivery ? (
                               <span className="px-2 py-0.5 bg-green-50 text-[#4AB07B] rounded-full text-xs font-medium">
                                 Livraison possible
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                {product.location}
                               </span>
                             )}
                           </div>

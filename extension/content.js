@@ -1,4 +1,3 @@
-
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -282,17 +281,16 @@ function createCardFromRawHTML(item) {
     imageUrl = imgElement.src;
   }
 
-  // Vérifier les badges
-  const isPro = article.textContent.includes('Pro');
+  // Vérifier les badges (nous ignorons maintenant le badge Pro)
   const hasDelivery = article.textContent.includes('Livraison possible');
 
   // Créer le HTML des badges
   let badges = '';
-  if (isPro) {
-    badges += '<span class="aaf-badge-pro">Pro</span>';
-  }
   if (hasDelivery) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
+  } else {
+    // Ajout du badge location si pas de livraison possible
+    badges += `<span class="aaf-badge-location">${location}</span>`;
   }
 
   // Obtenir l'URL (si disponible)
