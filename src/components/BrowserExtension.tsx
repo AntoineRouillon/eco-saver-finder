@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -11,7 +10,7 @@ interface Product {
   image: string;
   location: string;
   url: string;
-  html?: string;  // Add HTML field
+  html?: string;
 }
 
 interface BrowserExtensionProps {
@@ -23,7 +22,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to get second-hand products
     const timer = setTimeout(() => {
       setProducts([
         {
@@ -60,7 +58,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Extract data from HTML for display
   const extractDataFromHTML = (html: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -68,7 +65,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     if (!article) return null;
     
-    // Extract badges
     const proBadge = article.querySelector('.text-support') !== null;
     const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
     
@@ -78,19 +74,18 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     };
   };
 
-  // Function to render no results state
   const renderNoResults = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <svg 
-          className="w-16 h-16 mb-4 text-teal-600" 
+          className="w-16 h-16 mb-4 text-blue-600" 
           xmlns="http://www.w3.org/2000/svg" 
           viewBox="0 0 121.7 122.88"
           fill="currentColor"
         >
           <path d="M53.62 0c14.81 0 28.21 6 37.91 15.7 9.7 9.7 15.7 23.11 15.7 37.91 0 10.83-3.21 20.91-8.74 29.35l23.2 25.29-16 14.63-22.37-24.62a53.359 53.359 0 01-29.7 8.98c-14.81 0-28.21-6-37.91-15.7C6 81.82 0 68.42 0 53.62 0 38.81 6 25.41 15.7 15.7 25.41 6 38.81 0 53.62 0zm8.01 38.91a4.747 4.747 0 016.76-.02 4.868 4.868 0 01.02 6.83l-8.17 8.29 8.18 8.3c1.85 1.88 1.82 4.92-.05 6.79-1.88 1.87-4.9 1.87-6.74-.01l-8.13-8.24-8.14 8.26a4.747 4.747 0 01-6.76.02 4.868 4.868 0 01-.02-6.83l8.17-8.3-8.18-8.3c-1.85-1.88-1.82-4.92.06-6.79 1.88-1.87 4.9-1.87 6.74.01l8.13 8.24 8.13-8.25zM87.3 19.93C78.68 11.31 66.77 5.98 53.62 5.98c-13.15 0-25.06 5.33-33.68 13.95-8.63 8.62-13.96 20.53-13.96 33.69 0 13.15 5.33 25.06 13.95 33.68 8.62 8.62 20.53 13.95 33.68 13.95 13.16 0 25.06-5.33 33.68-13.95 8.62-8.62 13.95-20.53 13.95-33.68.01-13.16-5.32-25.07-13.94-33.69z" fill-rule="evenodd" clip-rule="evenodd"/>
         </svg>
-        <h4 className="text-base font-medium text-gray-800 mb-1">No alternative found</h4>
+        <h4 className="text-base font-medium text-gray-800">No alternative found</h4>
       </div>
     );
   };
@@ -131,7 +126,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 </p>
                 
                 {products.map((product) => {
-                  // Extract badges from HTML
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
                   
                   return (
@@ -157,7 +151,6 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           {product.title}
                         </h4>
                         
-                        {/* Display badges based on HTML data */}
                         {htmlData && (
                           <div className="flex flex-wrap gap-1 mt-1 mb-2">
                             {htmlData.isPro && (
