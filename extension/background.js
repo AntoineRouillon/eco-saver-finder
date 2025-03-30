@@ -152,6 +152,29 @@ async function waitForPageLoad(tabId, timeout = 30000) {
   return Promise.resolve();
 }
 
+// Function to check for "no results" message on Leboncoin
+function checkNoResults(tabId) {
+  return new Promise((resolve) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      function: () => {
+        // Check if the "no results" message element exists
+        const noResultElement = document.getElementById('noResultMessages') || 
+                               document.querySelector('.noResultMessages') || 
+                               document.querySelector('[data-test-id="no-result-message"]');
+        
+        return noResultElement !== null;
+      }
+    }).then(results => {
+      const noResultsFound = results && results[0]?.result === true;
+      resolve(noResultsFound);
+    }).catch(error => {
+      console.error("Error checking for no results:", error);
+      resolve(false); // If error, we assume there might be results
+    });
+  });
+}
+
 // Function to open a pinned tab to Leboncoin with search query
 async function openLeboncoinTab(searchQuery, sourceTabId) {
   console.log("Opening Leboncoin tab with query:", searchQuery);
@@ -204,6 +227,29 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
+          // Wait 3 seconds to give the page time to render the "no results" message if it exists
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          
+          // NEW STEP: Check for "no results" message
+          console.log("Checking for 'no results' message...");
+          const noResultsFound = await checkNoResults(newTab.id);
+          
+          if (noResultsFound) {
+            console.log("'No results' message found, terminating search early.");
+            // Send empty alternatives array to trigger "no results" UI
+            chrome.tabs.sendMessage(sourceTabId, {
+              action: "ALTERNATIVES_FOUND",
+              alternatives: [],
+              error: "No results found"
+            });
+            
+            // Close the pinned tab
+            chrome.tabs.remove(newTab.id);
+            return;
+          }
+          
+          console.log("No 'noResultMessages' found, continuing with scraping...");
+          
           // Wait for the page to be fully loaded before scraping
           console.log("Page initial load complete, now waiting for full content to load...");
           await waitForPageLoad(newTab.id);
