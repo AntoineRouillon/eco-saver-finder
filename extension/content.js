@@ -1,4 +1,3 @@
-
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -293,11 +292,6 @@ function createCardFromRawHTML(item) {
   
   // Toujours ajouter le badge location
   badges += `<span class="aaf-badge-location">${location}</span>`;
-  
-  // Ajouter le badge de date si disponible
-  if (date) {
-    badges += `<span class="aaf-badge-date">${date}</span>`;
-  }
 
   // Obtenir l'URL (si disponible)
   let url = item.url || '#';
@@ -322,6 +316,7 @@ function createCardFromRawHTML(item) {
   itemElement.innerHTML = `
     <div class="aaf-item-image">
       <img src="${imageUrl}" alt="${title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjYWFhIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';">
+      ${date ? `<span class="aaf-badge-date">${date}</span>` : ''}
     </div>
     <div class="aaf-item-content">
       <h4 class="aaf-item-title">${title}</h4>

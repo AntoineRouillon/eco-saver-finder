@@ -1,3 +1,4 @@
+
 /* Base styles */
 #amazon-alternative-finder {
   position: fixed;
@@ -322,6 +323,25 @@
   object-fit: contain;
 }
 
+/* Date badge position over image */
+.aaf-badge-date {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  border: none;
+  z-index: 2;
+}
+
 .aaf-item-content {
   padding: 12px;
 }
@@ -370,19 +390,6 @@
   color: #64748b;
   background-color: #f1f5f9;
   border: 1px solid #cbd5e1;
-}
-
-.aaf-badge-date {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  color: #3b82f6;
-  background-color: #eff6ff;
-  border: 1px solid #93c5fd;
 }
 
 .aaf-item-footer {
