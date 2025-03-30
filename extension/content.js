@@ -347,7 +347,11 @@ function createCardFromRawHTML(item) {
   // Emplacement - utiliser notre fonction améliorée
   const location = extractLocation(article);
 
+<<<<<<< Updated upstream
   // Date - utiliser notre nouvelle fonction d'extraction
+=======
+  // Date - extraire la date de l'annonce
+>>>>>>> Stashed changes
   const date = extractDate(article);
 
   // Image
@@ -426,6 +430,81 @@ function extractTextContent(parentElement, selector) {
   return element ? element.textContent.trim() : null;
 }
 
+<<<<<<< Updated upstream
+=======
+// Fonction pour extraire la date de l'annonce
+function extractDate(article) {
+  // Chercher l'élément avec aria-label contenant "il y a" qui est généralement la date
+  const dateElement = article.querySelector('p[aria-label*="il y a"]') ||
+                      article.querySelector('p[aria-label="Aujourd\'hui"]');
+
+  if (dateElement) {
+    return dateElement.textContent.trim();
+  }
+
+  // Chercher parmi tous les éléments text-caption pour trouver une indication de date
+  const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
+  for (const caption of allCaptions) {
+    const text = caption.textContent.trim();
+    if (text.startsWith("il y a") || text === "Aujourd'hui" || text === "Hier") {
+      return text;
+    }
+  }
+
+  return null;
+}
+
+// Fonction améliorée pour extraire la localisation avec précision
+function extractLocation(article) {
+  // Sélecteur le plus précis d'abord - élément avec aria-label contenant "Située à"
+  const locationWithAriaLabel = article.querySelector('p[aria-label*="Située à"]');
+  if (locationWithAriaLabel) {
+    // Extrait uniquement la partie ville de l'aria-label
+    const ariaLabel = locationWithAriaLabel.getAttribute('aria-label') || '';
+    const match = ariaLabel.match(/Située à ([^,]+)/);
+    location = match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
+    return location;
+  }
+
+  // Sélecteurs alternatifs par ordre de précision
+  const selectors = [
+    'p.text-caption.text-neutral:last-of-type', // Souvent le dernier paragraphe avec cette classe est la localisation
+    '.adcard_8f3833cd8 p.text-caption.text-neutral:last-child', // Sélecteur plus spécifique
+    'div:last-child > p.text-caption.text-neutral:last-child', // Cibler le dernier élément de localisation
+  ];
+
+  // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
+  for (const selector of selectors) {
+    const element = article.querySelector(selector);
+    if (element) {
+      const text = element.textContent.trim();
+      // Éviter de capturer la date (commence souvent par "il y a")
+      if (text && !text.startsWith("il y a") && text !== "Aujourd'hui" && text !== "Hier") {
+        location = text;
+        break;
+      }
+    }
+  }
+
+  // Si on n'a toujours pas trouvé, on essaie une approche plus générique
+  if (!location) {
+    // Chercher tous les éléments text-caption et analyser leur contenu
+    const allCaptions = article.querySelectorAll('p.text-caption.text-neutral');
+    for (const caption of allCaptions) {
+      const text = caption.textContent.trim();
+      // Éviter les textes qui semblent être des dates ou des catégories
+      if (text && !text.includes('il y a') && !text.includes('Tech') &&
+          text !== "Aujourd'hui" && text !== "Hier") {
+        location = text;
+        break;
+      }
+    }
+  }
+
+  return location || 'Lieu non disponible';
+}
+
+>>>>>>> Stashed changes
 // Appliquer les filtres actuels aux alternatives et les afficher
 function renderFilteredAlternatives() {
   const container = document.getElementById('amazon-alternative-finder');
