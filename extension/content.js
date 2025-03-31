@@ -55,9 +55,7 @@ function createExtensionUI() {
           <div class="aaf-skeleton-loading" style="display: none;">
             <!-- Skeleton loading cards will be added here -->
             <div class="aaf-filter-controls">
-              <div class="aaf-skeleton-filter" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div class="aaf-skeleton-text" style="width: 150px; height: 16px; background: #eee; border-radius: 4px;"></div>
-                <div class="aaf-skeleton-button" style="width: 32px; height: 32px; background: #eee; border-radius: 4px;"></div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               </div>
             </div>
             <div class="aaf-skeleton-items">
