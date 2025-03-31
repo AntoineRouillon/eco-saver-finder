@@ -1,5 +1,3 @@
-
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -310,9 +308,9 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // MODIFIED: Wait 5 seconds instead of waiting for the page to be fully loaded
-          console.log("Page loaded, waiting 5 seconds before scraping...");
-          await new Promise(resolve => setTimeout(resolve, 5000));
+          // MODIFIED: Wait 3 seconds instead of 5 seconds before scraping
+          console.log("Page loaded, waiting 3 seconds before scraping...");
+          await new Promise(resolve => setTimeout(resolve, 3000));
           
           // Execute script to scrape data from Leboncoin
           chrome.scripting.executeScript({
@@ -527,4 +525,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Indicates we'll respond asynchronously
   }
 });
-
