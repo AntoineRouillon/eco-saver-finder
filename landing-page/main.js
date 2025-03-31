@@ -26,11 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
   </header>
 
-
-        </div>
-      </div>
-    </header>
-
     <!-- Demo Section -->
     <section id="demo" class="demo">
       <div class="container">
@@ -50,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="browser-content">
             <div class="amazon-mockup">
               <div class="amazon-header">
-                <div class="amazon-logo">amazon.fr</div>
+                <img src="./images/amazon.png" alt="Logo">
               </div>
               <div class="amazon-product">
                 <div class="amazon-product-grid">
@@ -114,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       <div class="alternative-content">
                         <h4 class="alternative-title">Blender Moulinex Blendforce</h4>
                         <div class="alternative-badges">
+                          <span class="alternative-badge-delivery">Livraison possible</span>
                           <span class="alternative-badge-location">Paris 15e</span>
                         </div>
                         <div class="alternative-footer">
@@ -161,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       <div class="alternative-content">
                         <h4 class="alternative-title">Blender électrique Moulinex LM430</h4>
                         <div class="alternative-badges">
+                          <span class="alternative-badge-delivery">Livraison possible</span>
                           <span class="alternative-badge-location">Marseille</span>
                         </div>
                         <div class="alternative-footer">
