@@ -1,4 +1,5 @@
 
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 
@@ -309,9 +310,9 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // Wait for the page to be fully loaded before scraping
-          console.log("Page initial load complete, now waiting for full content to load...");
-          await waitForPageLoad(newTab.id);
+          // MODIFIED: Wait 5 seconds instead of waiting for the page to be fully loaded
+          console.log("Page loaded, waiting 5 seconds before scraping...");
+          await new Promise(resolve => setTimeout(resolve, 5000));
           
           // Execute script to scrape data from Leboncoin
           chrome.scripting.executeScript({
@@ -363,12 +364,12 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
             chrome.tabs.remove(newTab.id);
           });
         } catch (error) {
-          console.error("Error waiting for page to load:", error);
+          console.error("Error waiting before scraping:", error);
           // Send error to content script
           chrome.tabs.sendMessage(sourceTabId, {
             action: "ALTERNATIVES_FOUND",
             alternatives: [],
-            error: "Error waiting for page to load: " + error.toString()
+            error: "Error waiting before scraping: " + error.toString()
           });
           chrome.tabs.remove(newTab.id);
         }
@@ -526,3 +527,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Indicates we'll respond asynchronously
   }
 });
+
