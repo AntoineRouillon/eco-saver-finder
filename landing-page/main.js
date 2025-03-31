@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
               <h1>Économisez sur Amazon</h1>
               <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
               <div class="button-group">
-                  <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
                   <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl"
-                     class="button button-outline"
+                     class="button button-primary"
                      target="_blank"
                      rel="noopener noreferrer"
                      id="chrome-store-button">
                      Ajouter à Chrome
                   </a>
+                  <a href="#demo" class="button button-outline" id="demo-button">Comment ça marche</a>
               </div>
           </div>
       </div>
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chromeStoreButton.addEventListener('click', (e) => {
     // Don't prevent default here to allow the natural link behavior
     // This ensures the link opens in a new tab as specified by target="_blank"
-    
+
     // For tracking or analytics, you could add code here
     console.log('Chrome Web Store button clicked');
   });
