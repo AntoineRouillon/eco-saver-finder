@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
           <div class="button-group">
             <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
-            <a href="#download" class="button button-outline">Télécharger l'extension</a>
+            <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl" class="button button-outline">Ajouter à Chrome</a>
           </div>
         </div>
       </div>
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="container">
         <div class="section-header">
           <h2>Comment ça marche</h2>
-          <p>Notre extension s'intègre parfaitement à votre expérience de navigation sur Amazon, vous aidant à trouver de meilleures offres sur les marchés d'occasion.</p>
+          <p>Notre extension s'intègre parfaitement à votre expérience de navigation sur Amazon, vous aidant à trouver de meilleures offres alternatives sur Leboncoin.</p>
         </div>
         <div class="browser-mockup">
           <div class="browser-header">
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="alternative-footer">
                           <p class="alternative-price">35,00 €</p>
-                          <a href="#" class="alternative-link">
+                          <a href="" class="alternative-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                               <polyline points="15 3 21 3 21 9"></polyline>
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="alternative-footer">
                           <p class="alternative-price">42,50 €</p>
-                          <a href="#" class="alternative-link">
+                          <a href="" class="alternative-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                               <polyline points="15 3 21 3 21 9"></polyline>
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="alternative-footer">
                           <p class="alternative-price">29,99 €</p>
-                          <a href="#" class="alternative-link">
+                          <a href="" class="alternative-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                               <polyline points="15 3 21 3 21 9"></polyline>
@@ -206,18 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="steps-container">
           <div class="step">
             <div class="step-number">1</div>
-            <h3>Télécharger</h3>
+            <h3>Installer</h3>
             <p>Obtenez l'extension depuis le Chrome Web Store.</p>
           </div>
           <div class="step">
             <div class="step-number">2</div>
-            <h3>Installer</h3>
-            <p>Ajoutez l'extension à votre navigateur en quelques clics.</p>
+            <h3>Naviguez</h3>
+            <p>Commencez à faire du shopping sur Amazon.</p>
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <h3>Naviguez & Économisez</h3>
-            <p>Commencez à faire du shopping sur Amazon et voyez automatiquement les alternatives.</p>
+            <h3>Économisez</h3>
+            <p>Recherchez des alternatives sur Leboncoin en 1 clic.</p>
           </div>
         </div>
       </div>

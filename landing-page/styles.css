@@ -310,7 +310,7 @@ body {
 /* Extension Toggle - Matched to extension UI */
 .extension-toggle {
   position: absolute;
-  top: 1rem;
+  top: 190px;
   right: 1rem;
   z-index: 10;
 }
