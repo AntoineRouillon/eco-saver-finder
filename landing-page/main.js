@@ -1,7 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('root');
-  
+
   // Create the landing page content
   root.innerHTML = `
     <!-- Hero Section -->
@@ -33,20 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="browser-dot dot-yellow"></div>
               <div class="browser-dot dot-green"></div>
             </div>
-            <div class="browser-address">amazon.fr/Moulinex-LM430810-Blendforce-Électrique-Smoothie/dp/B07FSL8PYF</div>
+            <div class="browser-address">amazon.fr/blender</div>
           </div>
           <div class="browser-content">
             <div class="amazon-mockup">
               <div class="amazon-header">
                 <div class="amazon-logo">amazon.fr</div>
-                <div class="amazon-search">
-                  <input type="text" placeholder="Rechercher" disabled />
-                </div>
               </div>
               <div class="amazon-product">
                 <div class="amazon-product-grid">
                   <div class="amazon-product-image">
-                    <img src="./images/blender.jpg" alt="Moulinex Blendforce" onerror="this.src='https://m.media-amazon.com/images/I/71G4ilhGrnL._AC_SX425_.jpg'" />
+                    <img src="./images/blender-occasion.png" alt="Moulinex Blendforce" onerror="this.src='https://m.media-amazon.com/images/I/71G4ilhGrnL._AC_SX425_.jpg'" />
                   </div>
                   <div class="amazon-product-info">
                     <h1 class="amazon-product-title">Moulinex LM430810 Blendforce Blender Électrique Smoothie Mixeur Soupe 800W 2L Noir</h1>
@@ -55,19 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
                       <span>2,364 évaluations</span>
                     </div>
                     <div class="amazon-product-price">
-                      <span class="amazon-price">59,99 €</span>
+                      <span class="amazon-price">49€</span>
                     </div>
                     <div class="amazon-product-delivery">
                       <span>Livraison GRATUITE par Amazon</span>
                     </div>
                     <div class="amazon-product-actions">
                       <button class="amazon-button amazon-cart">Ajouter au panier</button>
-                      <button class="amazon-button amazon-buy">Acheter maintenant</button>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Extension Toggle - Matching the actual extension UI -->
               <div class="extension-toggle">
                 <div class="extension-toggle-button" id="extension-toggle">
@@ -76,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="extension-badge">3</div>
                 </div>
               </div>
-              
+
               <!-- Extension Panel (initially hidden) -->
               <div class="extension-panel" id="extension-panel">
                 <div class="extension-panel-header">
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="extension-alternatives">
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion-1.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">19/03/2023</span>
                       </div>
                       <div class="alternative-content">
@@ -123,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion-2.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">15/03/2023</span>
                       </div>
                       <div class="alternative-content">
@@ -147,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion-3.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">10/03/2023</span>
                       </div>
                       <div class="alternative-content">
@@ -258,11 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.querySelector('#extension-toggle');
   const extensionPanel = document.querySelector('#extension-panel');
   const closeButton = document.querySelector('#extension-close');
-  
+
   toggleButton.addEventListener('click', () => {
     toggleExtensionPanel();
   });
-  
+
   closeButton.addEventListener('click', () => {
     extensionPanel.style.display = 'none';
     toggleButton.classList.remove('active');
@@ -283,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
   demoButton.addEventListener('click', (e) => {
     e.preventDefault();
     document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
-    
+
     // Show the extension panel after scrolling to demo
     setTimeout(() => {
       toggleExtensionPanel();
