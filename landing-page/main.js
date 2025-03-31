@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <h1>Économisez sur Amazon</h1>
           <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
           <div class="button-group">
-            <a href="#demo" class="button button-primary">Comment ça marche</a>
+            <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
             <a href="#download" class="button button-outline">Télécharger l'extension</a>
           </div>
         </div>
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="amazon-product">
                 <div class="amazon-product-grid">
                   <div class="amazon-product-image">
-                    <img src="https://m.media-amazon.com/images/I/71G4ilhGrnL._AC_SX425_.jpg" alt="Moulinex Blendforce" />
+                    <img src="./images/blender.jpg" alt="Moulinex Blendforce" onerror="this.src='https://m.media-amazon.com/images/I/71G4ilhGrnL._AC_SX425_.jpg'" />
                   </div>
                   <div class="amazon-product-info">
                     <h1 class="amazon-product-title">Moulinex LM430810 Blendforce Blender Électrique Smoothie Mixeur Soupe 800W 2L Noir</h1>
@@ -68,53 +68,126 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
               
-              <!-- Extension Toggle -->
+              <!-- Extension Toggle - Matching the actual extension UI -->
               <div class="extension-toggle">
-                <div class="extension-toggle-button">
-                  <img src="https://www.leboncoin.fr/favicon.ico" alt="AltMarket" width="16" height="16" />
-                  <span>Alternatives</span>
+                <div class="extension-toggle-button" id="extension-toggle">
+                  <img src="./images/icon16.png" alt="AltMarket" width="16" height="16" onerror="this.src='https://www.leboncoin.fr/favicon.ico'" />
+                  <span class="extension-toggle-text">Alternatives</span>
+                  <div class="extension-badge">3</div>
                 </div>
               </div>
               
               <!-- Extension Panel (initially hidden) -->
-              <div class="extension-panel" style="display: none;">
+              <div class="extension-panel" id="extension-panel">
                 <div class="extension-panel-header">
-                  <h3>Alternatives d'occasion trouvées</h3>
-                  <span class="extension-close">×</span>
+                  <div>
+                    <div class="extension-panel-title">AltMarket</div>
+                    <div class="extension-panel-subtitle">Alternatives d'occasion</div>
+                  </div>
+                  <span class="extension-close" id="extension-close">×</span>
                 </div>
                 <div class="extension-panel-content">
+                  <div class="extension-filter-controls">
+                    <p class="extension-results-count">3 alternatives trouvées sur Leboncoin</p>
+                    <div class="extension-filter-container">
+                      <button class="extension-filter-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                   <div class="extension-alternatives">
                     <div class="alternative-item">
-                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
-                      <div class="alternative-info">
-                        <h4>Blender Moulinex Blendforce</h4>
-                        <p class="alternative-price">35,00 €</p>
-                        <p class="alternative-location">Paris 15e</p>
-                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      <div class="alternative-image">
+                        <img src="./images/blender-occasion-1.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
+                        <span class="alternative-date">19/03/2023</span>
+                      </div>
+                      <div class="alternative-content">
+                        <h4 class="alternative-title">Blender Moulinex Blendforce</h4>
+                        <div class="alternative-badges">
+                          <span class="alternative-badge-location">Paris 15e</span>
+                        </div>
+                        <div class="alternative-footer">
+                          <p class="alternative-price">35,00 €</p>
+                          <a href="#" class="alternative-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                              <polyline points="15 3 21 3 21 9"></polyline>
+                              <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            Voir
+                          </a>
+                        </div>
                       </div>
                     </div>
                     <div class="alternative-item">
-                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
-                      <div class="alternative-info">
-                        <h4>Blender Moulinex comme neuf</h4>
-                        <p class="alternative-price">42,50 €</p>
-                        <p class="alternative-location">Lyon</p>
-                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      <div class="alternative-image">
+                        <img src="./images/blender-occasion-2.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb'" />
+                        <span class="alternative-date">15/03/2023</span>
+                      </div>
+                      <div class="alternative-content">
+                        <h4 class="alternative-title">Blender Moulinex comme neuf</h4>
+                        <div class="alternative-badges">
+                          <span class="alternative-badge-delivery">Livraison possible</span>
+                          <span class="alternative-badge-location">Lyon</span>
+                        </div>
+                        <div class="alternative-footer">
+                          <p class="alternative-price">42,50 €</p>
+                          <a href="#" class="alternative-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                              <polyline points="15 3 21 3 21 9"></polyline>
+                              <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            Voir
+                          </a>
+                        </div>
                       </div>
                     </div>
                     <div class="alternative-item">
-                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
-                      <div class="alternative-info">
-                        <h4>Blender électrique Moulinex LM430</h4>
-                        <p class="alternative-price">29,99 €</p>
-                        <p class="alternative-location">Marseille</p>
-                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      <div class="alternative-image">
+                        <img src="./images/blender-occasion-3.jpg" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb'" />
+                        <span class="alternative-date">10/03/2023</span>
+                      </div>
+                      <div class="alternative-content">
+                        <h4 class="alternative-title">Blender électrique Moulinex LM430</h4>
+                        <div class="alternative-badges">
+                          <span class="alternative-badge-location">Marseille</span>
+                        </div>
+                        <div class="alternative-footer">
+                          <p class="alternative-price">29,99 €</p>
+                          <a href="#" class="alternative-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                              <polyline points="15 3 21 3 21 9"></polyline>
+                              <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            Voir
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="extension-panel-footer">
-                  <p>Économisez jusqu'à 50% par rapport au prix Amazon!</p>
+                  <div class="extension-feedback-text">Est-ce que cela vous a aidé ?</div>
+                  <div class="extension-feedback-buttons">
+                    <button class="extension-feedback-btn extension-yes-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 10v12"></path>
+                        <path d="M15 5.88 14 10h5.83a2 2 0 0 1-1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
+                      </svg>
+                      Oui
+                    </button>
+                    <button class="extension-feedback-btn extension-no-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 14V2"></path>
+                        <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path>
+                      </svg>
+                      Non
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -182,18 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 
   // Add extension toggle functionality
-  const toggleButton = document.querySelector('.extension-toggle-button');
-  const extensionPanel = document.querySelector('.extension-panel');
-  const closeButton = document.querySelector('.extension-close');
+  const toggleButton = document.querySelector('#extension-toggle');
+  const extensionPanel = document.querySelector('#extension-panel');
+  const closeButton = document.querySelector('#extension-close');
   
   toggleButton.addEventListener('click', () => {
-    if (extensionPanel.style.display === 'none') {
-      extensionPanel.style.display = 'block';
-      toggleButton.classList.add('active');
-    } else {
-      extensionPanel.style.display = 'none';
-      toggleButton.classList.remove('active');
-    }
+    toggleExtensionPanel();
   });
   
   closeButton.addEventListener('click', () => {
@@ -201,11 +268,26 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleButton.classList.remove('active');
   });
 
+  function toggleExtensionPanel() {
+    if (extensionPanel.style.display === 'none' || extensionPanel.style.display === '') {
+      extensionPanel.style.display = 'flex';
+      toggleButton.classList.add('active');
+    } else {
+      extensionPanel.style.display = 'none';
+      toggleButton.classList.remove('active');
+    }
+  }
+
   // Scroll behavior for navigation
-  const demoButton = document.querySelector('.button-primary');
+  const demoButton = document.querySelector('#demo-button');
   demoButton.addEventListener('click', (e) => {
     e.preventDefault();
     document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
+    
+    // Show the extension panel after scrolling to demo
+    setTimeout(() => {
+      toggleExtensionPanel();
+    }, 800);
   });
 
   const downloadButton = document.querySelector('.button-outline');
