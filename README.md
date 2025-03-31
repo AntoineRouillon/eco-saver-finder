@@ -1,74 +1,74 @@
 
-# Amazon Alternative Finder
+# AltMarket - Amazon Alternative Finder
 
-A browser extension that helps users save money on their Amazon purchases by showing second-hand alternatives from Leboncoin.fr.
+Une extension de navigateur qui aide les utilisateurs à économiser sur leurs achats Amazon en montrant des alternatives d'occasion disponibles sur Leboncoin.fr.
 
-## Features
+## Structure du projet
 
-- Automatically detects when you're browsing product pages on Amazon.fr
-- Shows available second-hand alternatives from Leboncoin.fr
-- Clean, minimal interface inspired by Apple design principles
-- Helps users make cost-effective and sustainable shopping decisions
-
-## How It Works
-
-When you visit a product page on Amazon.fr, the extension:
-
-1. Detects the product you're viewing
-2. Searches for similar items on Leboncoin.fr
-3. Displays matching second-hand alternatives in a sleek side panel
-4. Shows you how much you could save by buying pre-owned
-
-## Installation Instructions
-
-### Development Mode
-
-1. Clone this repository or download the source code
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top-right corner
-4. Click "Load unpacked" and select the `extension` folder from this project
-5. The extension should now be installed and active
-
-### From Package
-
-1. Download the latest release package
-2. Extract the ZIP file to a location on your computer
-3. Follow steps 2-5 from the Development Mode instructions above
-
-## Project Structure
+Ce projet est composé de deux parties distinctes :
 
 ```
-├── extension/             # Browser extension files
-│   ├── manifest.json      # Extension manifest
-│   ├── background.js      # Background service worker
-│   ├── content.js         # Content script injected into Amazon pages
-│   ├── content.css        # Styles for the extension UI
-│   └── icons/             # Extension icons
-├── src/                   # Website/demo application
-│   ├── components/        # React components
-│   └── pages/             # Page components
-└── README.md              # This file
+├── extension/             # Fichiers de l'extension pour le navigateur
+│   ├── manifest.json      # Manifeste de l'extension
+│   ├── background.js      # Service worker en arrière-plan
+│   ├── content.js         # Script injecté dans les pages Amazon
+│   ├── content.css        # Styles pour l'interface utilisateur de l'extension
+│   └── icons/             # Icônes de l'extension
+│
+└── landing-page/          # Site web de présentation de l'extension
+    ├── index.html         # Page HTML principale
+    ├── styles.css         # Feuille de style CSS
+    └── main.js            # Script JavaScript pour la landing page
 ```
 
-## Development
+## Extension de navigateur
 
-This project consists of two parts:
-1. A React-based website that demonstrates the extension's functionality
-2. The actual browser extension in the `extension/` directory
+### Fonctionnalités
 
-To develop the website locally:
+- Détecte automatiquement lorsque vous naviguez sur des pages produit d'Amazon.fr
+- Affiche les alternatives d'occasion disponibles sur Leboncoin.fr
+- Interface propre et minimaliste
+- Aide les utilisateurs à prendre des décisions d'achat économiques et durables
 
-```bash
-npm install
-npm run dev
-```
+### Installation de l'extension
 
-To test the extension, load it in Chrome as described in the Installation Instructions.
+1. Téléchargez le code source ou clonez ce dépôt
+2. Ouvrez Chrome et accédez à `chrome://extensions/`
+3. Activez le "Mode développeur" dans le coin supérieur droit
+4. Cliquez sur "Charger l'extension non empaquetée" et sélectionnez le dossier `extension`
+5. L'extension devrait maintenant être installée et active
 
-## Inspiration
+## Site web de présentation
 
-This project was inspired by the Faircado.com browser extension, which provides a similar service across multiple platforms.
+Le dossier `landing-page` contient un site web statique qui présente l'extension, explique son fonctionnement et ses avantages.
 
-## License
+### Déploiement du site
 
-MIT License
+Pour déployer le site web :
+
+1. Téléchargez le contenu du dossier `landing-page` sur votre serveur web
+2. Assurez-vous que tous les fichiers (HTML, CSS, JS) sont accessibles
+3. Le site est prêt à être consulté
+
+## Développement
+
+### Extension
+
+Pour modifier l'extension :
+
+1. Effectuez vos modifications dans le dossier `extension`
+2. Rechargez l'extension dans Chrome en cliquant sur l'icône de rechargement sur la page `chrome://extensions/`
+3. Testez vos modifications
+
+### Site web
+
+Pour modifier le site web :
+
+1. Éditez les fichiers dans le dossier `landing-page`
+2. Testez localement en ouvrant `index.html` dans un navigateur
+3. Déployez les fichiers modifiés sur votre serveur web
+
+## Licence
+
+Licence MIT
+
