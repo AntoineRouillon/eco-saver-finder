@@ -12,9 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <h1>Économisez sur Amazon</h1>
           <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
           <div class="button-group">
-            <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
-            <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl" class="button button-outline">Ajouter à Chrome</a>
-          </div>
+      <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
+      <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl"
+         class="button button-outline"
+         target="_blank"
+         rel="noopener noreferrer">
+         Ajouter à Chrome
+      </a>
+  </div>
+
         </div>
       </div>
     </header>
