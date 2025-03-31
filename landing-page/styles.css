@@ -208,6 +208,7 @@ body {
   background-color: white;
   padding: 1rem;
   overflow: hidden;
+  height: 450px;
 }
 
 .amazon-header {
