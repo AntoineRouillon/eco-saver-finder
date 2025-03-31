@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import BrowserExtension from "@/components/BrowserExtension";
+import BrowserExtension from "./components/BrowserExtension";
 
-const Index = () => {
+const LandingPage = () => {
   const [showDemo, setShowDemo] = useState(false);
 
   return (
@@ -185,4 +185,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default LandingPage;
