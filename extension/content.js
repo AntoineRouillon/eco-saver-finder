@@ -559,8 +559,8 @@ function renderAlternatives(alternatives) {
     // Afficher la nouvelle interface pour aucun résultat
     if (results) {
       results.style.display = 'block';
-
-      // Masquer les contrôles de filtre quand il n'y a pas d'alternatives
+      
+      // Masquer complètement les contrôles de filtre quand il n'y a pas d'alternatives
       if (filterControls) {
         filterControls.style.display = 'none';
       }
