@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="extension-alternatives">
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blende1.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">19/03/2023</span>
                       </div>
                       <div class="alternative-content">
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender2.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">15/03/2023</span>
                       </div>
                       <div class="alternative-content">
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blender-occasion.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender3.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">10/03/2023</span>
                       </div>
                       <div class="alternative-content">
