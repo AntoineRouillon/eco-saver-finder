@@ -58,6 +58,12 @@ body {
   text-align: center;
 }
 
+.centered-image {
+    display: block;
+    margin: 0 auto;
+    max-width: 100px; /* Ajuste la taille selon tes besoins */
+}
+
 .badge {
   display: inline-flex;
   padding: 0.25rem 0.75rem;

@@ -7,19 +7,25 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Hero Section -->
     <header class="hero">
       <div class="container">
-        <div class="hero-content">
-          <span class="badge">Achats Intelligents</span>
-          <h1>Économisez sur Amazon</h1>
-          <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
-          <div class="button-group">
-      <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
-      <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl"
-         class="button button-outline"
-         target="_blank"
-         rel="noopener noreferrer">
-         Ajouter à Chrome
-      </a>
-  </div>
+          <div class="hero-content">
+              <div class="badge">
+                  <img src="./images/icon48.png" alt="Logo ou image" class="centered-image">
+              </div>
+              <h1>Économisez sur Amazon</h1>
+              <p>Trouvez automatiquement des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr</p>
+              <div class="button-group">
+                  <a href="#demo" class="button button-primary" id="demo-button">Comment ça marche</a>
+                  <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl"
+                     class="button button-outline"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                     Ajouter à Chrome
+                  </a>
+              </div>
+          </div>
+      </div>
+  </header>
+
 
         </div>
       </div>
