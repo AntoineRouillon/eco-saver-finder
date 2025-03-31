@@ -33,11 +33,91 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="browser-dot dot-yellow"></div>
               <div class="browser-dot dot-green"></div>
             </div>
-            <div class="browser-address">amazon.fr/echo-dot-2022/dp/B09B94956P/</div>
+            <div class="browser-address">amazon.fr/Moulinex-LM430810-Blendforce-Électrique-Smoothie/dp/B07FSL8PYF</div>
           </div>
           <div class="browser-content">
-            <img src="https://m.media-amazon.com/images/I/61MbLLagiVL._AC_SX679_.jpg" alt="Amazon Echo Dot" />
-            <div id="browser-extension-demo"></div>
+            <div class="amazon-mockup">
+              <div class="amazon-header">
+                <div class="amazon-logo">amazon.fr</div>
+                <div class="amazon-search">
+                  <input type="text" placeholder="Rechercher" disabled />
+                </div>
+              </div>
+              <div class="amazon-product">
+                <div class="amazon-product-grid">
+                  <div class="amazon-product-image">
+                    <img src="https://m.media-amazon.com/images/I/71G4ilhGrnL._AC_SX425_.jpg" alt="Moulinex Blendforce" />
+                  </div>
+                  <div class="amazon-product-info">
+                    <h1 class="amazon-product-title">Moulinex LM430810 Blendforce Blender Électrique Smoothie Mixeur Soupe 800W 2L Noir</h1>
+                    <div class="amazon-product-rating">
+                      <div class="amazon-stars">★★★★☆</div>
+                      <span>2,364 évaluations</span>
+                    </div>
+                    <div class="amazon-product-price">
+                      <span class="amazon-price">59,99 €</span>
+                    </div>
+                    <div class="amazon-product-delivery">
+                      <span>Livraison GRATUITE par Amazon</span>
+                    </div>
+                    <div class="amazon-product-actions">
+                      <button class="amazon-button amazon-cart">Ajouter au panier</button>
+                      <button class="amazon-button amazon-buy">Acheter maintenant</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Extension Toggle -->
+              <div class="extension-toggle">
+                <div class="extension-toggle-button">
+                  <img src="https://www.leboncoin.fr/favicon.ico" alt="AltMarket" width="16" height="16" />
+                  <span>Alternatives</span>
+                </div>
+              </div>
+              
+              <!-- Extension Panel (initially hidden) -->
+              <div class="extension-panel" style="display: none;">
+                <div class="extension-panel-header">
+                  <h3>Alternatives d'occasion trouvées</h3>
+                  <span class="extension-close">×</span>
+                </div>
+                <div class="extension-panel-content">
+                  <div class="extension-alternatives">
+                    <div class="alternative-item">
+                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
+                      <div class="alternative-info">
+                        <h4>Blender Moulinex Blendforce</h4>
+                        <p class="alternative-price">35,00 €</p>
+                        <p class="alternative-location">Paris 15e</p>
+                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      </div>
+                    </div>
+                    <div class="alternative-item">
+                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/c4/55/fe/c455fec7e7f58e6385d3c47d7603b1e4a3d6d6c3.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
+                      <div class="alternative-info">
+                        <h4>Blender Moulinex comme neuf</h4>
+                        <p class="alternative-price">42,50 €</p>
+                        <p class="alternative-location">Lyon</p>
+                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      </div>
+                    </div>
+                    <div class="alternative-item">
+                      <img src="https://img.leboncoin.fr/api/v1/lbcpb1/images/88/73/16/887316ec3113c32120da50b40d45727cadf6fb0a.jpg?rule=ad-image-thumb" alt="Blender d'occasion" />
+                      <div class="alternative-info">
+                        <h4>Blender électrique Moulinex LM430</h4>
+                        <p class="alternative-price">29,99 €</p>
+                        <p class="alternative-location">Marseille</p>
+                        <a href="#" class="alternative-link">Voir l'annonce</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="extension-panel-footer">
+                  <p>Économisez jusqu'à 50% par rapport au prix Amazon!</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -101,7 +181,27 @@ document.addEventListener('DOMContentLoaded', () => {
     </footer>
   `;
 
-  // Add some interactive behavior
+  // Add extension toggle functionality
+  const toggleButton = document.querySelector('.extension-toggle-button');
+  const extensionPanel = document.querySelector('.extension-panel');
+  const closeButton = document.querySelector('.extension-close');
+  
+  toggleButton.addEventListener('click', () => {
+    if (extensionPanel.style.display === 'none') {
+      extensionPanel.style.display = 'block';
+      toggleButton.classList.add('active');
+    } else {
+      extensionPanel.style.display = 'none';
+      toggleButton.classList.remove('active');
+    }
+  });
+  
+  closeButton.addEventListener('click', () => {
+    extensionPanel.style.display = 'none';
+    toggleButton.classList.remove('active');
+  });
+
+  // Scroll behavior for navigation
   const demoButton = document.querySelector('.button-primary');
   demoButton.addEventListener('click', (e) => {
     e.preventDefault();

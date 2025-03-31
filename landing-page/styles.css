@@ -10,6 +10,9 @@
   --bg-white: #ffffff;
   --bg-green-50: #ecfdf5;
   --border: rgba(0, 0, 0, 0.1);
+  --amazon-orange: #ff9900;
+  --amazon-blue: #232f3e;
+  --leboncoin-orange: #FF6E14;
 }
 
 * {
@@ -199,10 +202,250 @@ body {
   position: relative;
 }
 
-.browser-content img {
+/* Amazon Mockup */
+.amazon-mockup {
+  position: relative;
+  background-color: white;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.amazon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.amazon-logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--amazon-blue);
+}
+
+.amazon-search {
+  flex-grow: 1;
+  margin: 0 1rem;
+  max-width: 400px;
+}
+
+.amazon-search input {
   width: 100%;
-  height: auto;
-  display: block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+}
+
+.amazon-product {
+  padding: 1.5rem 0;
+}
+
+.amazon-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+.amazon-product-image {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.amazon-product-image img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.amazon-product-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.amazon-product-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.amazon-stars {
+  color: var(--amazon-orange);
+}
+
+.amazon-product-price {
+  margin-bottom: 1rem;
+}
+
+.amazon-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.amazon-product-delivery {
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.amazon-product-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.amazon-button {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.amazon-cart {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
+
+.amazon-buy {
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #b91c1c;
+}
+
+/* Extension Toggle */
+.extension-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.extension-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.extension-toggle-button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.extension-toggle-button.active {
+  background-color: var(--leboncoin-orange);
+  color: white;
+  border-color: var(--leboncoin-orange);
+}
+
+/* Extension Panel */
+.extension-panel {
+  position: absolute;
+  top: 3.5rem;
+  right: 1rem;
+  width: 300px;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  z-index: 20;
+}
+
+.extension-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--leboncoin-orange);
+  color: white;
+}
+
+.extension-panel-header h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.extension-close {
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.extension-panel-content {
+  padding: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.alternative-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.alternative-item:last-child {
+  border-bottom: none;
+}
+
+.alternative-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.alternative-info h4 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.alternative-price {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.alternative-location {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.alternative-link {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--leboncoin-orange);
+  color: white;
+  border-radius: 0.25rem;
+  text-decoration: none;
+}
+
+.extension-panel-footer {
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 500;
 }
 
 /* Features Section */
@@ -306,5 +549,20 @@ body {
   .button {
     width: 100%;
     max-width: 280px;
+  }
+
+  .amazon-product-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .amazon-product-image {
+    margin-bottom: 1rem;
+  }
+  
+  .extension-panel {
+    width: calc(100% - 2rem);
+    left: 1rem;
+    right: 1rem;
   }
 }
