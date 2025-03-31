@@ -12,7 +12,7 @@ interface Product {
   price: string;
   image: string;
   location: string;
-  date?: string;
+  date?: string; // Added date field
   url: string;
   html?: string;
 }
@@ -63,6 +63,8 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
       setLoading(false);
     }, 1500);
 
+    // Simulate the "No results check" returning false after 500ms
+    // In a real implementation, this would be triggered by an actual message from the background script
     const scrapingTimer = setTimeout(() => {
       setIsScrapingStarted(true);
     }, 500);
@@ -73,22 +75,28 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     };
   }, []);
 
+  // Improved function to extract the location from the Leboncoin HTML
   const extractLocation = (article: Element): string => {
+    // Look for elements with aria-label containing "Située à"
     const locationElements = Array.from(article.querySelectorAll('p[aria-label*="Située à"]'));
     if (locationElements.length > 0) {
       const locationEl = locationElements[0] as HTMLElement;
+      // Extract city from aria-label or use full text content
       const ariaLabel = locationEl.getAttribute('aria-label') || '';
       const match = ariaLabel.match(/Située à ([^\.]+)/);
       return match ? match[1].trim() : locationEl.textContent?.trim() || 'Lieu non disponible';
     }
     
+    // Fallback selectors if the specific aria-label is not found
     const selectors = [
       'p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
       '.adcard_8f3833cd8 p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
     ];
     
+    // Try each selector
     for (const selector of selectors) {
       const elements = Array.from(article.querySelectorAll(selector));
+      // Filter out elements that are likely not location (e.g., category, date)
       const locationCandidate = elements.find(el => {
         const element = el as HTMLElement;
         const text = element.textContent?.trim() || '';
@@ -106,13 +114,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     return 'Lieu non disponible';
   };
 
+  // New function to extract the date from the Leboncoin HTML
   const extractDate = (article: Element): string => {
+    // Look for elements with aria-label containing "Date de dépôt"
     const dateElements = Array.from(article.querySelectorAll('p[aria-label*="Date de dépôt"]'));
     if (dateElements.length > 0) {
       const dateEl = dateElements[0] as HTMLElement;
       return dateEl.textContent?.trim() || '';
     }
     
+    // Fallback to data-test-id for date
     const dateWithTestId = article.querySelector('[data-test-id="ad-date"]') as HTMLElement | null;
     if (dateWithTestId) {
       return dateWithTestId.textContent?.trim() || '';
@@ -128,8 +139,10 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     
     if (!article) return null;
     
+    // Extract delivery badge information
     const deliveryBadge = article.querySelector('.text-on-support-container') !== null;
     
+    // Extract location and date using the improved functions
     const location = extractLocation(article);
     const date = extractDate(article);
     
@@ -140,6 +153,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
     };
   };
 
+  // Component for skeleton loading cards
   const SkeletonProductCard = () => (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
       <Skeleton className="w-full h-32" />
@@ -203,13 +217,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
               <Skeleton className="h-8 w-8 rounded-md" />
             </div>
             
+            {/* Show spinner loading or skeleton cards based on whether scraping has started */}
             {isScrapingStarted ? (
+              // Skeleton product cards when scraping has started (No results check returned false)
               <>
                 {[1, 2, 3].map(i => (
                   <SkeletonProductCard key={i} />
                 ))}
               </>
             ) : (
+              // Initial spinner loading
               <div className="flex flex-col items-center justify-center h-60">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <Skeleton className="h-4 w-28 mt-4" />
@@ -237,7 +254,9 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 
                 {products.map((product) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
+                  // Use either the extracted location or the provided one
                   const location = htmlData?.location || product.location;
+                  // Use either the extracted date or the provided one
                   const date = htmlData?.date || product.date || '';
                   
                   return (
@@ -256,6 +275,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           className="object-cover w-full h-full"
                         />
                         
+                        {/* Date badge positioned over the image with semi-transparent background */}
                         {date && (
                           <div className="absolute top-2 right-2 z-10">
                             <Badge 
@@ -289,7 +309,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                             size="sm"
                             className="text-xs text-gray-600 hover:text-[#4AB07B] p-1 h-auto"
                             onClick={(e) => {
-                              e.stopPropagation();
+                              e.stopPropagation(); // Empêcher le clic sur la carte de se déclencher
                               window.open(product.url, '_blank');
                             }}
                           >
@@ -303,24 +323,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 })}
               </div>
             ) : (
-              <>
-                {/* Hide filter controls when there are no results */}
-                <div className="hidden">
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-gray-500">0 alternatives trouvées sur Leboncoin</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 px-2 text-xs border-gray-200"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                      </svg>
-                    </Button>
-                  </div>
-                </div>
-                {renderNoResults()}
-              </>
+              renderNoResults()
             )}
           </>
         )}
