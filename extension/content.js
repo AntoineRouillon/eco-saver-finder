@@ -189,7 +189,7 @@ function createExtensionUI() {
     container.classList.remove('aaf-expanded');
   });
 
-  // Ajouter l'��couteur pour le bouton de filtre
+  // Ajouter l'écouteur pour le bouton de filtre
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterMenu = container.querySelector('.aaf-filter-menu');
 
@@ -560,7 +560,7 @@ function renderAlternatives(alternatives) {
     if (results) {
       results.style.display = 'block';
 
-      // Masquer les contrôles de filtre car il n'y a pas d'alternatives
+      // Masquer explicitement les contrôles de filtre car il n'y a pas d'alternatives
       if (filterControls) {
         filterControls.style.display = 'none';
       }
