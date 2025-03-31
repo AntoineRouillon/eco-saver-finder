@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('root');
 
@@ -18,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   <a href="https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl"
                      class="button button-outline"
                      target="_blank"
-                     rel="noopener noreferrer">
+                     rel="noopener noreferrer"
+                     id="chrome-store-button">
                      Ajouter à Chrome
                   </a>
               </div>
@@ -279,9 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 800);
   });
 
-  const downloadButton = document.querySelector('.button-outline');
-  downloadButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelector('#download').scrollIntoView({ behavior: 'smooth' });
+  // Update Chrome Web Store button handler
+  const chromeStoreButton = document.querySelector('#chrome-store-button');
+  chromeStoreButton.addEventListener('click', (e) => {
+    // Don't prevent default here to allow the natural link behavior
+    // This ensures the link opens in a new tab as specified by target="_blank"
+    
+    // For tracking or analytics, you could add code here
+    console.log('Chrome Web Store button clicked');
   });
 });
