@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="extension-alternatives">
                     <div class="alternative-item">
                       <div class="alternative-image">
-                        <img src="./images/blende1.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
+                        <img src="./images/blender1.png" alt="Blender d'occasion" onerror="this.src='https://img.leboncoin.fr/api/v1/lbcpb1/images/9e/f6/11/9ef611c92919e52197afebeeb8365eb9dac04a04.jpg?rule=ad-image-thumb'" />
                         <span class="alternative-date">19/03/2023</span>
                       </div>
                       <div class="alternative-content">

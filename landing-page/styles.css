@@ -697,14 +697,14 @@ body {
 
 /* Footer */
 .footer {
-  background-color: #4AB07B;
+  background-color: #3A9666;
   color: white;
   padding: 3rem 1rem;
   text-align: center;
 }
 
 .footer p {
-  color: #3A9666;
+  color: #4AB07B;
   font-size: 0.875rem;
 }
 
