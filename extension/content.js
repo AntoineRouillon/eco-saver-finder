@@ -318,7 +318,7 @@ function createCardFromRawHTML(item) {
 
   // Emplacement - utiliser notre fonction améliorée
   const location = extractLocation(article);
-
+  
   // Date - utiliser la nouvelle fonction extractDate
   const date = extractDate(article);
 
@@ -337,7 +337,7 @@ function createCardFromRawHTML(item) {
   if (hasDelivery) {
     badges += '<span class="aaf-badge-delivery">Livraison possible</span>';
   }
-
+  
   // Toujours ajouter le badge location
   badges += `<span class="aaf-badge-location">${location}</span>`;
 
@@ -405,14 +405,14 @@ function extractLocation(article) {
     const match = ariaLabel.match(/Située à ([^\.]+)/);
     return match ? match[1].trim() : locationWithAriaLabel.textContent.trim();
   }
-
+  
   // Sélecteurs alternatifs par ordre de précision, en excluant explicitement les dates
   const selectors = [
     'p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
     '.adcard_8f3833cd8 p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
     'div:last-child > p.text-caption.text-neutral:not([aria-label*="Date de dépôt"])',
   ];
-
+  
   // Essayer chaque sélecteur jusqu'à trouver un qui fonctionne
   for (const selector of selectors) {
     const elements = Array.from(article.querySelectorAll(selector));
@@ -420,16 +420,16 @@ function extractLocation(article) {
     const locationCandidate = elements.find(el => {
       const text = el.textContent.trim();
       const ariaLabel = el.getAttribute('aria-label') || '';
-      return !ariaLabel.includes('Date de dépôt') &&
-             !ariaLabel.includes('Catégorie') &&
+      return !ariaLabel.includes('Date de dépôt') && 
+             !ariaLabel.includes('Catégorie') && 
              text.length > 0;
     });
-
+    
     if (locationCandidate) {
       return locationCandidate.textContent.trim();
     }
   }
-
+  
   return 'Lieu non disponible';
 }
 
@@ -440,13 +440,13 @@ function extractDate(article) {
   if (dateWithAriaLabel) {
     return dateWithAriaLabel.textContent.trim();
   }
-
+  
   // Rechercher les éléments avec data-test-id="ad-date"
   const dateWithTestId = article.querySelector('[data-test-id="ad-date"]');
   if (dateWithTestId) {
     return dateWithTestId.textContent.trim();
   }
-
+  
   // Rechercher tous les éléments text-caption qui pourraient contenir une date
   const allTextCaptions = Array.from(article.querySelectorAll('p.text-caption.text-neutral'));
   const dateCandidate = allTextCaptions.find(el => {
@@ -455,11 +455,11 @@ function extractDate(article) {
     return /^\d{2}\/\d{2}\/\d{4}$/.test(text) || // Format: 19/03/2025
            /^il y a \d+ (minute|minutes|heure|heures|jour|jours)$/.test(text); // Format: il y a X minutes/heures/jours
   });
-
+  
   if (dateCandidate) {
     return dateCandidate.textContent.trim();
   }
-
+  
   return '';
 }
 
@@ -582,7 +582,7 @@ function renderAlternatives(alternatives) {
 
     // Réinitialiser le texte du toggle s'il n'y a pas de résultats
     if (toggleText) {
-      toggleText.textContent = "Aucun résultat";
+      toggleText.textContent = "Rechercher sur leboncoin";
       toggleText.classList.remove('has-alternatives');
     }
 
@@ -608,7 +608,7 @@ function renderAlternatives(alternatives) {
 
   // Mettre à jour le texte du nombre (avec gestion singulier/pluriel)
   if (resultsCount) {
-    resultsCount.textContent = alternatives.length === 1
+    resultsCount.textContent = alternatives.length === 1 
       ? `${alternatives.length} alternative trouvée sur Leboncoin`
       : `${alternatives.length} alternatives trouvées sur Leboncoin`;
   }
@@ -666,7 +666,7 @@ function resetUI() {
   // Réinitialiser le texte du toggle
   const toggleText = container.querySelector('.aaf-toggle-text');
   if (toggleText) {
-    toggleText.textContent = "Rechercher";
+    toggleText.textContent = "Rechercher sur leboncoin";
     toggleText.classList.remove('has-alternatives');
   }
 
@@ -795,10 +795,10 @@ function showSkeletonLoading() {
   isScrapingStarted = true;
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-
+  
   const initialLoading = container.querySelector('.aaf-initial-loading');
   const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-
+  
   if (initialLoading && skeletonLoading) {
     initialLoading.style.display = 'none';
     skeletonLoading.style.display = 'block';
@@ -809,14 +809,14 @@ function showSkeletonLoading() {
 function hideSkeletonLoading() {
   const container = document.getElementById('amazon-alternative-finder');
   if (!container) return;
-
+  
   const loading = container.querySelector('.aaf-loading');
   const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-
+  
   if (loading) {
     loading.style.display = 'none';
   }
-
+  
   if (skeletonLoading) {
     skeletonLoading.style.display = 'none';
   }
