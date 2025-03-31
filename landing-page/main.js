@@ -212,13 +212,13 @@ document.addEventListener('DOMContentLoaded', () => {
     <section id="download" class="installation">
       <div class="container">
         <div class="section-header">
-          <h2>Installation</h2>
-          <p>Commencer avec notre extension est rapide et facile.</p>
+          <h2>Achetez malin, c'est simple</h2>
+          <p>L'extension navigateur Chrome est gratuite et simple d'utilisation.</p>
         </div>
         <div class="steps-container">
           <div class="step">
             <div class="step-number">1</div>
-            <h3>Installer</h3>
+            <h3>Installez</h3>
             <p>Obtenez l'extension depuis le Chrome Web Store.</p>
           </div>
           <div class="step">
@@ -228,8 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <h3>Économisez</h3>
+            <h3>Comparez</h3>
             <p>Recherchez des alternatives sur Leboncoin en 1 clic.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h3>Économisez</h3>
+            <p>Réalisez des économies en achetant d'occasion.</p>
           </div>
         </div>
       </div>
