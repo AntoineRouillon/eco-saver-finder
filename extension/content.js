@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -560,7 +561,7 @@ function renderAlternatives(alternatives) {
     if (results) {
       results.style.display = 'block';
       
-      // Masquer complètement les contrôles de filtre quand il n'y a pas d'alternatives
+      // Properly hide filter controls when there are no alternatives
       if (filterControls) {
         filterControls.style.display = 'none';
       }
@@ -587,7 +588,7 @@ function renderAlternatives(alternatives) {
     return;
   }
 
-  // Afficher les contrôles de filtre lorsque nous avons des résultats
+  // Show filter controls when there are results
   if (filterControls) {
     filterControls.style.display = 'flex';
   }

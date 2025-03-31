@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -302,7 +303,24 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 })}
               </div>
             ) : (
-              renderNoResults()
+              <>
+                {/* Hide filter controls when there are no results */}
+                <div className="hidden">
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-gray-500">0 alternatives trouvées sur Leboncoin</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2 text-xs border-gray-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
+                {renderNoResults()}
+              </>
             )}
           </>
         )}
