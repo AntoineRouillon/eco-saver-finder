@@ -560,7 +560,7 @@ function renderAlternatives(alternatives) {
     if (results) {
       results.style.display = 'block';
 
-      // Masquer explicitement les contrôles de filtre car il n'y a pas d'alternatives
+      // Masquer les contrôles de filtre et le nombre de résultats
       if (filterControls) {
         filterControls.style.display = 'none';
       }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -216,13 +217,16 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
               <Skeleton className="h-8 w-8 rounded-md" />
             </div>
             
+            {/* Show spinner loading or skeleton cards based on whether scraping has started */}
             {isScrapingStarted ? (
+              // Skeleton product cards when scraping has started (No results check returned false)
               <>
                 {[1, 2, 3].map(i => (
                   <SkeletonProductCard key={i} />
                 ))}
               </>
             ) : (
+              // Initial spinner loading
               <div className="flex flex-col items-center justify-center h-60">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <Skeleton className="h-4 w-28 mt-4" />
@@ -250,7 +254,9 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                 
                 {products.map((product) => {
                   const htmlData = product.html ? extractDataFromHTML(product.html) : null;
+                  // Use either the extracted location or the provided one
                   const location = htmlData?.location || product.location;
+                  // Use either the extracted date or the provided one
                   const date = htmlData?.date || product.date || '';
                   
                   return (
@@ -269,6 +275,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                           className="object-cover w-full h-full"
                         />
                         
+                        {/* Date badge positioned over the image with semi-transparent background */}
                         {date && (
                           <div className="absolute top-2 right-2 z-10">
                             <Badge 
@@ -302,7 +309,7 @@ const BrowserExtension = ({ onClose }: BrowserExtensionProps) => {
                             size="sm"
                             className="text-xs text-gray-600 hover:text-[#4AB07B] p-1 h-auto"
                             onClick={(e) => {
-                              e.stopPropagation();
+                              e.stopPropagation(); // Empêcher le clic sur la carte de se déclencher
                               window.open(product.url, '_blank');
                             }}
                           >
