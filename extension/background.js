@@ -291,81 +291,70 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       action: "SCRAPING_STARTED"
     });
     
-    // Add listener for when the tab is fully loaded
-    const onTabLoaded = async (tabId, changeInfo) => {
-      if (tabId === newTab.id && changeInfo.status === 'complete') {
-        // Remove this listener after it's been triggered
-        chrome.tabs.onUpdated.removeListener(onTabLoaded);
-        
-        try {
-          // REFACTORED: Directly proceed to waiting before scraping
-          console.log("Page loaded, waiting 500 ms before scraping...");
-          await new Promise(resolve => setTimeout(resolve, 500));
+    // MODIFIED: Start scraping directly after the "no results" check instead of waiting for the page load event
+    console.log("No results check passed, waiting 500 ms before scraping...");
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    try {
+      // Execute script to scrape data from Leboncoin
+      chrome.scripting.executeScript({
+        target: { tabId: newTab.id },
+        function: scrapeLeboncoinData
+      }).then(results => {
+        if (results && results[0]?.result) {
+          const scrapedItems = results[0].result;
+          console.log("Scraped items:", scrapedItems);
           
-          // Execute script to scrape data from Leboncoin
-          chrome.scripting.executeScript({
-            target: { tabId: newTab.id },
-            function: scrapeLeboncoinData
-          }).then(results => {
-            if (results && results[0]?.result) {
-              const scrapedItems = results[0].result;
-              console.log("Scraped items:", scrapedItems);
-              
-              // Make sure we have actual items
-              if (Array.isArray(scrapedItems) && scrapedItems.length > 0) {
-                // Cache the results
-                scrapedDataCache[cacheKey] = scrapedItems;
-                
-                // Send the results to the content script
-                chrome.tabs.sendMessage(sourceTabId, {
-                  action: "ALTERNATIVES_FOUND",
-                  alternatives: scrapedItems
-                });
-              } else if (scrapedItems.debug) {
-                // Handle the debug case - send empty alternatives to break loading state
-                chrome.tabs.sendMessage(sourceTabId, {
-                  action: "ALTERNATIVES_FOUND",
-                  alternatives: [],
-                  error: "No items found"
-                });
-              }
-              
-              // Close the pinned tab after scraping
-              chrome.tabs.remove(newTab.id);
-            } else {
-              // Send empty array to break loading state
-              chrome.tabs.sendMessage(sourceTabId, {
-                action: "ALTERNATIVES_FOUND",
-                alternatives: [],
-                error: "No results from scraping"
-              });
-              chrome.tabs.remove(newTab.id);
-            }
-          }).catch(error => {
-            console.error("Error scraping Leboncoin:", error);
-            // Send error to content script to break loading state
+          // Make sure we have actual items
+          if (Array.isArray(scrapedItems) && scrapedItems.length > 0) {
+            // Cache the results
+            scrapedDataCache[cacheKey] = scrapedItems;
+            
+            // Send the results to the content script
+            chrome.tabs.sendMessage(sourceTabId, {
+              action: "ALTERNATIVES_FOUND",
+              alternatives: scrapedItems
+            });
+          } else if (scrapedItems.debug) {
+            // Handle the debug case - send empty alternatives to break loading state
             chrome.tabs.sendMessage(sourceTabId, {
               action: "ALTERNATIVES_FOUND",
               alternatives: [],
-              error: error.toString()
+              error: "No items found"
             });
-            chrome.tabs.remove(newTab.id);
-          });
-        } catch (error) {
-          console.error("Error waiting before scraping:", error);
-          // Send error to content script
+          }
+          
+          // Close the pinned tab after scraping
+          chrome.tabs.remove(newTab.id);
+        } else {
+          // Send empty array to break loading state
           chrome.tabs.sendMessage(sourceTabId, {
             action: "ALTERNATIVES_FOUND",
             alternatives: [],
-            error: "Error waiting before scraping: " + error.toString()
+            error: "No results from scraping"
           });
           chrome.tabs.remove(newTab.id);
         }
-      }
-    };
-    
-    // Add the tab update listener for scraping phase
-    chrome.tabs.onUpdated.addListener(onTabLoaded);
+      }).catch(error => {
+        console.error("Error scraping Leboncoin:", error);
+        // Send error to content script to break loading state
+        chrome.tabs.sendMessage(sourceTabId, {
+          action: "ALTERNATIVES_FOUND",
+          alternatives: [],
+          error: error.toString()
+        });
+        chrome.tabs.remove(newTab.id);
+      });
+    } catch (error) {
+      console.error("Error waiting before scraping:", error);
+      // Send error to content script
+      chrome.tabs.sendMessage(sourceTabId, {
+        action: "ALTERNATIVES_FOUND",
+        alternatives: [],
+        error: "Error waiting before scraping: " + error.toString()
+      });
+      chrome.tabs.remove(newTab.id);
+    }
     
     // Set a timeout to close the tab and send back empty results if scraping takes too long
     setTimeout(() => {
