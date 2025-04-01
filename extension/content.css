@@ -620,3 +620,11 @@
 .aaf-no-results-found .aaf-filter-controls {
   display: none !important;
 }
+
+.aaf-price-decrease-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: #2AAA5E; /* Green color for price decrease */
+}
