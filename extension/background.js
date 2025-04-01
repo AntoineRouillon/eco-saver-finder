@@ -128,8 +128,8 @@ function checkPageLoaded(tabId) {
 }
 
 // Function to wait until the page is fully loaded
-async function waitForPageLoad(tabId, timeout = 30000) {
-  console.log("Waiting for page to fully load...");
+async function waitForPageLoad(tabId, timeout = 15000) {
+  console.log("Waiting for the loading of the page");
   
   const startTime = Date.now();
   
