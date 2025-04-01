@@ -128,8 +128,8 @@ function checkPageLoaded(tabId) {
 }
 
 // Function to wait until the page is fully loaded
-async function waitForPageLoad(tabId, timeout = 15000) {
-  console.log("Waiting for the loading of the page");
+async function waitForPageLoad(tabId, timeout = 30000) {
+  console.log("Waiting for fully load");
   
   const startTime = Date.now();
   
@@ -140,7 +140,7 @@ async function waitForPageLoad(tabId, timeout = 15000) {
     if (isLoaded) {
       console.log("Page fully loaded after", (Date.now() - startTime), "ms");
       // Additional delay to ensure dynamic content is rendered
-      return new Promise(resolve => setTimeout(resolve, 1500));
+      return new Promise(resolve => setTimeout(resolve, 500));
     }
     
     // Wait 500ms before checking again
@@ -265,8 +265,8 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     });
     
     // Wait 1.5 seconds after creating the tab before checking for no results
-    console.log("Waiting 1.5 seconds before checking for no results...");
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log("Waiting 1 seconds before checking for no results...");
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     console.log("Checking for 'no results' message...");
     const noResultsFound = await checkNoResults(newTab.id);
@@ -308,9 +308,9 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // MODIFIED: Wait 3 seconds instead of 5 seconds before scraping
-          console.log("Page loaded, waiting 3 seconds before scraping...");
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          // MODIFIED: Wait 500 seconds
+          console.log("Page loaded, waiting 500 ms before scraping...");
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           // Execute script to scrape data from Leboncoin
           chrome.scripting.executeScript({

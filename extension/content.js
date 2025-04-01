@@ -580,7 +580,7 @@ function renderAlternatives(alternatives) {
 
     // Réinitialiser le texte du toggle s'il n'y a pas de résultats
     if (toggleText) {
-      toggleText.textContent = "Rechercher sur leboncoin";
+      toggleText.textContent = "Aucune alternative";
       toggleText.classList.remove('has-alternatives');
     }
 
@@ -664,7 +664,7 @@ function resetUI() {
   // Réinitialiser le texte du toggle
   const toggleText = container.querySelector('.aaf-toggle-text');
   if (toggleText) {
-    toggleText.textContent = "Rechercher sur leboncoin";
+    toggleText.textContent = "Rechercher";
     toggleText.classList.remove('has-alternatives');
   }
 
