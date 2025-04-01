@@ -558,14 +558,9 @@ function renderAlternatives(alternatives) {
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     // Afficher la nouvelle interface pour aucun résultat
     if (results) {
+      // Appliquer la classe CSS pour masquer les contrôles de filtre
+      results.classList.add('aaf-no-results-found');
       results.style.display = 'block';
-
-      // Masquer complètement les contrôles de filtre lorsqu'il n'y a pas de résultats
-      if (filterControls) {
-        filterControls.style.display = 'none';
-        // Forcer le style pour s'assurer que l'élément est vraiment caché
-        filterControls.setAttribute('style', 'display: none !important');
-      }
 
       // Ajouter la nouvelle interface pour aucun résultat
       if (itemsContainer) {
@@ -589,11 +584,9 @@ function renderAlternatives(alternatives) {
     return;
   }
 
-  // Afficher les contrôles de filtre lorsque nous avons des résultats
-  if (filterControls) {
-    filterControls.style.display = 'flex';
-    // Supprimer tout attribut de style forcé qui aurait pu être ajouté précédemment
-    filterControls.removeAttribute('style');
+  // S'assurer que la classe pour cacher les contrôles de filtre est supprimée
+  if (results) {
+    results.classList.remove('aaf-no-results-found');
   }
 
   // Stocker toutes les alternatives pour le filtrage

@@ -616,3 +616,8 @@
 .aaf-debug-toggle:hover {
   background: #eee;
 }
+
+/* Filter controls when no results are found */
+.aaf-no-results-found .aaf-filter-controls {
+  display: none !important;
+}
