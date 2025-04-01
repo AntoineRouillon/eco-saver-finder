@@ -271,15 +271,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     console.log("Checking for 'no results' message...");
     const noResultsFound = await checkNoResults(newTab.id);
     
-    // Send a message to the content script with the no results check result
-    if (!noResultsFound) {
-      chrome.tabs.sendMessage(sourceTabId, {
-        action: "NO_RESULTS_CHECK_COMPLETED",
-        result: false
-      });
-      console.log("Sent NO_RESULTS_CHECK_COMPLETED message with result false");
-    }
-    
+    // REFACTORED: Removed steps 2 and 3, simplified the flow
     if (noResultsFound) {
       console.log("'No results' message found, terminating search early.");
       // Send empty alternatives array to trigger "no results" UI
@@ -294,8 +286,6 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       return; // Exit early - we're done here since there are no results
     }
     
-    console.log("No 'noResultMessages' found, continuing with scraping...");
-    
     // Notify content script that scraping has started
     chrome.tabs.sendMessage(sourceTabId, {
       action: "SCRAPING_STARTED"
@@ -308,7 +298,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         chrome.tabs.onUpdated.removeListener(onTabLoaded);
         
         try {
-          // MODIFIED: Wait 500 seconds
+          // REFACTORED: Directly proceed to waiting before scraping
           console.log("Page loaded, waiting 500 ms before scraping...");
           await new Promise(resolve => setTimeout(resolve, 500));
           
