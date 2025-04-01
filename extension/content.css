@@ -247,7 +247,9 @@
 .aaf-results-count {
   font-size: 12px;
   color: #64748b;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
 }
 
 /* Filter Icon and Menu Styles */
