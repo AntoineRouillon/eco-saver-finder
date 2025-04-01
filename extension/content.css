@@ -116,7 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f9fafb;
+  background-color: #D3F2E2;
 }
 
 .aaf-header-icon {
@@ -628,5 +628,5 @@
   display: inline-block;
   vertical-align: middle;
   margin-left: 4px;
-  fill: #ff5722; /* Orange color indicating price decrease */
+  fill: #4AB07B; /* Orange color indicating price decrease */
 }
