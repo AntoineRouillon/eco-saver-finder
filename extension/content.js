@@ -560,9 +560,11 @@ function renderAlternatives(alternatives) {
     if (results) {
       results.style.display = 'block';
 
-      // Masquer explicitement les contrôles de filtre lorsqu'il n'y a pas de résultats
+      // Masquer complètement les contrôles de filtre lorsqu'il n'y a pas de résultats
       if (filterControls) {
-        filterControls.style.display = 'none'; // Assurons-nous que c'est bien 'none'
+        filterControls.style.display = 'none';
+        // Forcer le style pour s'assurer que l'élément est vraiment caché
+        filterControls.setAttribute('style', 'display: none !important');
       }
 
       // Ajouter la nouvelle interface pour aucun résultat
@@ -590,6 +592,8 @@ function renderAlternatives(alternatives) {
   // Afficher les contrôles de filtre lorsque nous avons des résultats
   if (filterControls) {
     filterControls.style.display = 'flex';
+    // Supprimer tout attribut de style forcé qui aurait pu être ajouté précédemment
+    filterControls.removeAttribute('style');
   }
 
   // Stocker toutes les alternatives pour le filtrage
