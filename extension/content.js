@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -307,10 +308,9 @@ function createCardFromRawHTML(item) {
               extractTextContent(article, '.text-callout.text-on-surface') ||
               'Prix non disponible';
   
-  // Remplacer "Baisse de prix" par l'icône SVG
-  const hasPriceDecrease = price.includes('Baisse de prix');
-  price = price.replace(/€\s*Baisse de prix/, '€');
-  
+  // Ajouter un espace entre le symbole € et "Baisse de prix" si présent
+  price = price.replace(/€Baisse/, '€ Baisse');
+
   // Titre
   const title = extractTextContent(article, '[data-test-id="adcard-title"]') ||
                 extractTextContent(article, '.text-body-1.text-on-surface') ||
@@ -371,10 +371,7 @@ function createCardFromRawHTML(item) {
       <h4 class="aaf-item-title">${title}</h4>
       <div class="aaf-item-badges">${badges}</div>
       <div class="aaf-item-footer">
-        <span class="aaf-item-price">
-          ${price}
-          ${hasPriceDecrease ? `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="aaf-price-decrease-icon" aria-hidden="true" focusable="false"><title>Baisse de prix</title><path fill-rule="evenodd" clip-rule="evenodd" d="M2.29289 6.3006C2.68341 5.8998 3.31658 5.8998 3.7071 6.3006L8.53842 11.2591L11.5076 8.21177C11.8239 7.89353 12.2493 7.71532 12.6922 7.71532C13.1352 7.71532 13.5605 7.89357 13.8769 8.21181L13.884 8.21898L20 14.496V11.2895C20 10.7226 20.4477 10.2631 21 10.2631C21.5523 10.2631 22 10.7226 22 11.2895V16.9737C22 17.5405 21.5523 18 21 18H15.4616C14.9093 18 14.4616 17.5405 14.4616 16.9737C14.4616 16.4069 14.9093 15.9474 15.4616 15.9474H18.5858L12.6922 9.89881L9.72307 12.9461C9.40673 13.2644 8.98139 13.4426 8.53842 13.4426C8.09546 13.4426 7.67016 13.2643 7.35382 12.9461L7.34667 12.9389L2.29289 7.75204C1.90237 7.35123 1.90237 6.7014 2.29289 6.3006Z"></path></svg>` : ''}
-        </span>
+        <span class="aaf-item-price">${price}</span>
         <a href="${url}" target="_blank" class="aaf-item-link" onclick="event.stopPropagation()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
