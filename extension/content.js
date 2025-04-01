@@ -304,9 +304,12 @@ function createCardFromRawHTML(item) {
 
   // Essayer d'extraire les informations de base pour l'affichage
   // Prix
-  const price = extractTextContent(article, '[data-test-id="price"]') ||
-                extractTextContent(article, '.text-callout.text-on-surface') ||
-                'Prix non disponible';
+  let price = extractTextContent(article, '[data-test-id="price"]') ||
+              extractTextContent(article, '.text-callout.text-on-surface') ||
+              'Prix non disponible';
+  
+  // Ajouter un espace entre le symbole € et "Baisse de prix" si présent
+  price = price.replace(/€Baisse/, '€ Baisse');
 
   // Titre
   const title = extractTextContent(article, '[data-test-id="adcard-title"]') ||
