@@ -13,12 +13,21 @@ Ce projet est composé de deux parties distinctes :
 │   ├── background.js      # Service worker en arrière-plan
 │   ├── content.js         # Script injecté dans les pages Amazon
 │   ├── content.css        # Styles pour l'interface utilisateur de l'extension
+│   ├── _locales/          # Fichiers de localisation
+│   │   ├── en/            # Traductions anglaises
+│   │   └── fr/            # Traductions françaises
 │   └── icons/             # Icônes de l'extension
 │
 └── landing-page/          # Site web de présentation de l'extension
     ├── index.html         # Page HTML principale
     ├── styles.css         # Feuille de style CSS
-    └── main.js            # Script JavaScript pour la landing page
+    ├── main.js            # Script JavaScript pour la landing page
+    └── images/            # Images et ressources visuelles
+        ├── amazon.png     # Logo Amazon pour les démos
+        ├── blender1.png   # Images de démonstration
+        ├── blender2.png   # Images de démonstration
+        ├── blender3.png   # Images de démonstration
+        └── opengraph.png  # Image pour le partage sur les réseaux sociaux
 ```
 
 ## Extension de navigateur
@@ -32,22 +41,31 @@ Ce projet est composé de deux parties distinctes :
 
 ### Installation de l'extension
 
-1. Téléchargez le code source ou clonez ce dépôt
-2. Ouvrez Chrome et accédez à `chrome://extensions/`
-3. Activez le "Mode développeur" dans le coin supérieur droit
-4. Cliquez sur "Charger l'extension non empaquetée" et sélectionnez le dossier `extension`
-5. L'extension devrait maintenant être installée et active
+1. Via le Chrome Web Store: Visitez [la page de l'extension](https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl) et cliquez sur "Ajouter à Chrome"
+2. Installation manuelle:
+   - Téléchargez le code source ou clonez ce dépôt
+   - Ouvrez Chrome et accédez à `chrome://extensions/`
+   - Activez le "Mode développeur" dans le coin supérieur droit
+   - Cliquez sur "Charger l'extension non empaquetée" et sélectionnez le dossier `extension`
+   - L'extension devrait maintenant être installée et active
 
 ## Site web de présentation
 
 Le dossier `landing-page` contient un site web statique qui présente l'extension, explique son fonctionnement et ses avantages.
+
+### Fonctionnalités du site
+
+- Présentation interactive de l'extension
+- Démonstration du fonctionnement avec un exemple de produit
+- Lien direct vers le Chrome Web Store pour l'installation
+- Design responsive adapté à tous les appareils
 
 ### Déploiement du site
 
 Pour déployer le site web :
 
 1. Téléchargez le contenu du dossier `landing-page` sur votre serveur web
-2. Assurez-vous que tous les fichiers (HTML, CSS, JS) sont accessibles
+2. Assurez-vous que tous les fichiers (HTML, CSS, JS, images) sont accessibles
 3. Le site est prêt à être consulté
 
 ## Développement
@@ -71,4 +89,3 @@ Pour modifier le site web :
 ## Licence
 
 Licence MIT
-
