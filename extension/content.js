@@ -562,7 +562,7 @@ function renderAlternatives(alternatives) {
 
       // Masquer explicitement les contrôles de filtre lorsqu'il n'y a pas de résultats
       if (filterControls) {
-        filterControls.style.display = 'none';
+        filterControls.style.display = 'none'; // Assurons-nous que c'est bien 'none'
       }
 
       // Ajouter la nouvelle interface pour aucun résultat
