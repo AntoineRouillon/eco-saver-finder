@@ -268,6 +268,14 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
     console.log("Waiting 1 seconds before checking for no results...");
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Check if tab still exists before proceeding
+    try {
+      await chrome.tabs.get(newTab.id);
+    } catch (error) {
+      console.log(`Tab ${newTab.id} no longer exists, stopping operation`);
+      return;
+    }
+    
     console.log("Checking for 'no results' message...");
     const noResultsFound = await checkNoResults(newTab.id);
     
@@ -281,26 +289,44 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
         error: "No results found"
       });
       
-      // Close the pinned tab immediately
-      chrome.tabs.remove(newTab.id);
+      // Safe tab removal - check if it exists first
+      try {
+        await chrome.tabs.get(newTab.id);
+        chrome.tabs.remove(newTab.id);
+      } catch (error) {
+        console.log(`Tab ${newTab.id} was already closed`);
+      }
       return; // Exit early - we're done here since there are no results
     }
     
     // Notify content script that scraping has started
-    chrome.tabs.sendMessage(sourceTabId, {
-      action: "SCRAPING_STARTED"
-    });
+    try {
+      await chrome.tabs.sendMessage(sourceTabId, {
+        action: "SCRAPING_STARTED"
+      });
+    } catch (error) {
+      console.log(`Source tab ${sourceTabId} may no longer exist: ${error.message}`);
+      // If the source tab doesn't exist anymore, no point in continuing
+      safeRemoveTab(newTab.id);
+      return;
+    }
     
     // MODIFIED: Start scraping directly after the "no results" check instead of waiting for the page load event
     console.log("No results check passed, waiting 500 ms before scraping...");
     await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Check if tab still exists before proceeding with scraping
+    if (!(await tabExists(newTab.id))) {
+      console.log(`Tab ${newTab.id} no longer exists, stopping operation`);
+      return;
+    }
     
     try {
       // Execute script to scrape data from Leboncoin
       chrome.scripting.executeScript({
         target: { tabId: newTab.id },
         function: scrapeLeboncoinData
-      }).then(results => {
+      }).then(async results => {
         if (results && results[0]?.result) {
           const scrapedItems = results[0].result;
           console.log("Scraped items:", scrapedItems);
@@ -310,76 +336,123 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
             // Cache the results
             scrapedDataCache[cacheKey] = scrapedItems;
             
-            // Send the results to the content script
-            chrome.tabs.sendMessage(sourceTabId, {
-              action: "ALTERNATIVES_FOUND",
-              alternatives: scrapedItems
-            });
+            // Check if source tab still exists before sending message
+            try {
+              await chrome.tabs.get(sourceTabId);
+              // Send the results to the content script
+              chrome.tabs.sendMessage(sourceTabId, {
+                action: "ALTERNATIVES_FOUND",
+                alternatives: scrapedItems
+              });
+            } catch (error) {
+              console.log(`Source tab ${sourceTabId} no longer exists: ${error.message}`);
+            }
           } else if (scrapedItems.debug) {
-            // Handle the debug case - send empty alternatives to break loading state
+            // Handle the debug case - check if source tab exists before sending message
+            if (await tabExists(sourceTabId)) {
+              chrome.tabs.sendMessage(sourceTabId, {
+                action: "ALTERNATIVES_FOUND",
+                alternatives: [],
+                error: "No items found"
+              });
+            }
+          }
+          
+          // Safely close the pinned tab after scraping
+          safeRemoveTab(newTab.id);
+        } else {
+          // Check if source tab exists before sending message
+          if (await tabExists(sourceTabId)) {
+            // Send empty array to break loading state
             chrome.tabs.sendMessage(sourceTabId, {
               action: "ALTERNATIVES_FOUND",
               alternatives: [],
-              error: "No items found"
+              error: "No results from scraping"
             });
           }
-          
-          // Close the pinned tab after scraping
-          chrome.tabs.remove(newTab.id);
-        } else {
-          // Send empty array to break loading state
+          safeRemoveTab(newTab.id);
+        }
+      }).catch(async error => {
+        console.error("Error scraping Leboncoin:", error);
+        // Check if source tab exists before sending error message
+        if (await tabExists(sourceTabId)) {
+          // Send error to content script to break loading state
           chrome.tabs.sendMessage(sourceTabId, {
             action: "ALTERNATIVES_FOUND",
             alternatives: [],
-            error: "No results from scraping"
+            error: error.toString()
           });
-          chrome.tabs.remove(newTab.id);
         }
-      }).catch(error => {
-        console.error("Error scraping Leboncoin:", error);
-        // Send error to content script to break loading state
-        chrome.tabs.sendMessage(sourceTabId, {
-          action: "ALTERNATIVES_FOUND",
-          alternatives: [],
-          error: error.toString()
-        });
-        chrome.tabs.remove(newTab.id);
+        safeRemoveTab(newTab.id);
       });
     } catch (error) {
       console.error("Error waiting before scraping:", error);
-      // Send error to content script
-      chrome.tabs.sendMessage(sourceTabId, {
-        action: "ALTERNATIVES_FOUND",
-        alternatives: [],
-        error: "Error waiting before scraping: " + error.toString()
-      });
-      chrome.tabs.remove(newTab.id);
+      // Check if source tab exists before sending error message
+      if (await tabExists(sourceTabId)) {
+        // Send error to content script
+        chrome.tabs.sendMessage(sourceTabId, {
+          action: "ALTERNATIVES_FOUND",
+          alternatives: [],
+          error: "Error waiting before scraping: " + error.toString()
+        });
+      }
+      safeRemoveTab(newTab.id);
     }
     
     // Set a timeout to close the tab and send back empty results if scraping takes too long
-    setTimeout(() => {
-      chrome.tabs.get(newTab.id, (tab) => {
-        if (tab) {
-          console.log("Closing tab due to timeout");
-          // Send empty array to break loading state
+    setTimeout(async () => {
+      // First check if the source tab still exists
+      const sourceTabExists = await tabExists(sourceTabId);
+      
+      // Then check if the scraping tab still exists
+      if (await tabExists(newTab.id)) {
+        console.log("Closing tab due to timeout");
+        
+        // Only send message if source tab still exists
+        if (sourceTabExists) {
           chrome.tabs.sendMessage(sourceTabId, {
             action: "ALTERNATIVES_FOUND",
             alternatives: [],
             error: "Scraping timeout"
           });
-          chrome.tabs.remove(newTab.id);
         }
-      });
+        safeRemoveTab(newTab.id);
+      }
     }, 30000); // 30 seconds timeout
     
   } catch (error) {
     console.error("Error opening Leboncoin tab:", error);
-    // Send error to content script to break loading state
-    chrome.tabs.sendMessage(sourceTabId, {
-      action: "ALTERNATIVES_FOUND",
-      alternatives: [],
-      error: error.toString()
-    });
+    // Check if source tab still exists before sending message
+    if (await tabExists(sourceTabId)) {
+      // Send error to content script to break loading state
+      chrome.tabs.sendMessage(sourceTabId, {
+        action: "ALTERNATIVES_FOUND",
+        alternatives: [],
+        error: error.toString()
+      });
+    }
+  }
+}
+
+// Helper function to check if a tab exists
+async function tabExists(tabId) {
+  try {
+    await chrome.tabs.get(tabId);
+    return true;
+  } catch (error) {
+    console.log(`Tab ${tabId} does not exist: ${error.message}`);
+    return false;
+  }
+}
+
+// Helper function to safely remove a tab
+async function safeRemoveTab(tabId) {
+  try {
+    await chrome.tabs.get(tabId);
+    chrome.tabs.remove(tabId);
+    console.log(`Tab ${tabId} removed successfully`);
+  } catch (error) {
+    console.log(`Cannot remove tab ${tabId}: ${error.message}`);
   }
 }
 
