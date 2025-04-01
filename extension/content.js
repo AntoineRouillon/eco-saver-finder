@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -35,9 +36,8 @@ function createExtensionUI() {
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
-        <div>
-          <div class="aaf-header-title">AltMarket</div>
-          <div class="aaf-header-subtitle">Alternatives d'occasion</div>
+        <div class="aaf-header-icon">
+          <img src="${chrome.runtime.getURL('icons/icon48.png')}" alt="AltMarket" width="48" height="48">
         </div>
         <button class="aaf-close-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
