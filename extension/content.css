@@ -12,6 +12,94 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Onboarding overlay */
+.aaf-onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 9998;
+  animation: aaf-fade-in 0.3s ease-in;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes aaf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.aaf-fade-out {
+  animation: aaf-fade-out 0.3s ease-out forwards;
+}
+
+@keyframes aaf-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Onboarding tooltip styling */
+.aaf-onboarding-tooltip {
+  position: fixed;
+  max-width: 260px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  animation: aaf-tooltip-appear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+@keyframes aaf-tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.aaf-onboarding-tooltip-content {
+  padding: 16px;
+}
+
+.aaf-onboarding-tooltip p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.aaf-onboarding-got-it {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #4AB07B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.aaf-onboarding-got-it:hover {
+  background-color: #3A9666;
+}
+
+.aaf-onboarding-tooltip-arrow {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid white;
+}
+
 /* Toggle button */
 .aaf-toggle {
   position: absolute;
@@ -32,6 +120,7 @@
   color: #333;
   transition: all 0.2s ease;
   overflow: hidden;
+  z-index: 9999; /* Make sure the toggle is above the overlay */
 }
 
 .aaf-toggle:hover {

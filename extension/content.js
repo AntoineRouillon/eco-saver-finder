@@ -13,10 +13,110 @@ let currentUrl = window.location.href;
 let alternativesCache = {};
 // Variable pour suivre si le scraping a commencé (No results check returned false)
 let isScrapingStarted = false;
+// Clé pour le localStorage pour l'onboarding
+const ONBOARDING_COMPLETED_KEY = 'altmarket_onboarding_completed';
 
 // Fonction utilitaire pour gérer le pluriel/singulier
 function formatAlternativesCount(count) {
   return count === 1 ? `${count} alternative` : `${count} alternatives`;
+}
+
+// Vérifier si l'onboarding a déjà été complété
+function isOnboardingCompleted() {
+  return localStorage.getItem(ONBOARDING_COMPLETED_KEY) === 'true';
+}
+
+// Marquer l'onboarding comme complété
+function markOnboardingCompleted() {
+  localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+}
+
+// Créer l'overlay d'onboarding
+function createOnboardingOverlay() {
+  // Si l'onboarding a déjà été complété, ne pas le montrer
+  if (isOnboardingCompleted()) {
+    return null;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'aaf-onboarding-overlay';
+  overlay.className = 'aaf-onboarding-overlay';
+  
+  // Ajouter le tooltip
+  const tooltip = document.createElement('div');
+  tooltip.className = 'aaf-onboarding-tooltip';
+  tooltip.innerHTML = `
+    <div class="aaf-onboarding-tooltip-content">
+      <p>Cliquez sur le bouton rechercher pour découvrir les alternatives disponibles sur Leboncoin</p>
+      <button class="aaf-onboarding-got-it">J'ai compris</button>
+    </div>
+    <div class="aaf-onboarding-tooltip-arrow"></div>
+  `;
+  
+  overlay.appendChild(tooltip);
+  document.body.appendChild(overlay);
+
+  // Positionner le tooltip près du toggle button
+  positionOnboardingTooltip();
+
+  // Ajouter l'écouteur pour le bouton "J'ai compris"
+  const gotItButton = overlay.querySelector('.aaf-onboarding-got-it');
+  if (gotItButton) {
+    gotItButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dismissOnboarding();
+    });
+  }
+
+  // Fermer l'onboarding lorsque l'utilisateur clique sur le toggle
+  const toggleButton = document.querySelector('.aaf-toggle');
+  if (toggleButton) {
+    toggleButton.addEventListener('click', dismissOnboarding, { once: true });
+  }
+
+  // Fermer l'onboarding lorsque l'utilisateur clique sur l'overlay
+  overlay.addEventListener('click', (e) => {
+    // Ne pas fermer si le clic est sur le tooltip
+    if (!e.target.closest('.aaf-onboarding-tooltip-content')) {
+      dismissOnboarding();
+    }
+  });
+
+  return overlay;
+}
+
+// Positionner le tooltip près du toggle button
+function positionOnboardingTooltip() {
+  const toggleButton = document.querySelector('.aaf-toggle');
+  const tooltip = document.querySelector('.aaf-onboarding-tooltip');
+  
+  if (toggleButton && tooltip) {
+    const toggleRect = toggleButton.getBoundingClientRect();
+    
+    // Positionnement à gauche du toggle
+    tooltip.style.top = `${toggleRect.top + toggleRect.height / 2 - tooltip.offsetHeight / 2}px`;
+    tooltip.style.right = `${document.documentElement.clientWidth - toggleRect.left + 20}px`;
+    
+    // Positionner la flèche du tooltip
+    const tooltipArrow = tooltip.querySelector('.aaf-onboarding-tooltip-arrow');
+    if (tooltipArrow) {
+      tooltipArrow.style.top = '50%';
+      tooltipArrow.style.right = '-10px'; // La flèche pointe vers la droite
+    }
+  }
+}
+
+// Fermer et nettoyer l'onboarding
+function dismissOnboarding() {
+  const overlay = document.getElementById('aaf-onboarding-overlay');
+  if (overlay) {
+    overlay.classList.add('aaf-fade-out');
+    
+    setTimeout(() => {
+      overlay.remove();
+      markOnboardingCompleted();
+    }, 300); // Correspond à la durée de l'animation
+  }
 }
 
 // Créer et injecter l'interface utilisateur de l'extension
@@ -695,7 +795,12 @@ function resetUI() {
 function initExtension() {
   if (isAmazonProductPage()) {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
-    createExtensionUI();
+    const container = createExtensionUI();
+    
+    // Afficher l'onboarding si c'est la première utilisation
+    setTimeout(() => {
+      createOnboardingOverlay();
+    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
 
     // Essayer de charger le cache d'alternatives depuis sessionStorage
     try {
