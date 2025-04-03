@@ -21,8 +21,7 @@
     "activeTab",
     "scripting",
     "tabs",
-    "storage",
-    "declarativeContent"
+    "storage"
   ],
   "host_permissions": [
     "https://*.amazon.fr/*",
