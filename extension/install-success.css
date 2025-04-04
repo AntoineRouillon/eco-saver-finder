@@ -61,7 +61,7 @@ h3 {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 250px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-decoration: none;
@@ -82,7 +82,7 @@ h3 {
 }
 
 .amazon-logo {
-  max-width: 150px;
+  max-width: 100px;
   height: auto;
 }
 
