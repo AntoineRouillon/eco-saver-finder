@@ -1,6 +1,16 @@
 // Cache to store scraped data
 let scrapedDataCache = {};
 
+// Listen for extension installation
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    // Open the install success page when the extension is installed
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('install-success.html')
+    });
+  }
+});
+
 // Listen for when a tab is updated
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the page is fully loaded and the URL is from Amazon product page
