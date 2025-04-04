@@ -15,7 +15,8 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png"
     },
-    "default_title": "AltMarket"
+    "default_title": "AltMarket",
+    "default_popup": "popup.html"
   },
   "permissions": [
     "activeTab",

@@ -1,0 +1,140 @@
+
+:root {
+  --primary-color: #4CAF50;
+  --primary-dark: #388E3C;
+  --text-color: #333;
+  --background-color: #f8f8f8;
+  --card-background: #fff;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  width: 350px;
+  overflow-x: hidden;
+}
+
+.popup-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 16px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.welcome h2 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.welcome p {
+  font-size: 14px;
+  color: #555;
+}
+
+.onboarding h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.step {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.step-number {
+  background-color: var(--primary-color);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.step-content p {
+  font-size: 13px;
+  color: #666;
+}
+
+.cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.cta-button {
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.cta-button:hover {
+  background-color: var(--primary-dark);
+}
+
+footer {
+  background-color: var(--border-color);
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.version {
+  font-size: 10px;
+  margin-top: 4px;
+}

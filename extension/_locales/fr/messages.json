@@ -73,5 +73,45 @@
   "feedbackNo": {
     "message": "Non",
     "description": "Bouton de retour négatif"
+  },
+  "popupWelcome": {
+    "message": "Bienvenue sur AltMarket !",
+    "description": "Message de bienvenue dans la popup"
+  },
+  "popupDescription": {
+    "message": "Trouvez des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr",
+    "description": "Description dans la popup"
+  },
+  "howItWorks": {
+    "message": "Comment ça marche ?",
+    "description": "Titre de la section 'Comment ça marche'"
+  },
+  "step1Title": {
+    "message": "Visitez un produit sur Amazon.fr",
+    "description": "Titre de l'étape 1"
+  },
+  "step1Description": {
+    "message": "Naviguez sur Amazon.fr et accédez à une page produit.",
+    "description": "Description de l'étape 1"
+  },
+  "step2Title": {
+    "message": "Cliquez sur \"Voir les alternatives\"",
+    "description": "Titre de l'étape 2"
+  },
+  "step2Description": {
+    "message": "Un bouton apparaîtra sur la page produit. Cliquez dessus pour découvrir des alternatives d'occasion.",
+    "description": "Description de l'étape 2"
+  },
+  "step3Title": {
+    "message": "Consultez les résultats",
+    "description": "Titre de l'étape 3"
+  },
+  "step3Description": {
+    "message": "Parcourez les alternatives d'occasion disponibles sur Leboncoin et économisez!",
+    "description": "Description de l'étape 3"
+  },
+  "tryNow": {
+    "message": "Essayer maintenant sur Amazon",
+    "description": "Texte du bouton pour essayer maintenant"
   }
 }

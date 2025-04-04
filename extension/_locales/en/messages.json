@@ -73,5 +73,45 @@
   "feedbackNo": {
     "message": "No",
     "description": "Button for negative feedback"
+  },
+  "popupWelcome": {
+    "message": "Welcome to AltMarket!",
+    "description": "Welcome message in the popup"
+  },
+  "popupDescription": {
+    "message": "Find second-hand alternatives on Leboncoin while browsing Amazon.fr",
+    "description": "Description in the popup"
+  },
+  "howItWorks": {
+    "message": "How it works?",
+    "description": "Title of the 'How it works' section"
+  },
+  "step1Title": {
+    "message": "Visit a product on Amazon.fr",
+    "description": "Title of step 1"
+  },
+  "step1Description": {
+    "message": "Browse Amazon.fr and navigate to a product page.",
+    "description": "Description of step 1"
+  },
+  "step2Title": {
+    "message": "Click on \"View alternatives\"",
+    "description": "Title of step 2"
+  },
+  "step2Description": {
+    "message": "A button will appear on the product page. Click it to discover second-hand alternatives.",
+    "description": "Description of step 2"
+  },
+  "step3Title": {
+    "message": "Browse the results",
+    "description": "Title of step 3"
+  },
+  "step3Description": {
+    "message": "Browse through second-hand alternatives available on Leboncoin and save money!",
+    "description": "Description of step 3"
+  },
+  "tryNow": {
+    "message": "Try now on Amazon",
+    "description": "Text for the button to try now"
   }
 }
