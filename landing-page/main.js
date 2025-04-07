@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('root');
 
@@ -71,13 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- Extension Toggle - Matching the actual extension UI -->
-              <div class="extension-toggle">
-                <div class="extension-toggle-button" id="extension-toggle">
-                  <img src="./images/icon16.png" alt="AltMarket" width="16" height="16" onerror="this.src='https://www.leboncoin.fr/favicon.ico'" />
-                  <span class="extension-toggle-text">Alternatives</span>
-                  <div class="extension-badge">3</div>
-                </div>
+              <!-- Extension Toggle with initializing state -->
+              <div class="extension-initializing">
+                <div class="extension-initializing-spinner"></div>
+              </div>
+              
+              <!-- Extension Toggle - Initially hidden until "ready" -->
+              <div class="extension-toggle" id="extension-toggle" style="display: none;">
+                <img src="./images/icon16.png" alt="AltMarket" width="16" height="16" onerror="this.src='https://www.leboncoin.fr/favicon.ico'" />
+                <span class="extension-toggle-text">Alternatives</span>
+                <div class="extension-badge">3</div>
               </div>
 
               <!-- Extension Panel (initially hidden) -->
@@ -245,27 +249,49 @@ document.addEventListener('DOMContentLoaded', () => {
     </footer>
   `;
 
-  // Add extension toggle functionality
+  // Simulate extension initializing then ready
+  const initializingEl = document.querySelector('.extension-initializing');
   const toggleButton = document.querySelector('#extension-toggle');
+  
+  // Simulate the extension becoming ready after 3 seconds
+  setTimeout(() => {
+    if (initializingEl) {
+      initializingEl.style.display = 'none';
+    }
+    if (toggleButton) {
+      toggleButton.style.display = 'flex';
+    }
+  }, 3000);
+
+  // Add extension toggle functionality but only after it's "ready"
   const extensionPanel = document.querySelector('#extension-panel');
   const closeButton = document.querySelector('#extension-close');
 
-  toggleButton.addEventListener('click', () => {
-    toggleExtensionPanel();
+  // Update toggle event listener to check if it's visible first
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#extension-toggle') && toggleButton.style.display !== 'none') {
+      toggleExtensionPanel();
+    }
   });
 
   closeButton.addEventListener('click', () => {
     extensionPanel.style.display = 'none';
-    toggleButton.classList.remove('active');
+    if (toggleButton) {
+      toggleButton.classList.remove('active');
+    }
   });
 
   function toggleExtensionPanel() {
     if (extensionPanel.style.display === 'none' || extensionPanel.style.display === '') {
       extensionPanel.style.display = 'flex';
-      toggleButton.classList.add('active');
+      if (toggleButton) {
+        toggleButton.classList.add('active');
+      }
     } else {
       extensionPanel.style.display = 'none';
-      toggleButton.classList.remove('active');
+      if (toggleButton) {
+        toggleButton.classList.remove('active');
+      }
     }
   }
 
@@ -276,8 +302,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
 
     // Show the extension panel after scrolling to demo
+    // But only if the extension is "ready"
     setTimeout(() => {
-      toggleExtensionPanel();
+      if (toggleButton && toggleButton.style.display !== 'none') {
+        toggleExtensionPanel();
+      }
     }, 800);
   });
 

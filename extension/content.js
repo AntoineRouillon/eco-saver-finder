@@ -15,6 +15,8 @@ let alternativesCache = {};
 let isScrapingStarted = false;
 // Clé pour le localStorage pour l'onboarding
 const ONBOARDING_COMPLETED_KEY = 'altmarket_onboarding_completed';
+// Variable pour stocker l'état de préparation de l'extension
+let isExtensionReady = false;
 
 // Fonction utilitaire pour gérer le pluriel/singulier
 function formatAlternativesCount(count) {
@@ -124,11 +126,13 @@ function createExtensionUI() {
   const container = document.createElement('div');
   container.id = 'amazon-alternative-finder';
   container.className = 'aaf-container';
-  document.body.appendChild(container);
-
-  // Ajouter l'interface initiale (état replié)
+  
+  // Ajouter l'état de chargement initial (toggle masqué)
   container.innerHTML = `
-    <div class="aaf-toggle">
+    <div class="aaf-initializing">
+      <div class="aaf-initializing-spinner"></div>
+    </div>
+    <div class="aaf-toggle" style="display: none;">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
       <span class="aaf-toggle-text">Rechercher</span>
     </div>
@@ -217,27 +221,10 @@ function createExtensionUI() {
           <div class="aaf-items"></div>
         </div>
       </div>
-      <!--<div class="aaf-footer">
-        <div class="aaf-feedback-text">Est-ce que cela vous a aidé ?</div>
-        <div class="aaf-feedback-buttons">
-          <button class="aaf-feedback-btn aaf-yes-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M7 10v12"></path>
-              <path d="M15 5.88 14 10h5.83a2 2 0 0 1-1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
-            </svg>
-            Oui
-          </button>
-          <button class="aaf-feedback-btn aaf-no-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 14V2"></path>
-              <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path>
-            </svg>
-            Non
-          </button>
-        </div>
-      </div> -->
     </div>
   `;
+
+  document.body.appendChild(container);
 
   // Create skeleton cards (similar to the React component's SkeletonProductCard)
   const skeletonContainer = container.querySelector('.aaf-skeleton-items');
@@ -264,47 +251,69 @@ function createExtensionUI() {
     }
   }
 
-  // Ajouter les écouteurs d'événements
+  return container;
+}
+
+// Function to show the toggle button once the extension is ready
+function showToggleButton() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+
+  const initializing = container.querySelector('.aaf-initializing');
   const toggle = container.querySelector('.aaf-toggle');
-  const closeBtn = container.querySelector('.aaf-close-btn');
 
-  toggle.addEventListener('click', async () => {
-    container.classList.toggle('aaf-expanded');
+  if (initializing) {
+    initializing.style.display = 'none';
+  }
+  
+  if (toggle) {
+    toggle.style.display = 'flex';
+    
+    // Add event listeners now that the button is visible
+    toggle.addEventListener('click', async () => {
+      container.classList.toggle('aaf-expanded');
 
-    // If we expand and have product info but no alternatives loaded, get them
-    if (container.classList.contains('aaf-expanded') && currentProductInfo) {
-      // Check if we have cached alternatives for this product
-      if (alternativesCache[window.location.href]) {
-        console.log("Using cached alternatives for:", window.location.href);
-        renderAlternatives(alternativesCache[window.location.href]);
-      } else {
-        // Use our new safe request function instead of the old requestAlternatives
-        await safeRequestAlternatives(currentProductInfo);
+      // If we expand and have product info but no alternatives loaded, get them
+      if (container.classList.contains('aaf-expanded') && currentProductInfo) {
+        // Check if we have cached alternatives for this product
+        if (alternativesCache[window.location.href]) {
+          console.log("Using cached alternatives for:", window.location.href);
+          renderAlternatives(alternativesCache[window.location.href]);
+        } else {
+          // Use our new safe request function instead of the old requestAlternatives
+          await safeRequestAlternatives(currentProductInfo);
+        }
       }
-    }
-  });
+    });
+  }
 
-  closeBtn.addEventListener('click', () => {
-    container.classList.remove('aaf-expanded');
-  });
+  // Add the close button event listener
+  const closeBtn = container.querySelector('.aaf-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      container.classList.remove('aaf-expanded');
+    });
+  }
 
-  // Ajouter l'écouteur pour le bouton de filtre
+  // Add filter button event listeners
   const filterButton = container.querySelector('.aaf-filter-button');
   const filterMenu = container.querySelector('.aaf-filter-menu');
 
-  filterButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    filterMenu.classList.toggle('aaf-show-menu');
-  });
+  if (filterButton && filterMenu) {
+    filterButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      filterMenu.classList.toggle('aaf-show-menu');
+    });
+  }
 
-  // Ajouter des écouteurs d'événements de clic aux options de filtre
+  // Add filter options event listeners
   const filterOptions = container.querySelectorAll('.aaf-filter-option');
   filterOptions.forEach(option => {
     option.addEventListener('click', () => {
       const filterType = option.getAttribute('data-filter');
       const filterLabel = option.querySelector('span:last-child').textContent;
 
-      // Mettre à jour le filtre et fermer le menu
+      // Update filter and close menu
       if (filterType) {
         currentFilter.type = filterType;
         currentFilter.label = filterLabel;
@@ -315,7 +324,7 @@ function createExtensionUI() {
     });
   });
 
-  // Fermer le menu de filtre lors d'un clic à l'extérieur
+  // Close filter menu when clicking outside
   document.addEventListener('click', (event) => {
     if (!event.target.closest('.aaf-filter-container')) {
       const allFilterMenus = document.querySelectorAll('.aaf-filter-menu');
@@ -323,7 +332,10 @@ function createExtensionUI() {
     }
   });
 
-  return container;
+  // Show onboarding after the toggle is visible
+  setTimeout(() => {
+    createOnboardingOverlay();
+  }, 1000);
 }
 
 // Function to check if the extension is ready before making requests
@@ -334,6 +346,7 @@ function checkExtensionReady() {
     }, response => {
       if (response && response.ready) {
         console.log("Extension is ready to handle requests");
+        isExtensionReady = true;
         resolve(true);
       } else {
         console.log("Extension not ready yet, waiting...");
@@ -867,39 +880,44 @@ function initExtension() {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
     const container = createExtensionUI();
     
-    // Afficher l'onboarding si c'est la première utilisation
-    setTimeout(() => {
-      createOnboardingOverlay();
-    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
+    // Check if extension is ready immediately
+    checkExtensionReady().then(isReady => {
+      if (isReady) {
+        console.log("Extension is ready, showing toggle button");
+        showToggleButton();
+        
+        // Try to load alternatives from cache
+        try {
+          const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
+          if (storedCache) {
+            alternativesCache = JSON.parse(storedCache);
+            console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
+          }
 
-    // Essayer de charger le cache d'alternatives depuis sessionStorage
-    try {
-      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
-      if (storedCache) {
-        alternativesCache = JSON.parse(storedCache);
-        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
-      }
-
-      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
-      if (alternativesCache[window.location.href]) {
-        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
-        renderAlternatives(alternativesCache[window.location.href]);
-      } else {
-        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
-        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
-        if (storedAlternatives) {
-          const parsedAlternatives = JSON.parse(storedAlternatives);
-          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
-          renderAlternatives(parsedAlternatives);
-          // Également ajouter au cache
-          alternativesCache[window.location.href] = parsedAlternatives;
+          // Check if we have cached alternatives for the current URL
+          if (alternativesCache[window.location.href]) {
+            console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
+            renderAlternatives(alternativesCache[window.location.href]);
+          } else {
+            // Try to load alternatives specific to the URL from sessionStorage
+            const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
+            if (storedAlternatives) {
+              const parsedAlternatives = JSON.parse(storedAlternatives);
+              console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
+              renderAlternatives(parsedAlternatives);
+              // Also add to cache
+              alternativesCache[window.location.href] = parsedAlternatives;
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
         }
+      } else {
+        console.log("Extension not ready yet, toggle button remains hidden");
       }
-    } catch (error) {
-      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
-    }
+    });
 
-    // Configurer la détection de changement d'URL
+    // Configure URL change detection
     currentUrl = window.location.href;
   }
 }
@@ -918,6 +936,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     let container = document.getElementById('amazon-alternative-finder');
     if (!container) {
       container = createExtensionUI();
+      
+      // Check if extension is ready
+      checkExtensionReady().then(isReady => {
+        if (isReady) {
+          showToggleButton();
+        }
+      });
     }
   } else if (message.action === "ALTERNATIVES_FOUND") {
     console.log("Alternatives reçues:", message.alternatives);
@@ -944,6 +969,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Alternative way to trigger skeleton loading - when scraping has started
     console.log("Scraping started, showing skeleton loading");
     showSkeletonLoading();
+  } else if (message.action === "EXTENSION_READY") {
+    // New message to indicate the extension is ready
+    console.log("Extension is ready, showing toggle button");
+    isExtensionReady = true;
+    showToggleButton();
   }
 });
 
