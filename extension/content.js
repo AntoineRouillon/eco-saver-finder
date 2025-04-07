@@ -1,3 +1,4 @@
+
 // Variable pour stocker les informations du produit
 let currentProductInfo = null;
 // Variable pour stocker toutes les alternatives pour le filtrage
@@ -124,6 +125,10 @@ function createExtensionUI() {
   const container = document.createElement('div');
   container.id = 'amazon-alternative-finder';
   container.className = 'aaf-container';
+  
+  // Hide the toggle button by default (will show it after product info is successfully extracted)
+  container.style.display = 'none';
+  
   document.body.appendChild(container);
 
   // Ajouter l'interface initiale (état replié)
@@ -867,12 +872,9 @@ function initExtension() {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
     const container = createExtensionUI();
     
-    // Afficher l'onboarding si c'est la première utilisation
-    setTimeout(() => {
-      createOnboardingOverlay();
-    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
-
-    // Essayer de charger le cache d'alternatives depuis sessionStorage
+    // Don't show onboarding yet - will show it after product info is received
+    
+    // Try to load alternatives cache from sessionStorage
     try {
       const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
       if (storedCache) {
@@ -880,18 +882,22 @@ function initExtension() {
         console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
       }
 
-      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
+      // Check if we have cached alternatives for the current URL
       if (alternativesCache[window.location.href]) {
         console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
-        renderAlternatives(alternativesCache[window.location.href]);
+        
+        // We have cached alternatives, but still don't show the UI until we get product info confirmation
+        
       } else {
-        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
+        // Try to load alternatives specific to the URL from sessionStorage
         const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
         if (storedAlternatives) {
           const parsedAlternatives = JSON.parse(storedAlternatives);
           console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
-          renderAlternatives(parsedAlternatives);
-          // Également ajouter au cache
+          
+          // We have alternatives from sessionStorage, but still don't show the UI until we get product info confirmation
+          
+          // Also add to cache
           alternativesCache[window.location.href] = parsedAlternatives;
         }
       }
@@ -899,8 +905,27 @@ function initExtension() {
       console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
     }
 
-    // Configurer la détection de changement d'URL
+    // Set up URL change detection
     currentUrl = window.location.href;
+  }
+}
+
+// Function to show the extension UI
+function showExtensionUI() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (container) {
+    console.log("[AMAZON_DETECTED] Showing extension toggle button");
+    container.style.display = 'block';
+    
+    // Now show the onboarding if needed
+    setTimeout(() => {
+      createOnboardingOverlay();
+    }, 1000);
+    
+    // If we have cached alternatives, render them now
+    if (alternativesCache[window.location.href]) {
+      renderAlternatives(alternativesCache[window.location.href]);
+    }
   }
 }
 
@@ -919,6 +944,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!container) {
       container = createExtensionUI();
     }
+    
+    // Show the extension UI now that we have product info
+    showExtensionUI();
+    
   } else if (message.action === "ALTERNATIVES_FOUND") {
     console.log("Alternatives reçues:", message.alternatives);
 
