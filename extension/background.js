@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -59,7 +60,28 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Only process URL changes to avoid duplicate detections
   if (changeInfo.url && changeInfo.url.match(/amazon\.fr.*\/dp\//)) {
+    // Create a unique key for this URL and tab combination
+    const urlKey = `${tabId}-${changeInfo.url}`;
+    
+    // Check if we've processed this exact URL in this tab recently (within the last 3 seconds)
+    const now = Date.now();
+    if (processedUrls[urlKey] && (now - processedUrls[urlKey]) < 3000) {
+      // Silent skip - don't even log this to avoid duplicate logs
+      return;
+    }
+    
+    // Mark this URL+tab combination as processed
+    processedUrls[urlKey] = now;
+    
+    // Only log once we're sure this is not a duplicate
     console.log("[AMAZON_DETECTED] Amazon product page detected by URL pattern:", changeInfo.url);
+    
+    // Clean up old entries from processedUrls to prevent memory leaks
+    Object.keys(processedUrls).forEach(key => {
+      if (now - processedUrls[key] > 10000) { // 10 seconds
+        delete processedUrls[key];
+      }
+    });
     
     // Execute script to get product information without waiting for page load
     chrome.scripting.executeScript({
@@ -887,19 +909,111 @@ function scrapeLeboncoinData() {
 function getScrapingStatus() {
   return {
     activeOperations: Object.keys(activeScrapingOperations).length,
-    operations: activeScrapingOperations
+    operations: activeScrapingOperations,
+    cacheSize: Object.keys(scrapedDataCache).length
   };
 }
 
-// Listen for message from popup or content script
+// Listen for messages from content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "GET_ALTERNATIVES") {
-    // Handle request for alternatives
-    openLeboncoinTab(message.productInfo.title, sender.tab.id, Date.now());
+    // Handle the request to get alternatives
+    const productInfo = message.productInfo;
+    const timestamp = message.timestamp || Date.now();
+    
+    if (productInfo && productInfo.title) {
+      // Open Leboncoin tab with the product title as search query
+      openLeboncoinTab(productInfo.title, sender.tab.id, timestamp);
+      
+      // Send an immediate response so the content script knows we received the message
+      sendResponse({
+        success: true,
+        message: "Searching for alternatives...",
+        extensionReady: isExtensionReady
+      });
+    } else {
+      sendResponse({
+        success: false,
+        message: "No product information provided",
+        extensionReady: isExtensionReady
+      });
+    }
+    
     return true; // Indicates we'll respond asynchronously
-  } else if (message.action === "GET_SCRAPING_STATUS") {
-    // Return status of active scraping operations
-    sendResponse(getScrapingStatus());
-    return false; // Indicates we've responded synchronously
+  } else if (message.action === "CHECK_EXTENSION_READY") {
+    // New message to check if the extension is ready
+    sendResponse({
+      ready: isExtensionReady,
+      queueLength: operationsQueue.length
+    });
+    return false; // We've responded synchronously
+  } else if (message.action === "CHECK_SCRAPING_STATUS") {
+    // Return the current status of scraping operations
+    sendResponse({
+      status: getScrapingStatus(),
+      extensionReady: isExtensionReady
+    });
+    return false; // We've responded synchronously
+  } else if (message.action === "RETRY_SCRAPING") {
+    // Handle retry request
+    const productInfo = message.productInfo;
+    
+    if (productInfo && productInfo.title) {
+      // Force clear any cached data for this query to ensure fresh scraping
+      const trimmedQuery = trimProductTitle(productInfo.title);
+      const cacheKey = trimmedQuery.trim().toLowerCase();
+      
+      // Remove from cache if it exists
+      if (scrapedDataCache[cacheKey]) {
+        delete scrapedDataCache[cacheKey];
+      }
+      
+      // Clear any recent request tracking for this tab/query
+      Object.keys(recentRequests).forEach(key => {
+        if (key.startsWith(`${sender.tab.id}-`)) {
+          delete recentRequests[key];
+        }
+      });
+      
+      // Open Leboncoin tab with the product title as search query (force new search)
+      openLeboncoinTab(productInfo.title, sender.tab.id, Date.now());
+      
+      sendResponse({
+        success: true,
+        message: "Retrying search for alternatives...",
+        extensionReady: isExtensionReady
+      });
+    } else {
+      sendResponse({
+        success: false,
+        message: "No product information provided for retry",
+        extensionReady: isExtensionReady
+      });
+    }
+    
+    return true; // Indicates we'll respond asynchronously
   }
 });
+
+// Listen for tab removal to clean up any related operations
+chrome.tabs.onRemoved.addListener((tabId) => {
+  // Find any operations associated with this tab and clean them up
+  Object.keys(activeScrapingOperations).forEach(opId => {
+    const op = activeScrapingOperations[opId];
+    if (op.tabId === tabId || op.sourceTabId === tabId) {
+      // Clear any associated timeouts
+      if (op.timeoutId) {
+        clearTimeout(op.timeoutId);
+      }
+      
+      // Remove the operation
+      delete activeScrapingOperations[opId];
+      console.log(`Cleaned up operation ${opId} because tab ${tabId} was closed`);
+    }
+  });
+});
+
+// Make sure the extension is marked as ready when this script loads
+console.log("Background script loaded - marking extension as ready");
+isExtensionReady = true;
+processQueue();
