@@ -10,6 +10,8 @@ let operationsQueue = [];
 let recentRequests = {};
 // Track tabs that have already been processed to avoid duplicates
 let processedTabs = {};
+// Track URL changes to prevent duplicate processing of the same URL
+let processedUrls = {};
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener((details) => {
@@ -57,23 +59,23 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Only process URL changes to avoid duplicate detections
   if (changeInfo.url && changeInfo.url.match(/amazon\.fr.*\/dp\//)) {
-    // Create a unique key for this URL to avoid duplicate processing
-    const urlKey = `${tabId}-${changeInfo.url}`;
+    // Create a unique key for this URL
+    const urlKey = changeInfo.url;
     
-    // Skip if we've already processed this exact URL in this tab
-    if (processedTabs[urlKey]) {
-      console.log("[AMAZON_DETECTED] Skipping already processed URL:", changeInfo.url);
+    // Check if we've processed this URL recently (within the last 2 seconds)
+    const now = Date.now();
+    if (processedUrls[urlKey] && (now - processedUrls[urlKey]) < 2000) {
+      console.log("[AMAZON_DETECTED] Skipping duplicate URL detection:", changeInfo.url);
       return;
     }
     
     // Mark this URL as processed
-    processedTabs[urlKey] = Date.now();
+    processedUrls[urlKey] = now;
     
-    // Clean up old entries from processedTabs every 15 seconds to prevent memory leaks
-    const now = Date.now();
-    Object.keys(processedTabs).forEach(key => {
-      if (now - processedTabs[key] > 15000) {
-        delete processedTabs[key];
+    // Clean up old entries from processedUrls to prevent memory leaks
+    Object.keys(processedUrls).forEach(key => {
+      if (now - processedUrls[key] > 10000) { // 10 seconds
+        delete processedUrls[key];
       }
     });
     
