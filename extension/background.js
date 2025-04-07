@@ -9,24 +9,6 @@ let operationsQueue = [];
 // Track recent requests to prevent duplicates
 let recentRequests = {};
 
-// Function to notify all tabs that the extension is ready
-function notifyExtensionReady() {
-  chrome.tabs.query({url: "*://www.amazon.fr/*"}, function(tabs) {
-    console.log(`Notifying ${tabs.length} Amazon tabs that extension is ready`);
-    tabs.forEach(tab => {
-      try {
-        chrome.tabs.sendMessage(tab.id, {
-          action: "EXTENSION_READY"
-        }).catch(error => {
-          console.log(`Could not notify tab ${tab.id}: ${error.message}`);
-        });
-      } catch (error) {
-        console.error(`Error notifying tab ${tab.id}:`, error);
-      }
-    });
-  });
-}
-
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
@@ -40,8 +22,6 @@ chrome.runtime.onInstalled.addListener((details) => {
   isExtensionReady = true;
   // Process any queued operations
   processQueue();
-  // Notify all tabs that the extension is ready
-  notifyExtensionReady();
 });
 
 // Set extension as ready when background script loads
@@ -49,7 +29,6 @@ chrome.runtime.onStartup.addListener(() => {
   console.log("Extension starting up");
   isExtensionReady = true;
   processQueue();
-  notifyExtensionReady();
 });
 
 // Ensure the extension is ready even if onStartup wasn't triggered
@@ -57,7 +36,6 @@ setTimeout(() => {
   console.log("Ensuring extension is ready");
   isExtensionReady = true;
   processQueue();
-  notifyExtensionReady();
 }, 1000);
 
 // Improved function to process queued operations
@@ -77,19 +55,6 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the page is fully loaded and the URL is from Amazon product page
   if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
-    // Notify the tab that the extension is ready (if it is)
-    if (isExtensionReady) {
-      try {
-        chrome.tabs.sendMessage(tabId, {
-          action: "EXTENSION_READY"
-        }).catch(error => {
-          console.log(`Could not notify tab ${tabId} that extension is ready: ${error.message}`);
-        });
-      } catch (error) {
-        console.error(`Error notifying tab ${tabId} that extension is ready:`, error);
-      }
-    }
-    
     // Execute script to get product information
     chrome.scripting.executeScript({
       target: { tabId: tabId },
@@ -977,5 +942,3 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 console.log("Background script loaded - marking extension as ready");
 isExtensionReady = true;
 processQueue();
-// Immediately notify all tabs that the extension is ready
-notifyExtensionReady();
