@@ -887,4 +887,19 @@ function scrapeLeboncoinData() {
 function getScrapingStatus() {
   return {
     activeOperations: Object.keys(activeScrapingOperations).length,
-    operations: active
+    operations: activeScrapingOperations
+  };
+}
+
+// Listen for message from popup or content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "GET_ALTERNATIVES") {
+    // Handle request for alternatives
+    openLeboncoinTab(message.productInfo.title, sender.tab.id, Date.now());
+    return true; // Indicates we'll respond asynchronously
+  } else if (message.action === "GET_SCRAPING_STATUS") {
+    // Return status of active scraping operations
+    sendResponse(getScrapingStatus());
+    return false; // Indicates we've responded synchronously
+  }
+});
