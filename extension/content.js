@@ -15,6 +15,8 @@ let alternativesCache = {};
 let isScrapingStarted = false;
 // Clé pour le localStorage pour l'onboarding
 const ONBOARDING_COMPLETED_KEY = 'altmarket_onboarding_completed';
+// Nouvelle variable pour suivre si l'extension est prête
+let isExtensionReady = false;
 
 // Fonction utilitaire pour gérer le pluriel/singulier
 function formatAlternativesCount(count) {
@@ -126,9 +128,9 @@ function createExtensionUI() {
   container.className = 'aaf-container';
   document.body.appendChild(container);
 
-  // Ajouter l'interface initiale (état replié)
+  // Ajouter l'interface initiale avec toggle caché
   container.innerHTML = `
-    <div class="aaf-toggle">
+    <div class="aaf-toggle" style="display: none;">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
       <span class="aaf-toggle-text">Rechercher</span>
     </div>
@@ -217,25 +219,6 @@ function createExtensionUI() {
           <div class="aaf-items"></div>
         </div>
       </div>
-      <!--<div class="aaf-footer">
-        <div class="aaf-feedback-text">Est-ce que cela vous a aidé ?</div>
-        <div class="aaf-feedback-buttons">
-          <button class="aaf-feedback-btn aaf-yes-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M7 10v12"></path>
-              <path d="M15 5.88 14 10h5.83a2 2 0 0 1-1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
-            </svg>
-            Oui
-          </button>
-          <button class="aaf-feedback-btn aaf-no-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 14V2"></path>
-              <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path>
-            </svg>
-            Non
-          </button>
-        </div>
-      </div> -->
     </div>
   `;
 
@@ -264,7 +247,14 @@ function createExtensionUI() {
     }
   }
 
-  // Ajouter les écouteurs d'événements
+  setupEventListeners(container);
+
+  return container;
+}
+
+// Set up event listeners for the extension UI
+function setupEventListeners(container) {
+  // Only set up event listeners, but toggle is still hidden until extension is ready
   const toggle = container.querySelector('.aaf-toggle');
   const closeBtn = container.querySelector('.aaf-close-btn');
 
@@ -322,11 +312,9 @@ function createExtensionUI() {
       allFilterMenus.forEach(menu => menu.classList.remove('aaf-show-menu'));
     }
   });
-
-  return container;
 }
 
-// Function to check if the extension is ready before making requests
+// Fonction pour vérifier l'état de préparation de l'extension
 function checkExtensionReady() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({
@@ -346,7 +334,16 @@ function checkExtensionReady() {
   });
 }
 
-// New function to safely request alternatives with retry mechanism
+// Fonction pour montrer le bouton de toggle une fois que l'extension est prête
+function showToggleButton() {
+  const toggle = document.querySelector('.aaf-toggle');
+  if (toggle) {
+    toggle.style.display = 'flex';
+    console.log("Toggle button is now visible as extension is ready");
+  }
+}
+
+// Fonction pour demander des alternatives de manière sécurisée avec mécanisme de nouvelle tentative
 async function safeRequestAlternatives(productInfo, retryCount = 0) {
   const MAX_RETRIES = 3;
   
@@ -862,41 +859,53 @@ function resetUI() {
 }
 
 // Initialiser l'interface utilisateur de l'extension
-function initExtension() {
+async function initExtension() {
   if (isAmazonProductPage()) {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
+    
+    // Créer l'interface, mais le toggle sera caché jusqu'à ce que l'extension soit prête
     const container = createExtensionUI();
     
-    // Afficher l'onboarding si c'est la première utilisation
-    setTimeout(() => {
-      createOnboardingOverlay();
-    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
-
-    // Essayer de charger le cache d'alternatives depuis sessionStorage
-    try {
-      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
-      if (storedCache) {
-        alternativesCache = JSON.parse(storedCache);
-        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
-      }
-
-      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
-      if (alternativesCache[window.location.href]) {
-        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
-        renderAlternatives(alternativesCache[window.location.href]);
-      } else {
-        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
-        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
-        if (storedAlternatives) {
-          const parsedAlternatives = JSON.parse(storedAlternatives);
-          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
-          renderAlternatives(parsedAlternatives);
-          // Également ajouter au cache
-          alternativesCache[window.location.href] = parsedAlternatives;
+    // Vérifier si l'extension est prête avant de continuer
+    isExtensionReady = await checkExtensionReady();
+    
+    if (isExtensionReady) {
+      // Si déjà prêt, montrer le toggle
+      showToggleButton();
+      
+      // Afficher l'onboarding si c'est la première utilisation
+      setTimeout(() => {
+        createOnboardingOverlay();
+      }, 1000);
+      
+      // Essayer de charger le cache d'alternatives depuis sessionStorage
+      try {
+        const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
+        if (storedCache) {
+          alternativesCache = JSON.parse(storedCache);
+          console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
         }
+
+        // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
+        if (alternativesCache[window.location.href]) {
+          console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
+          renderAlternatives(alternativesCache[window.location.href]);
+        } else {
+          // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
+          const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
+          if (storedAlternatives) {
+            const parsedAlternatives = JSON.parse(storedAlternatives);
+            console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
+            renderAlternatives(parsedAlternatives);
+            // Également ajouter au cache
+            alternativesCache[window.location.href] = parsedAlternatives;
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
       }
-    } catch (error) {
-      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
+    } else {
+      console.log("Extension n'est pas encore prête, toggle reste caché");
     }
 
     // Configurer la détection de changement d'URL
@@ -904,7 +913,39 @@ function initExtension() {
   }
 }
 
-// Écouter les infos produit du script d'arrière-plan
+// Fonction pour afficher le squelette de chargement lorsque le scraping a commencé
+function showSkeletonLoading() {
+  isScrapingStarted = true;
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const initialLoading = container.querySelector('.aaf-initial-loading');
+  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
+  
+  if (initialLoading && skeletonLoading) {
+    initialLoading.style.display = 'none';
+    skeletonLoading.style.display = 'block';
+  }
+}
+
+// Fonction pour masquer le squelette de chargement et afficher les résultats
+function hideSkeletonLoading() {
+  const container = document.getElementById('amazon-alternative-finder');
+  if (!container) return;
+  
+  const loading = container.querySelector('.aaf-loading');
+  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
+  
+  if (loading) {
+    loading.style.display = 'none';
+  }
+  
+  if (skeletonLoading) {
+    skeletonLoading.style.display = 'none';
+  }
+}
+
+// Écouter les messages du script d'arrière-plan
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Script de contenu a reçu un message:", message);
 
@@ -944,6 +985,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Alternative way to trigger skeleton loading - when scraping has started
     console.log("Scraping started, showing skeleton loading");
     showSkeletonLoading();
+  } else if (message.action === "EXTENSION_READY") {
+    // Nouveau message pour indiquer que l'extension est prête
+    console.log("Extension is now ready, showing toggle button");
+    isExtensionReady = true;
+    showToggleButton();
+    
+    // Afficher l'onboarding si c'est la première utilisation
+    if (!isOnboardingCompleted()) {
+      setTimeout(() => {
+        createOnboardingOverlay();
+      }, 1000);
+    }
   }
 });
 
@@ -954,7 +1007,7 @@ if (document.readyState === 'loading') {
   initExtension();
 }
 
-// Configurer la détection de changement d'URL avec MutationObserver pour réinitialiser le badge lors de la navigation vers un nouveau produit
+// Configurer la détection de changement d'URL avec MutationObserver
 let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
@@ -964,35 +1017,3 @@ new MutationObserver(() => {
     resetUI();
   }
 }).observe(document, {subtree: true, childList: true});
-
-// Function to show skeleton loading cards when scraping has started
-function showSkeletonLoading() {
-  isScrapingStarted = true;
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-  
-  const initialLoading = container.querySelector('.aaf-initial-loading');
-  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-  
-  if (initialLoading && skeletonLoading) {
-    initialLoading.style.display = 'none';
-    skeletonLoading.style.display = 'block';
-  }
-}
-
-// Function to hide skeleton loading and show results
-function hideSkeletonLoading() {
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-  
-  const loading = container.querySelector('.aaf-loading');
-  const skeletonLoading = container.querySelector('.aaf-skeleton-loading');
-  
-  if (loading) {
-    loading.style.display = 'none';
-  }
-  
-  if (skeletonLoading) {
-    skeletonLoading.style.display = 'none';
-  }
-}
