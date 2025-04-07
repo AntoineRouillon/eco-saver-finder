@@ -18,7 +18,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
   }
   // Mark extension as ready after installation
-  console.log("Extension installed, marking as ready");
+  console.log("[EXTENSION_READY] Extension installed, marking as ready");
   isExtensionReady = true;
   // Process any queued operations
   processQueue();
@@ -26,14 +26,14 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 // Set extension as ready when background script loads
 chrome.runtime.onStartup.addListener(() => {
-  console.log("Extension starting up");
+  console.log("[EXTENSION_READY] Extension starting up");
   isExtensionReady = true;
   processQueue();
 });
 
 // Ensure the extension is ready even if onStartup wasn't triggered
 setTimeout(() => {
-  console.log("Ensuring extension is ready");
+  console.log("[EXTENSION_READY] Ensuring extension is ready");
   isExtensionReady = true;
   processQueue();
 }, 1000);
@@ -55,22 +55,28 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the page is fully loaded and the URL is from Amazon product page
   if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
+    console.log(`[AMAZON_PAGE_DETECTED] Tab ${tabId} has loaded an Amazon product page`);
+    console.log(`[EXTENSION_STATUS] Extension ready: ${isExtensionReady}, Queued operations: ${operationsQueue.length}`);
+    
     // Execute script to get product information
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: getProductInfo
     }).then(results => {
       if (results && results[0]?.result) {
+        console.log('[PRODUCT_INFO_EXTRACTED] Successfully extracted product info from Amazon page');
         // Send message to content script with the product info
         chrome.tabs.sendMessage(tabId, {
           action: "PRODUCT_INFO",
           productInfo: results[0].result
+        }).then(() => {
+          console.log('[PRODUCT_INFO_SENT] Product info sent to content script');
         }).catch(error => {
-          console.error("Error sending product info to content script:", error);
+          console.error("[ERROR] Error sending product info to content script:", error);
         });
       }
     }).catch(error => {
-      console.error("Error executing script:", error);
+      console.error("[ERROR] Error executing script:", error);
     });
   }
 });
@@ -847,6 +853,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const timestamp = message.timestamp || Date.now();
     
     if (productInfo && productInfo.title) {
+      console.log(`[REQUEST_RECEIVED] GET_ALTERNATIVES for "${productInfo.title}" from tab ${sender.tab.id}`);
+      console.log(`[EXTENSION_STATUS] Extension ready: ${isExtensionReady}, Queued operations: ${operationsQueue.length}`);
+      
       // Open Leboncoin tab with the product title as search query
       openLeboncoinTab(productInfo.title, sender.tab.id, timestamp);
       
@@ -857,6 +866,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         extensionReady: isExtensionReady
       });
     } else {
+      console.log("[ERROR] GET_ALTERNATIVES received without product info");
       sendResponse({
         success: false,
         message: "No product information provided",
@@ -876,69 +886,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Return the current status of scraping operations
     sendResponse({
       status: getScrapingStatus(),
-      extensionReady: isExtensionReady
-    });
-    return false; // We've responded synchronously
-  } else if (message.action === "RETRY_SCRAPING") {
-    // Handle retry request
-    const productInfo = message.productInfo;
-    
-    if (productInfo && productInfo.title) {
-      // Force clear any cached data for this query to ensure fresh scraping
-      const trimmedQuery = trimProductTitle(productInfo.title);
-      const cacheKey = trimmedQuery.trim().toLowerCase();
-      
-      // Remove from cache if it exists
-      if (scrapedDataCache[cacheKey]) {
-        delete scrapedDataCache[cacheKey];
-      }
-      
-      // Clear any recent request tracking for this tab/query
-      Object.keys(recentRequests).forEach(key => {
-        if (key.startsWith(`${sender.tab.id}-`)) {
-          delete recentRequests[key];
-        }
-      });
-      
-      // Open Leboncoin tab with the product title as search query (force new search)
-      openLeboncoinTab(productInfo.title, sender.tab.id, Date.now());
-      
-      sendResponse({
-        success: true,
-        message: "Retrying search for alternatives...",
-        extensionReady: isExtensionReady
-      });
-    } else {
-      sendResponse({
-        success: false,
-        message: "No product information provided for retry",
-        extensionReady: isExtensionReady
-      });
-    }
-    
-    return true; // Indicates we'll respond asynchronously
-  }
-});
-
-// Listen for tab removal to clean up any related operations
-chrome.tabs.onRemoved.addListener((tabId) => {
-  // Find any operations associated with this tab and clean them up
-  Object.keys(activeScrapingOperations).forEach(opId => {
-    const op = activeScrapingOperations[opId];
-    if (op.tabId === tabId || op.sourceTabId === tabId) {
-      // Clear any associated timeouts
-      if (op.timeoutId) {
-        clearTimeout(op.timeoutId);
-      }
-      
-      // Remove the operation
-      delete activeScrapingOperations[opId];
-      console.log(`Cleaned up operation ${opId} because tab ${tabId} was closed`);
-    }
-  });
-});
-
-// Make sure the extension is marked as ready when this script loads
-console.log("Background script loaded - marking extension as ready");
-isExtensionReady = true;
-processQueue();
