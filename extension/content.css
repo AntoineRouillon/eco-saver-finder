@@ -72,21 +72,6 @@
   line-height: 1.6;
 }
 
-.aaf-onboarding-got-it {
-  width: 100%;
-  padding: 8px 12px;
-  background-color: #4AB07B;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.aaf-onboarding-got-it:hover {
-  background-color: #3A9666;
-}
 
 .aaf-onboarding-tooltip-arrow {
   position: absolute;
@@ -99,7 +84,6 @@
   border-bottom: 10px solid transparent;
   border-left: 10px solid white;
 }
-
 /* Toggle button */
 .aaf-toggle {
   position: absolute;
@@ -120,7 +104,6 @@
   color: #333;
   transition: all 0.2s ease;
   overflow: hidden;
-  z-index: 9999; /* Make sure the toggle is above the overlay */
 }
 
 .aaf-toggle:hover {

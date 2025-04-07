@@ -48,7 +48,6 @@ function createOnboardingOverlay() {
   tooltip.innerHTML = `
     <div class="aaf-onboarding-tooltip-content">
       <p>Cliquez sur le bouton rechercher pour découvrir les alternatives disponibles sur Leboncoin</p>
-      <button class="aaf-onboarding-got-it">J'ai compris</button>
     </div>
     <div class="aaf-onboarding-tooltip-arrow"></div>
   `;
