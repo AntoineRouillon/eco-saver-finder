@@ -268,17 +268,18 @@ function createExtensionUI() {
   const toggle = container.querySelector('.aaf-toggle');
   const closeBtn = container.querySelector('.aaf-close-btn');
 
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', async () => {
     container.classList.toggle('aaf-expanded');
 
-    // Si nous développons et avons des informations de produit mais pas encore d'alternatives chargées, les récupérer
+    // If we expand and have product info but no alternatives loaded, get them
     if (container.classList.contains('aaf-expanded') && currentProductInfo) {
-      // Vérifier si nous avons des alternatives en cache pour ce produit
+      // Check if we have cached alternatives for this product
       if (alternativesCache[window.location.href]) {
-        console.log("Utilisation des alternatives en cache pour:", window.location.href);
+        console.log("Using cached alternatives for:", window.location.href);
         renderAlternatives(alternativesCache[window.location.href]);
       } else {
-        requestAlternatives(currentProductInfo);
+        // Use our new safe request function instead of the old requestAlternatives
+        await safeRequestAlternatives(currentProductInfo);
       }
     }
   });
@@ -325,6 +326,96 @@ function createExtensionUI() {
   return container;
 }
 
+// Function to check if the extension is ready before making requests
+function checkExtensionReady() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({
+      action: "CHECK_EXTENSION_READY"
+    }, response => {
+      if (response && response.ready) {
+        console.log("Extension is ready to handle requests");
+        resolve(true);
+      } else {
+        console.log("Extension not ready yet, waiting...");
+        // Wait a bit and try again
+        setTimeout(() => {
+          checkExtensionReady().then(resolve);
+        }, 500);
+      }
+    });
+  });
+}
+
+// New function to safely request alternatives with retry mechanism
+async function safeRequestAlternatives(productInfo, retryCount = 0) {
+  const MAX_RETRIES = 3;
+  
+  if (!productInfo || !productInfo.title) {
+    console.error("No valid product info to request alternatives");
+    return;
+  }
+  
+  try {
+    // First check if extension is ready
+    const isReady = await checkExtensionReady();
+    
+    if (!isReady && retryCount < MAX_RETRIES) {
+      console.log(`Extension not ready, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+      setTimeout(() => {
+        safeRequestAlternatives(productInfo, retryCount + 1);
+      }, 500);
+      return;
+    }
+    
+    // Show loading UI
+    const container = document.getElementById('amazon-alternative-finder');
+    if (container) {
+      const loading = container.querySelector('.aaf-loading');
+      const initialLoading = container.querySelector('.aaf-initial-loading');
+      const results = container.querySelector('.aaf-results');
+      
+      if (loading && initialLoading && results) {
+        loading.style.display = 'block';
+        initialLoading.style.display = 'flex';
+        results.style.display = 'none';
+      }
+    }
+    
+    // Make the request with confirmation
+    console.log("Requesting alternatives for:", productInfo.title);
+    
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage({
+        action: "GET_ALTERNATIVES",
+        productInfo: productInfo,
+        timestamp: Date.now() // Add timestamp to uniquely identify this request
+      }, response => {
+        console.log("Initial response from background script:", response);
+        
+        if (response && response.success) {
+          console.log("Background acknowledged the request");
+          resolve(true);
+        } else if (retryCount < MAX_RETRIES) {
+          console.log(`Request failed, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+          setTimeout(() => {
+            safeRequestAlternatives(productInfo, retryCount + 1).then(resolve);
+          }, 500);
+        } else {
+          console.error("Failed to request alternatives after multiple retries");
+          resolve(false);
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Error requesting alternatives:", error);
+    if (retryCount < MAX_RETRIES) {
+      setTimeout(() => {
+        safeRequestAlternatives(productInfo, retryCount + 1);
+      }, 500);
+    }
+  }
+}
+
 // Mettre à jour l'interface utilisateur du bouton de filtre pour refléter le filtre actuel
 function updateFilterUI() {
   const container = document.getElementById('amazon-alternative-finder');
@@ -354,35 +445,15 @@ function updateFilterUI() {
 
 // Fonction pour demander des alternatives au script d'arrière-plan
 function requestAlternatives(productInfo) {
-  const container = document.getElementById('amazon-alternative-finder');
-  if (!container) return;
-
-  const loading = container.querySelector('.aaf-loading');
-  const initialLoading = container.querySelector('.aaf-initial-loading');
-  const results = container.querySelector('.aaf-results');
-
-  // Afficher l'état de chargement initial (spinner)
-  if (loading && initialLoading && results) {
-    loading.style.display = 'block';
-    initialLoading.style.display = 'flex';
-    results.style.display = 'none';
-  }
-
-  // Vérifier si nous avons des alternatives en cache pour ce produit
+  // Check if we have alternatives in cache for this product
   if (alternativesCache[window.location.href]) {
-    console.log("Utilisation des alternatives en cache pour:", window.location.href);
+    console.log("Using cached alternatives for:", window.location.href);
     renderAlternatives(alternativesCache[window.location.href]);
     return;
   }
-
-  // Demander des alternatives au script d'arrière-plan
-  chrome.runtime.sendMessage({
-    action: "GET_ALTERNATIVES",
-    productInfo: productInfo
-  }, response => {
-    console.log("Réponse reçue du script d'arrière-plan:", response);
-    // Les alternatives réelles viendront dans un message séparé
-  });
+  
+  // Use the new safe request function
+  safeRequestAlternatives(productInfo);
 }
 
 // Créer une carte à partir du HTML brut de l'article

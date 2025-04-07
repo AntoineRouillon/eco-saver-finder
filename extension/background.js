@@ -6,6 +6,8 @@ let activeScrapingOperations = {};
 let isExtensionReady = false;
 // Queue for operations that come in before the extension is ready
 let operationsQueue = [];
+// Track recent requests to prevent duplicates
+let recentRequests = {};
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener((details) => {
@@ -16,6 +18,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
   }
   // Mark extension as ready after installation
+  console.log("Extension installed, marking as ready");
   isExtensionReady = true;
   // Process any queued operations
   processQueue();
@@ -25,6 +28,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.runtime.onStartup.addListener(() => {
   console.log("Extension starting up");
   isExtensionReady = true;
+  processQueue();
 });
 
 // Ensure the extension is ready even if onStartup wasn't triggered
@@ -34,7 +38,7 @@ setTimeout(() => {
   processQueue();
 }, 1000);
 
-// Function to process queued operations
+// Improved function to process queued operations
 function processQueue() {
   console.log(`Processing queue with ${operationsQueue.length} operations`);
   while (operationsQueue.length > 0) {
@@ -267,9 +271,47 @@ function checkNoResults(tabId) {
   });
 }
 
+// Improved function to detect and prevent duplicate requests
+function isDuplicateRequest(tabId, title, timestamp) {
+  // Clean up old requests (older than 5 seconds)
+  const now = Date.now();
+  Object.keys(recentRequests).forEach(key => {
+    if (now - recentRequests[key].timestamp > 5000) {
+      delete recentRequests[key];
+    }
+  });
+  
+  // Check if this is a duplicate request
+  const requestKey = `${tabId}-${title}`;
+  if (recentRequests[requestKey]) {
+    const timeDiff = now - recentRequests[requestKey].timestamp;
+    // Consider it a duplicate if less than 2 seconds apart
+    if (timeDiff < 2000) {
+      console.log(`Duplicate request detected (${timeDiff}ms apart) for: ${title}`);
+      return true;
+    }
+  }
+  
+  // Register this request
+  recentRequests[requestKey] = { timestamp: timestamp || now };
+  return false;
+}
+
 // Function to open a pinned tab to Leboncoin with search query
-async function openLeboncoinTab(searchQuery, sourceTabId) {
+async function openLeboncoinTab(searchQuery, sourceTabId, timestamp) {
   console.log("Opening Leboncoin tab with query:", searchQuery);
+  
+  // Validate input parameters
+  if (!searchQuery || !sourceTabId) {
+    console.error("Missing required parameters:", { searchQuery, sourceTabId });
+    return;
+  }
+  
+  // Check if this is a duplicate request
+  if (isDuplicateRequest(sourceTabId, searchQuery, timestamp)) {
+    console.log("Ignoring duplicate request");
+    return;
+  }
   
   // Check if extension is ready, if not queue the operation
   if (!isExtensionReady) {
@@ -278,7 +320,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       type: "GET_ALTERNATIVES",
       productInfo: { title: searchQuery },
       sourceTabId: sourceTabId,
-      timestamp: Date.now()
+      timestamp: timestamp || Date.now()
     });
     
     // Notify content script that we're queueing the request
@@ -606,7 +648,7 @@ async function openLeboncoinTab(searchQuery, sourceTabId) {
       }
       await safeRemoveTab(newTab.id);
       
-      // Clean up operation tracking after 5 seconds
+      // Clean up operation tracking
       setTimeout(() => {
         delete activeScrapingOperations[operationId];
       }, 5000);
@@ -802,28 +844,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "GET_ALTERNATIVES") {
     // Handle the request to get alternatives
     const productInfo = message.productInfo;
+    const timestamp = message.timestamp || Date.now();
     
     if (productInfo && productInfo.title) {
       // Open Leboncoin tab with the product title as search query
-      openLeboncoinTab(productInfo.title, sender.tab.id);
+      openLeboncoinTab(productInfo.title, sender.tab.id, timestamp);
       
       // Send an immediate response so the content script knows we received the message
       sendResponse({
         success: true,
-        message: "Searching for alternatives..."
+        message: "Searching for alternatives...",
+        extensionReady: isExtensionReady
       });
     } else {
       sendResponse({
         success: false,
-        message: "No product information provided"
+        message: "No product information provided",
+        extensionReady: isExtensionReady
       });
     }
     
     return true; // Indicates we'll respond asynchronously
+  } else if (message.action === "CHECK_EXTENSION_READY") {
+    // New message to check if the extension is ready
+    sendResponse({
+      ready: isExtensionReady,
+      queueLength: operationsQueue.length
+    });
+    return false; // We've responded synchronously
   } else if (message.action === "CHECK_SCRAPING_STATUS") {
     // Return the current status of scraping operations
     sendResponse({
-      status: getScrapingStatus()
+      status: getScrapingStatus(),
+      extensionReady: isExtensionReady
     });
     return false; // We've responded synchronously
   } else if (message.action === "RETRY_SCRAPING") {
@@ -840,28 +893,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         delete scrapedDataCache[cacheKey];
       }
       
+      // Clear any recent request tracking for this tab/query
+      Object.keys(recentRequests).forEach(key => {
+        if (key.startsWith(`${sender.tab.id}-`)) {
+          delete recentRequests[key];
+        }
+      });
+      
       // Open Leboncoin tab with the product title as search query (force new search)
-      openLeboncoinTab(productInfo.title, sender.tab.id);
+      openLeboncoinTab(productInfo.title, sender.tab.id, Date.now());
       
       sendResponse({
         success: true,
-        message: "Retrying search for alternatives..."
+        message: "Retrying search for alternatives...",
+        extensionReady: isExtensionReady
       });
     } else {
       sendResponse({
         success: false,
-        message: "No product information provided for retry"
+        message: "No product information provided for retry",
+        extensionReady: isExtensionReady
       });
     }
     
     return true; // Indicates we'll respond asynchronously
-  } else if (message.action === "CHECK_EXTENSION_READY") {
-    // New message to check if the extension is ready
-    sendResponse({
-      ready: isExtensionReady,
-      queueLength: operationsQueue.length
-    });
-    return false; // We've responded synchronously
   }
 });
 
@@ -884,5 +939,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 // Make sure the extension is marked as ready when this script loads
+console.log("Background script loaded - marking extension as ready");
 isExtensionReady = true;
-console.log("Background script loaded and ready");
+processQueue();
