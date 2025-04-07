@@ -54,11 +54,11 @@ function processQueue() {
 
 // Listen for when a tab is updated
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Check immediately if it's an Amazon product page based on URL
-  if (tab.url && tab.url.match(/amazon\.fr.*\/dp\//)) {
+  // Check if the page is fully loaded and the URL is from Amazon product page
+  if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
     console.log("[AMAZON_DETECTED] Amazon product page detected:", tab.url);
     
-    // Extract product information immediately, regardless of page load status
+    // Execute script to get product information
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: getProductInfo
@@ -107,71 +107,24 @@ chrome.runtime.onConnect.addListener(port => {
   }
 });
 
-// Enhanced function to extract product information even from partially loaded pages
+// Function to extract product information
 function getProductInfo() {
-  console.log("[AMAZON_DETECTED] Extracting product information");
+  // Get product title
+  const productTitle = document.getElementById('productTitle')?.innerText.trim() || 
+                       document.querySelector('h1.a-size-large')?.innerText.trim() || '';
   
-  // Enhanced selectors to find product title even in partially loaded pages
-  const productTitleSelectors = [
-    '#productTitle',
-    'h1.a-size-large',
-    'h1[data-feature-name="title"]',
-    '.product-title',
-    '.a-spacing-small h1',
-    '.a-section h1'
-  ];
+  // Get product image
+  const productImage = document.getElementById('landingImage')?.src || 
+                       document.querySelector('img#main-image')?.src || 
+                       document.querySelector('#imgTagWrapperId img')?.src || '';
   
-  // Try each title selector until we find one that works
-  let productTitle = '';
-  for (const selector of productTitleSelectors) {
-    const element = document.querySelector(selector);
-    if (element && element.innerText.trim()) {
-      productTitle = element.innerText.trim();
-      break;
-    }
-  }
+  // Get product price
+  const priceElement = document.querySelector('.a-price .a-offscreen') || 
+                       document.querySelector('.a-price') || 
+                       document.getElementById('priceblock_ourprice') || 
+                       document.getElementById('priceblock_dealprice');
   
-  // Enhanced selectors for images
-  const productImageSelectors = [
-    '#landingImage',
-    'img#main-image',
-    '#imgTagWrapperId img',
-    '.a-dynamic-image',
-    '#imgBlkFront',
-    '.image-wrapper img',
-    '.images-container img'
-  ];
-  
-  // Try each image selector until we find one that works
-  let productImage = '';
-  for (const selector of productImageSelectors) {
-    const element = document.querySelector(selector);
-    if (element && element.src) {
-      productImage = element.src;
-      break;
-    }
-  }
-  
-  // Enhanced selectors for prices
-  const priceSelectors = [
-    '.a-price .a-offscreen',
-    '.a-price',
-    '#priceblock_ourprice',
-    '#priceblock_dealprice',
-    '.a-color-price',
-    '.offer-price',
-    '#price'
-  ];
-  
-  // Try each price selector until we find one that works
-  let price = '';
-  for (const selector of priceSelectors) {
-    const element = document.querySelector(selector);
-    if (element && element.innerText.trim()) {
-      price = element.innerText.trim();
-      break;
-    }
-  }
+  const price = priceElement ? priceElement.innerText.trim() : '';
   
   // Get product ASIN (Amazon Standard Identification Number)
   const asinMatch = window.location.pathname.match(/\/dp\/([A-Z0-9]{10})/) || 
@@ -179,13 +132,6 @@ function getProductInfo() {
                     document.body.innerHTML.match(/\s+asin\s*=\s*["']([A-Z0-9]{10})["']/);
   
   const asin = asinMatch ? asinMatch[1] : '';
-
-  console.log("[AMAZON_DETECTED] Extracted product info:", {
-    title: productTitle,
-    image: productImage ? productImage : "[No image found yet]",
-    price: price ? price : "[No price found yet]",
-    asin: asin ? asin : "[No ASIN found yet]"
-  });
 
   return {
     title: productTitle,
