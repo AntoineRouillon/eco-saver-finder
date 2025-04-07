@@ -15,8 +15,6 @@ let alternativesCache = {};
 let isScrapingStarted = false;
 // Clé pour le localStorage pour l'onboarding
 const ONBOARDING_COMPLETED_KEY = 'altmarket_onboarding_completed';
-// Variable pour suivre si l'extension est prête
-let isExtensionReady = false;
 
 // Fonction utilitaire pour gérer le pluriel/singulier
 function formatAlternativesCount(count) {
@@ -130,7 +128,7 @@ function createExtensionUI() {
 
   // Ajouter l'interface initiale (état replié)
   container.innerHTML = `
-    <div class="aaf-toggle" style="display: none;">
+    <div class="aaf-toggle">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
       <span class="aaf-toggle-text">Rechercher</span>
     </div>
@@ -336,21 +334,6 @@ function checkExtensionReady() {
     }, response => {
       if (response && response.ready) {
         console.log("Extension is ready to handle requests");
-        
-        // Update our local flag
-        if (!isExtensionReady) {
-          isExtensionReady = true;
-          
-          // Log to console when extension becomes ready
-          console.log("%c🚀 AltMarket Extension is now ready!", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
-          
-          // Show the toggle button if it was hidden
-          const toggle = document.querySelector('.aaf-toggle');
-          if (toggle) {
-            toggle.style.display = 'flex';
-          }
-        }
-        
         resolve(true);
       } else {
         console.log("Extension not ready yet, waiting...");
@@ -884,51 +867,40 @@ function initExtension() {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
     const container = createExtensionUI();
     
-    // Check if extension is ready
-    checkExtensionReady().then(ready => {
-      if (ready) {
-        // Show the toggle button
-        const toggle = container.querySelector('.aaf-toggle');
-        if (toggle) {
-          toggle.style.display = 'flex';
-        }
-        
-        // Afficher l'onboarding si c'est la première utilisation
-        setTimeout(() => {
-          createOnboardingOverlay();
-        }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
-        
-        // Essayer de charger le cache d'alternatives depuis sessionStorage
-        try {
-          const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
-          if (storedCache) {
-            alternativesCache = JSON.parse(storedCache);
-            console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
-          }
+    // Afficher l'onboarding si c'est la première utilisation
+    setTimeout(() => {
+      createOnboardingOverlay();
+    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
 
-          // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
-          if (alternativesCache[window.location.href]) {
-            console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
-            renderAlternatives(alternativesCache[window.location.href]);
-          } else {
-            // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
-            const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
-            if (storedAlternatives) {
-              const parsedAlternatives = JSON.parse(storedAlternatives);
-              console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
-              renderAlternatives(parsedAlternatives);
-              // Également ajouter au cache
-              alternativesCache[window.location.href] = parsedAlternatives;
-            }
-          }
-        } catch (error) {
-          console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
-        }
-
-        // Configurer la détection de changement d'URL
-        currentUrl = window.location.href;
+    // Essayer de charger le cache d'alternatives depuis sessionStorage
+    try {
+      const storedCache = sessionStorage.getItem('aaf_alternatives_cache');
+      if (storedCache) {
+        alternativesCache = JSON.parse(storedCache);
+        console.log("Cache d'alternatives chargé depuis sessionStorage:", alternativesCache);
       }
-    });
+
+      // Vérifier si nous avons des alternatives en cache pour l'URL actuelle
+      if (alternativesCache[window.location.href]) {
+        console.log("Alternatives en cache trouvées pour l'URL actuelle:", window.location.href);
+        renderAlternatives(alternativesCache[window.location.href]);
+      } else {
+        // Essayer de charger les alternatives spécifiques à l'URL depuis sessionStorage
+        const storedAlternatives = sessionStorage.getItem(`aaf_alternatives_${window.location.pathname}`);
+        if (storedAlternatives) {
+          const parsedAlternatives = JSON.parse(storedAlternatives);
+          console.log("Alternatives chargées depuis sessionStorage:", parsedAlternatives);
+          renderAlternatives(parsedAlternatives);
+          // Également ajouter au cache
+          alternativesCache[window.location.href] = parsedAlternatives;
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des alternatives depuis sessionStorage:", error);
+    }
+
+    // Configurer la détection de changement d'URL
+    currentUrl = window.location.href;
   }
 }
 
@@ -947,10 +919,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!container) {
       container = createExtensionUI();
     }
-    
-    // Check if extension is ready
-    checkExtensionReady();
-    
   } else if (message.action === "ALTERNATIVES_FOUND") {
     console.log("Alternatives reçues:", message.alternatives);
 
@@ -976,16 +944,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Alternative way to trigger skeleton loading - when scraping has started
     console.log("Scraping started, showing skeleton loading");
     showSkeletonLoading();
-  } else if (message.action === "EXTENSION_READY") {
-    // Extension is now ready
-    console.log("%c🚀 AltMarket Extension is now ready!", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
-    isExtensionReady = true;
-    
-    // Show the toggle button
-    const toggle = document.querySelector('.aaf-toggle');
-    if (toggle) {
-      toggle.style.display = 'flex';
-    }
   }
 });
 

@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -19,52 +18,23 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
   }
   // Mark extension as ready after installation
-  console.log("%c🚀 Extension installed, marking as ready", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
+  console.log("Extension installed, marking as ready");
   isExtensionReady = true;
-  
-  // Notify all open tabs that the extension is ready
-  notifyTabsExtensionReady();
-  
   // Process any queued operations
   processQueue();
 });
 
 // Set extension as ready when background script loads
 chrome.runtime.onStartup.addListener(() => {
-  console.log("%c🚀 Extension starting up, marking as ready", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
+  console.log("Extension starting up");
   isExtensionReady = true;
-  
-  // Notify all open tabs that the extension is ready
-  notifyTabsExtensionReady();
-  
   processQueue();
 });
 
-// Function to notify all Amazon product tabs that the extension is ready
-function notifyTabsExtensionReady() {
-  chrome.tabs.query({url: "*://www.amazon.fr/*/dp/*"}, (tabs) => {
-    console.log(`Notifying ${tabs.length} Amazon product tabs that extension is ready`);
-    
-    tabs.forEach(tab => {
-      try {
-        chrome.tabs.sendMessage(tab.id, {
-          action: "EXTENSION_READY"
-        });
-      } catch (error) {
-        console.error(`Failed to notify tab ${tab.id}:`, error);
-      }
-    });
-  });
-}
-
 // Ensure the extension is ready even if onStartup wasn't triggered
 setTimeout(() => {
-  console.log("%c🚀 Ensuring extension is ready", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
+  console.log("Ensuring extension is ready");
   isExtensionReady = true;
-  
-  // Notify all open tabs that the extension is ready
-  notifyTabsExtensionReady();
-  
   processQueue();
 }, 1000);
 
@@ -85,17 +55,6 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the page is fully loaded and the URL is from Amazon product page
   if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
-    // If the extension is ready, let the tab know
-    if (isExtensionReady) {
-      try {
-        chrome.tabs.sendMessage(tabId, {
-          action: "EXTENSION_READY"
-        });
-      } catch (error) {
-        console.error(`Failed to notify tab ${tabId} that extension is ready:`, error);
-      }
-    }
-    
     // Execute script to get product information
     chrome.scripting.executeScript({
       target: { tabId: tabId },
@@ -980,10 +939,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 // Make sure the extension is marked as ready when this script loads
-console.log("%c🚀 Background script loaded - marking extension as ready", "background: #4CAF50; color: white; padding: 5px; border-radius: 3px; font-weight: bold;");
+console.log("Background script loaded - marking extension as ready");
 isExtensionReady = true;
-
-// Notify all tabs about extension readiness
-notifyTabsExtensionReady();
-
 processQueue();
