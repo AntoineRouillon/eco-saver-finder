@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -9,6 +8,8 @@ let isExtensionReady = false;
 let operationsQueue = [];
 // Track recent requests to prevent duplicates
 let recentRequests = {};
+// Track tabs that have already been processed to avoid duplicates
+let processedTabs = {};
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener((details) => {
@@ -54,11 +55,31 @@ function processQueue() {
 
 // Listen for when a tab is updated
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Check if the page is fully loaded and the URL is from Amazon product page
-  if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
-    console.log("[AMAZON_DETECTED] Amazon product page detected:", tab.url);
+  // Only process URL changes to avoid duplicate detections
+  if (changeInfo.url && changeInfo.url.match(/amazon\.fr.*\/dp\//)) {
+    // Create a unique key for this URL to avoid duplicate processing
+    const urlKey = `${tabId}-${changeInfo.url}`;
     
-    // Execute script to get product information
+    // Skip if we've already processed this exact URL in this tab
+    if (processedTabs[urlKey]) {
+      console.log("[AMAZON_DETECTED] Skipping already processed URL:", changeInfo.url);
+      return;
+    }
+    
+    // Mark this URL as processed
+    processedTabs[urlKey] = Date.now();
+    
+    // Clean up old entries from processedTabs every 15 seconds to prevent memory leaks
+    const now = Date.now();
+    Object.keys(processedTabs).forEach(key => {
+      if (now - processedTabs[key] > 15000) {
+        delete processedTabs[key];
+      }
+    });
+    
+    console.log("[AMAZON_DETECTED] Amazon product page detected by URL pattern:", changeInfo.url);
+    
+    // Execute script to get product information without waiting for page load
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: getProductInfo
@@ -107,39 +128,57 @@ chrome.runtime.onConnect.addListener(port => {
   }
 });
 
-// Function to extract product information
+// Function to extract product information - improved for partial page loads
 function getProductInfo() {
-  // Get product title
-  const productTitle = document.getElementById('productTitle')?.innerText.trim() || 
-                       document.querySelector('h1.a-size-large')?.innerText.trim() || '';
-  
-  // Get product image
-  const productImage = document.getElementById('landingImage')?.src || 
+  try {
+    // Get product title with improved selectors for partial page loads
+    const productTitle = document.getElementById('productTitle')?.innerText.trim() || 
+                       document.querySelector('h1.a-size-large')?.innerText.trim() || 
+                       document.querySelector('h1[data-feature-name="title"]')?.innerText.trim() ||
+                       document.querySelector('h1')?.innerText.trim() || '';
+    
+    // Get product image with improved selectors for partial page loads
+    const productImage = document.getElementById('landingImage')?.src || 
                        document.querySelector('img#main-image')?.src || 
-                       document.querySelector('#imgTagWrapperId img')?.src || '';
-  
-  // Get product price
-  const priceElement = document.querySelector('.a-price .a-offscreen') || 
+                       document.querySelector('#imgTagWrapperId img')?.src ||
+                       document.querySelector('#imgBlkFront')?.src ||
+                       document.querySelector('img.a-dynamic-image')?.src || '';
+    
+    // Get product price with improved selectors for partial page loads
+    const priceElement = document.querySelector('.a-price .a-offscreen') || 
                        document.querySelector('.a-price') || 
                        document.getElementById('priceblock_ourprice') || 
-                       document.getElementById('priceblock_dealprice');
-  
-  const price = priceElement ? priceElement.innerText.trim() : '';
-  
-  // Get product ASIN (Amazon Standard Identification Number)
-  const asinMatch = window.location.pathname.match(/\/dp\/([A-Z0-9]{10})/) || 
+                       document.getElementById('priceblock_dealprice') ||
+                       document.querySelector('.a-color-price') ||
+                       document.querySelector('.a-text-price');
+    
+    const price = priceElement ? priceElement.innerText.trim() : '';
+    
+    // Get product ASIN (Amazon Standard Identification Number)
+    const asinMatch = window.location.pathname.match(/\/dp\/([A-Z0-9]{10})/) || 
                     document.body.innerHTML.match(/ASIN\s*:\s*"([A-Z0-9]{10})"/) || 
                     document.body.innerHTML.match(/\s+asin\s*=\s*["']([A-Z0-9]{10})["']/);
-  
-  const asin = asinMatch ? asinMatch[1] : '';
+    
+    const asin = asinMatch ? asinMatch[1] : '';
 
-  return {
-    title: productTitle,
-    image: productImage,
-    price: price,
-    asin: asin,
-    url: window.location.href
-  };
+    return {
+      title: productTitle,
+      image: productImage,
+      price: price,
+      asin: asin,
+      url: window.location.href
+    };
+  } catch (error) {
+    console.error("Error extracting product info:", error);
+    return {
+      title: "",
+      image: "",
+      price: "",
+      asin: "",
+      url: window.location.href,
+      error: error.toString()
+    };
+  }
 }
 
 /**
