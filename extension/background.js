@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -18,7 +19,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
   }
   // Mark extension as ready after installation
-  console.log("Extension installed, marking as ready");
+  console.log("[EXTENSION_READY] Extension installed, marking as ready");
   isExtensionReady = true;
   // Process any queued operations
   processQueue();
@@ -26,24 +27,24 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 // Set extension as ready when background script loads
 chrome.runtime.onStartup.addListener(() => {
-  console.log("Extension starting up");
+  console.log("[EXTENSION_READY] Extension starting up");
   isExtensionReady = true;
   processQueue();
 });
 
 // Ensure the extension is ready even if onStartup wasn't triggered
 setTimeout(() => {
-  console.log("Ensuring extension is ready");
+  console.log("[EXTENSION_READY] Ensuring extension is ready");
   isExtensionReady = true;
   processQueue();
 }, 1000);
 
 // Improved function to process queued operations
 function processQueue() {
-  console.log(`Processing queue with ${operationsQueue.length} operations`);
+  console.log(`[EXTENSION_READY] Processing queue with ${operationsQueue.length} operations`);
   while (operationsQueue.length > 0) {
     const operation = operationsQueue.shift();
-    console.log("Processing queued operation:", operation);
+    console.log("[EXTENSION_READY] Processing queued operation:", operation);
     
     if (operation.type === "GET_ALTERNATIVES") {
       openLeboncoinTab(operation.productInfo.title, operation.sourceTabId);
@@ -55,22 +56,53 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the page is fully loaded and the URL is from Amazon product page
   if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
+    console.log("[AMAZON_DETECTED] Amazon product page detected:", tab.url);
+    
     // Execute script to get product information
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: getProductInfo
     }).then(results => {
       if (results && results[0]?.result) {
+        console.log("[AMAZON_DETECTED] Product info extracted successfully");
         // Send message to content script with the product info
         chrome.tabs.sendMessage(tabId, {
           action: "PRODUCT_INFO",
           productInfo: results[0].result
         }).catch(error => {
-          console.error("Error sending product info to content script:", error);
+          console.error("[AMAZON_DETECTED] Error sending product info to content script:", error);
         });
       }
     }).catch(error => {
-      console.error("Error executing script:", error);
+      console.error("[AMAZON_DETECTED] Error executing script:", error);
+    });
+  }
+});
+
+// Make sure the extension is marked as ready when this script loads
+console.log("[EXTENSION_READY] Background script loaded - marking extension as ready");
+isExtensionReady = true;
+
+// Send a message to all Amazon tabs that the extension is ready
+chrome.tabs.query({url: "*://*.amazon.fr/*"}, (tabs) => {
+  console.log(`[EXTENSION_READY] Found ${tabs.length} Amazon tabs to notify about extension ready state`);
+  tabs.forEach(tab => {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "EXTENSION_READY",
+      ready: true
+    }).catch(error => {
+      console.log(`[EXTENSION_READY] Could not notify tab ${tab.id}: ${error.message}`);
+    });
+  });
+});
+
+// Send a ready notification when content script connects
+chrome.runtime.onConnect.addListener(port => {
+  if (port.name === "amazon_content") {
+    console.log("[EXTENSION_READY] Content script connected, sending ready state");
+    port.postMessage({
+      action: "EXTENSION_READY",
+      ready: isExtensionReady
     });
   }
 });
