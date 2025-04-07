@@ -130,7 +130,7 @@ function createExtensionUI() {
   container.innerHTML = `
     <div class="aaf-toggle">
       <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="AltMarket">
-      <span class="aaf-toggle-text">Initialisation...</span>
+      <span class="aaf-toggle-text">Rechercher</span>
     </div>
     <div class="aaf-panel">
       <div class="aaf-header">
@@ -264,23 +264,11 @@ function createExtensionUI() {
     }
   }
 
-  // Disable toggle initially until extension is ready
-  const toggle = container.querySelector('.aaf-toggle');
-  toggle.classList.add('aaf-toggle-disabled');
-  
-  // Check if extension is ready, and only then enable the toggle
-  checkExtensionReadyAndEnable(toggle);
-
   // Ajouter les écouteurs d'événements
+  const toggle = container.querySelector('.aaf-toggle');
   const closeBtn = container.querySelector('.aaf-close-btn');
 
   toggle.addEventListener('click', async () => {
-    // Prevent actions if toggle is disabled
-    if (toggle.classList.contains('aaf-toggle-disabled')) {
-      console.log("Extension not ready yet, ignoring toggle click");
-      return;
-    }
-    
     container.classList.toggle('aaf-expanded');
 
     // If we expand and have product info but no alternatives loaded, get them
@@ -338,31 +326,6 @@ function createExtensionUI() {
   return container;
 }
 
-// New function to check extension readiness and enable toggle when ready
-function checkExtensionReadyAndEnable(toggleElement) {
-  const toggleText = toggleElement.querySelector('.aaf-toggle-text');
-  
-  // Try to check if extension is ready
-  chrome.runtime.sendMessage({
-    action: "CHECK_EXTENSION_READY"
-  }, response => {
-    if (response && response.ready) {
-      console.log("Extension is ready to handle requests");
-      toggleElement.classList.remove('aaf-toggle-disabled');
-      toggleText.textContent = "Rechercher";
-    } else {
-      console.log("Extension not ready yet, waiting...");
-      // Update text to show loading state
-      toggleText.textContent = "Chargement...";
-      
-      // Wait and try again
-      setTimeout(() => {
-        checkExtensionReadyAndEnable(toggleElement);
-      }, 500);
-    }
-  });
-}
-
 // Function to check if the extension is ready before making requests
 function checkExtensionReady() {
   return new Promise((resolve) => {
@@ -398,13 +361,6 @@ async function safeRequestAlternatives(productInfo, retryCount = 0) {
     
     if (!isReady && retryCount < MAX_RETRIES) {
       console.log(`Extension not ready, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
-      
-      // Show a user-friendly message in the toggle
-      const toggleText = document.querySelector('.aaf-toggle-text');
-      if (toggleText) {
-        toggleText.textContent = "Initialisation...";
-      }
-      
       setTimeout(() => {
         safeRequestAlternatives(productInfo, retryCount + 1);
       }, 500);
@@ -446,18 +402,6 @@ async function safeRequestAlternatives(productInfo, retryCount = 0) {
           }, 500);
         } else {
           console.error("Failed to request alternatives after multiple retries");
-          
-          // Update toggle text to show error
-          const toggleText = document.querySelector('.aaf-toggle-text');
-          if (toggleText) {
-            toggleText.textContent = "Erreur";
-            
-            // Reset back to normal after 3 seconds
-            setTimeout(() => {
-              toggleText.textContent = "Rechercher";
-            }, 3000);
-          }
-          
           resolve(false);
         }
       });
@@ -923,25 +867,10 @@ function initExtension() {
     console.log("Page produit Amazon détectée. Initialisation de l'extension...");
     const container = createExtensionUI();
     
-    // Afficher l'onboarding si c'est la première utilisation 
-    // Move this inside a timeout to ensure extension is ready first
+    // Afficher l'onboarding si c'est la première utilisation
     setTimeout(() => {
-      const toggle = container.querySelector('.aaf-toggle');
-      if (!toggle.classList.contains('aaf-toggle-disabled')) {
-        createOnboardingOverlay();
-      } else {
-        // If toggle is still disabled, wait until it's enabled
-        const readyCheckInterval = setInterval(() => {
-          if (!toggle.classList.contains('aaf-toggle-disabled')) {
-            createOnboardingOverlay();
-            clearInterval(readyCheckInterval);
-          }
-        }, 500);
-        
-        // Clear interval after 10 seconds to prevent infinite checking
-        setTimeout(() => clearInterval(readyCheckInterval), 10000);
-      }
-    }, 1500);
+      createOnboardingOverlay();
+    }, 1000); // Petit délai pour s'assurer que l'interface est bien chargée
 
     // Essayer de charger le cache d'alternatives depuis sessionStorage
     try {
@@ -1067,16 +996,3 @@ function hideSkeletonLoading() {
     skeletonLoading.style.display = 'none';
   }
 }
-
-// Add a new CSS class to content.css for the disabled toggle state
-const style = document.createElement('style');
-style.textContent = `
-  .aaf-toggle-disabled {
-    opacity: 0.7;
-    cursor: not-allowed !important;
-  }
-  .aaf-toggle-disabled:hover {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-  }
-`;
-document.head.appendChild(style);

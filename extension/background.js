@@ -8,55 +8,35 @@ let isExtensionReady = false;
 let operationsQueue = [];
 // Track recent requests to prevent duplicates
 let recentRequests = {};
-// Flag to track initialization status
-let isInitializing = true;
 
-// Initialization function to ensure extension is ready
-function initializeExtension() {
-  console.log("Initializing extension...");
-  isInitializing = true;
-  
-  // Three-part initialization to ensure readiness
-  Promise.all([
-    new Promise(resolve => {
-      // 1. Check if installation-related listeners have fired
-      chrome.runtime.onInstalled.addListener(details => {
-        console.log("Extension installed event fired");
-        if (details.reason === 'install') {
-          // Open the install success page when the extension is installed
-          chrome.tabs.create({
-            url: chrome.runtime.getURL('install-success.html')
-          });
-        }
-        resolve();
-      });
-      
-      // Resolve this promise after a short timeout if the event hasn't fired
-      setTimeout(resolve, 500);
-    }),
-    
-    new Promise(resolve => {
-      // 2. Check if startup listener has fired
-      chrome.runtime.onStartup.addListener(() => {
-        console.log("Extension startup event fired");
-        resolve();
-      });
-      
-      // Resolve this promise after a short timeout if the event hasn't fired
-      setTimeout(resolve, 500);
-    }),
-    
-    // 3. Basic timeout to ensure minimum initialization time
-    new Promise(resolve => setTimeout(resolve, 750))
-  ]).then(() => {
-    console.log("All initialization checks completed");
-    isExtensionReady = true;
-    isInitializing = false;
-    
-    // Process any queued operations
-    processQueue();
-  });
-}
+// Listen for extension installation
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    // Open the install success page when the extension is installed
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('install-success.html')
+    });
+  }
+  // Mark extension as ready after installation
+  console.log("Extension installed, marking as ready");
+  isExtensionReady = true;
+  // Process any queued operations
+  processQueue();
+});
+
+// Set extension as ready when background script loads
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Extension starting up");
+  isExtensionReady = true;
+  processQueue();
+});
+
+// Ensure the extension is ready even if onStartup wasn't triggered
+setTimeout(() => {
+  console.log("Ensuring extension is ready");
+  isExtensionReady = true;
+  processQueue();
+}, 1000);
 
 // Improved function to process queued operations
 function processQueue() {
@@ -324,16 +304,6 @@ async function openLeboncoinTab(searchQuery, sourceTabId, timestamp) {
   // Validate input parameters
   if (!searchQuery || !sourceTabId) {
     console.error("Missing required parameters:", { searchQuery, sourceTabId });
-    return;
-  }
-  
-  // If extension is initializing, wait for it to complete
-  if (isInitializing) {
-    console.log("Extension is still initializing, waiting...");
-    // Wait for initialization to complete before proceeding
-    setTimeout(() => {
-      openLeboncoinTab(searchQuery, sourceTabId, timestamp || Date.now());
-    }, 500);
     return;
   }
   
@@ -899,16 +869,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // New message to check if the extension is ready
     sendResponse({
       ready: isExtensionReady,
-      queueLength: operationsQueue.length,
-      initializing: isInitializing
+      queueLength: operationsQueue.length
     });
     return false; // We've responded synchronously
   } else if (message.action === "CHECK_SCRAPING_STATUS") {
     // Return the current status of scraping operations
     sendResponse({
       status: getScrapingStatus(),
-      extensionReady: isExtensionReady,
-      initializing: isInitializing
+      extensionReady: isExtensionReady
     });
     return false; // We've responded synchronously
   } else if (message.action === "RETRY_SCRAPING") {
@@ -970,8 +938,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   });
 });
 
-// Start the initialization process
-initializeExtension();
-
-// Mark extension as initializing at script load time
-console.log("Background script loaded - starting initialization");
+// Make sure the extension is marked as ready when this script loads
+console.log("Background script loaded - marking extension as ready");
+isExtensionReady = true;
+processQueue();
