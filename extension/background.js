@@ -1,4 +1,3 @@
-
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -52,13 +51,13 @@ function processQueue() {
   }
 }
 
-// Listen for when a tab is updated
+// Listen for when a tab is updated - immediately check URL without waiting for page load
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Check if the page is fully loaded and the URL is from Amazon product page
-  if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
-    console.log("[AMAZON_DETECTED] Amazon product page detected:", tab.url);
+  // Immediately check if the URL is from Amazon product page (contains /dp/)
+  if (changeInfo.url && changeInfo.url.match(/amazon\.fr.*\/dp\//)) {
+    console.log("[AMAZON_DETECTED] Amazon product page detected immediately from URL:", changeInfo.url);
     
-    // Execute script to get product information
+    // Execute script to get product information without waiting for complete page load
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       function: getProductInfo
@@ -66,6 +65,27 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (results && results[0]?.result) {
         console.log("[AMAZON_DETECTED] Product info extracted successfully");
         // Send message to content script with the product info
+        chrome.tabs.sendMessage(tabId, {
+          action: "PRODUCT_INFO",
+          productInfo: results[0].result
+        }).catch(error => {
+          console.error("[AMAZON_DETECTED] Error sending product info to content script:", error);
+        });
+      }
+    }).catch(error => {
+      console.error("[AMAZON_DETECTED] Error executing script:", error);
+    });
+  }
+  // Also keep the original check for complete page load as a fallback
+  else if (changeInfo.status === 'complete' && tab.url.match(/amazon\.fr.*\/dp\//)) {
+    console.log("[AMAZON_DETECTED] Amazon product page detected on complete load:", tab.url);
+    
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      function: getProductInfo
+    }).then(results => {
+      if (results && results[0]?.result) {
+        console.log("[AMAZON_DETECTED] Product info extracted successfully (complete load)");
         chrome.tabs.sendMessage(tabId, {
           action: "PRODUCT_INFO",
           productInfo: results[0].result
@@ -107,31 +127,42 @@ chrome.runtime.onConnect.addListener(port => {
   }
 });
 
-// Function to extract product information
+// Function to extract product information - enhanced with more robust selectors
 function getProductInfo() {
-  // Get product title
-  const productTitle = document.getElementById('productTitle')?.innerText.trim() || 
-                       document.querySelector('h1.a-size-large')?.innerText.trim() || '';
+  console.log("Extracting product information immediately");
   
-  // Get product image
+  // Get product title with more robust selectors
+  const productTitle = document.getElementById('productTitle')?.innerText.trim() || 
+                      document.querySelector('h1.a-size-large')?.innerText.trim() || 
+                      document.querySelector('h1.product-title-word-break')?.innerText.trim() ||
+                      document.querySelector('h1[data-feature-name="title"]')?.innerText.trim() ||
+                      '';
+  
+  // Get product image with more robust selectors
   const productImage = document.getElementById('landingImage')?.src || 
                        document.querySelector('img#main-image')?.src || 
-                       document.querySelector('#imgTagWrapperId img')?.src || '';
+                       document.querySelector('#imgTagWrapperId img')?.src || 
+                       document.querySelector('#imageBlock img')?.src ||
+                       document.querySelector('.a-dynamic-image')?.src ||
+                       '';
   
-  // Get product price
+  // Get product price with more robust selectors
   const priceElement = document.querySelector('.a-price .a-offscreen') || 
                        document.querySelector('.a-price') || 
                        document.getElementById('priceblock_ourprice') || 
-                       document.getElementById('priceblock_dealprice');
+                       document.getElementById('priceblock_dealprice') ||
+                       document.querySelector('.a-color-price') ||
+                       document.querySelector('[data-feature-name="priceInsideBuyBox"]');
   
   const price = priceElement ? priceElement.innerText.trim() : '';
   
-  // Get product ASIN (Amazon Standard Identification Number)
+  // Get product ASIN with more robust methods
   const asinMatch = window.location.pathname.match(/\/dp\/([A-Z0-9]{10})/) || 
                     document.body.innerHTML.match(/ASIN\s*:\s*"([A-Z0-9]{10})"/) || 
-                    document.body.innerHTML.match(/\s+asin\s*=\s*["']([A-Z0-9]{10})["']/);
+                    document.body.innerHTML.match(/\s+asin\s*=\s*["']([A-Z0-9]{10})["']/) ||
+                    document.querySelector('input[name="ASIN"]')?.value;
   
-  const asin = asinMatch ? asinMatch[1] : '';
+  const asin = asinMatch ? (typeof asinMatch === 'string' ? asinMatch : asinMatch[1]) : '';
 
   return {
     title: productTitle,
