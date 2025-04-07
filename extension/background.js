@@ -1,3 +1,4 @@
+
 // Cache to store scraped data
 let scrapedDataCache = {};
 // Track ongoing scraping operations
@@ -59,18 +60,21 @@ function processQueue() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Only process URL changes to avoid duplicate detections
   if (changeInfo.url && changeInfo.url.match(/amazon\.fr.*\/dp\//)) {
-    // Create a unique key for this URL
-    const urlKey = changeInfo.url;
+    // Create a unique key for this URL and tab combination
+    const urlKey = `${tabId}-${changeInfo.url}`;
     
-    // Check if we've processed this URL recently (within the last 2 seconds)
+    // Check if we've processed this exact URL in this tab recently (within the last 3 seconds)
     const now = Date.now();
-    if (processedUrls[urlKey] && (now - processedUrls[urlKey]) < 2000) {
-      console.log("[AMAZON_DETECTED] Skipping duplicate URL detection:", changeInfo.url);
+    if (processedUrls[urlKey] && (now - processedUrls[urlKey]) < 3000) {
+      // Silent skip - don't even log this to avoid duplicate logs
       return;
     }
     
-    // Mark this URL as processed
+    // Mark this URL+tab combination as processed
     processedUrls[urlKey] = now;
+    
+    // Only log once we're sure this is not a duplicate
+    console.log("[AMAZON_DETECTED] Amazon product page detected by URL pattern:", changeInfo.url);
     
     // Clean up old entries from processedUrls to prevent memory leaks
     Object.keys(processedUrls).forEach(key => {
@@ -78,8 +82,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         delete processedUrls[key];
       }
     });
-    
-    console.log("[AMAZON_DETECTED] Amazon product page detected by URL pattern:", changeInfo.url);
     
     // Execute script to get product information without waiting for page load
     chrome.scripting.executeScript({
