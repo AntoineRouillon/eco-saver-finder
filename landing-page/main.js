@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- Extension Toggle - Initially hidden until extension is ready -->
-              <div class="extension-toggle" style="display: none;" id="extension-toggle-container">
+              <!-- Extension Toggle - Matching the actual extension UI -->
+              <div class="extension-toggle">
                 <div class="extension-toggle-button" id="extension-toggle">
                   <img src="./images/icon16.png" alt="AltMarket" width="16" height="16" onerror="this.src='https://www.leboncoin.fr/favicon.ico'" />
                   <span class="extension-toggle-text">Alternatives</span>
@@ -247,35 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add extension toggle functionality
   const toggleButton = document.querySelector('#extension-toggle');
-  const toggleContainer = document.querySelector('#extension-toggle-container');
   const extensionPanel = document.querySelector('#extension-panel');
   const closeButton = document.querySelector('#extension-close');
-  
-  // Track if the extension is ready
-  let extensionIsReady = false;
-
-  // Function to check if extension is ready
-  function checkExtensionReady() {
-    // Simulate the extension becoming ready after a short delay
-    setTimeout(() => {
-      extensionIsReady = true;
-      if (toggleContainer) {
-        toggleContainer.style.display = 'flex';
-      }
-      console.log('Extension is now ready to use');
-    }, 1500); // Simulate extension initialization time
-  }
-  
-  // Initialize the extension readiness check
-  checkExtensionReady();
 
   toggleButton.addEventListener('click', () => {
-    // Only toggle the panel if the extension is ready
-    if (extensionIsReady) {
-      toggleExtensionPanel();
-    } else {
-      console.log('Extension is not ready yet, please wait...');
-    }
+    toggleExtensionPanel();
   });
 
   closeButton.addEventListener('click', () => {
@@ -299,20 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
 
-    // Show the extension panel after scrolling to demo, but only if extension is ready
+    // Show the extension panel after scrolling to demo
     setTimeout(() => {
-      if (extensionIsReady) {
-        toggleExtensionPanel();
-      } else {
-        console.log('Extension is still initializing, toggle will appear soon...');
-        // Add a listener to show the panel when ready
-        const readinessCheck = setInterval(() => {
-          if (extensionIsReady) {
-            toggleExtensionPanel();
-            clearInterval(readinessCheck);
-          }
-        }, 300);
-      }
+      toggleExtensionPanel();
     }, 800);
   });
 
