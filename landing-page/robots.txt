@@ -1,0 +1,25 @@
+
+# robots.txt pour AltMarket
+# https://www.altmarket.co
+
+User-agent: *
+Allow: /
+
+# Blocage des éventuels dossiers administratifs ou de test
+Disallow: /admin/
+Disallow: /test/
+Disallow: /dev/
+
+# Autoriser tous les robots à explorer le site
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: YandexBot
+Allow: /
+
+# Sitemap
+Sitemap: https://www.altmarket.co/sitemap.xml
+
+# Taux de crawl recommandé
+Crawl-delay: 10
