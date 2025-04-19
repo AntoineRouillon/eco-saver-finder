@@ -1,91 +1,106 @@
 
 # AltMarket - Amazon Alternative Finder
 
-Une extension de navigateur qui aide les utilisateurs à économiser sur leurs achats Amazon en montrant des alternatives d'occasion disponibles sur Leboncoin.fr.
+A browser extension that helps users save money by finding second-hand alternatives available on Leboncoin.fr while browsing Amazon.
 
-## Structure du projet
+## Project Structure
 
-Ce projet est composé de deux parties distinctes :
+This project consists of two distinct parts:
 
 ```
-├── extension/             # Fichiers de l'extension pour le navigateur
-│   ├── manifest.json      # Manifeste de l'extension
-│   ├── background.js      # Service worker en arrière-plan
-│   ├── content.js         # Script injecté dans les pages Amazon
-│   ├── content.css        # Styles pour l'interface utilisateur de l'extension
-│   ├── _locales/          # Fichiers de localisation
-│   │   ├── en/            # Traductions anglaises
-│   │   └── fr/            # Traductions françaises
-│   └── icons/             # Icônes de l'extension
+├── extension/             # Browser extension files
+│   ├── manifest.json      # Extension manifest
+│   ├── background.js      # Background service worker
+│   ├── content.js         # Script injected into Amazon pages
+│   ├── content.css        # Styles for extension UI
+│   ├── _locales/          # Localization files
+│   │   ├── en/            # English translations
+│   │   └── fr/            # French translations
+│   └── icons/             # Extension icons
 │
-└── landing-page/          # Site web de présentation de l'extension
-    ├── index.html         # Page HTML principale
-    ├── styles.css         # Feuille de style CSS
-    ├── main.js            # Script JavaScript pour la landing page
-    └── images/            # Images et ressources visuelles
-        ├── amazon.png     # Logo Amazon pour les démos
-        ├── blender1.png   # Images de démonstration
-        ├── blender2.png   # Images de démonstration
-        ├── blender3.png   # Images de démonstration
-        └── opengraph.png  # Image pour le partage sur les réseaux sociaux
+└── landing-page/          # Extension presentation website
+    ├── index.html         # Main HTML page
+    ├── styles.css         # CSS stylesheet
+    ├── main.js            # JavaScript for landing page
+    └── images/            # Visual resources
+        ├── amazon.png     # Amazon logo for demos
+        ├── blender1.png   # Demonstration images
+        ├── blender2.png   # Demonstration images
+        ├── blender3.png   # Demonstration images
+        └── opengraph.png  # Social media sharing image
 ```
 
-## Extension de navigateur
+## Browser Extension
 
-### Fonctionnalités
+### Features
 
-- Détecte automatiquement lorsque vous naviguez sur des pages produit d'Amazon.fr
-- Affiche les alternatives d'occasion disponibles sur Leboncoin.fr
-- Interface propre et minimaliste
-- Aide les utilisateurs à prendre des décisions d'achat économiques et durables
+- Automatically detects when you are browsing product pages on Amazon.fr
+- Displays second-hand alternatives available on Leboncoin.fr
+- Clean and minimalist interface
+- Helps users make economical and sustainable purchasing decisions
 
-### Installation de l'extension
+### Extension Installation
 
-1. Via le Chrome Web Store: Visitez [la page de l'extension](https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl) et cliquez sur "Ajouter à Chrome"
-2. Installation manuelle:
-   - Téléchargez le code source ou clonez ce dépôt
-   - Ouvrez Chrome et accédez à `chrome://extensions/`
-   - Activez le "Mode développeur" dans le coin supérieur droit
-   - Cliquez sur "Charger l'extension non empaquetée" et sélectionnez le dossier `extension`
-   - L'extension devrait maintenant être installée et active
+1. Via Chrome Web Store: Visit [the extension page](https://chromewebstore.google.com/detail/cimlfbhfcmldcaklknleaacnanjonfbl) and click "Add to Chrome"
+2. Manual installation:
+   - Download the source code or clone this repository
+   - Open Chrome and go to `chrome://extensions/`
+   - Enable "Developer mode" in the top right corner
+   - Click "Load unpacked" and select the `extension` folder
+   - The extension should now be installed and active
 
-## Site web de présentation
+## Presentation Website
 
-Le dossier `landing-page` contient un site web statique qui présente l'extension, explique son fonctionnement et ses avantages.
+The `landing-page` folder contains a static website that presents the extension, explains how it works, and highlights its benefits.
 
-### Fonctionnalités du site
+### Website Features
 
-- Présentation interactive de l'extension
-- Démonstration du fonctionnement avec un exemple de produit
-- Lien direct vers le Chrome Web Store pour l'installation
-- Design responsive adapté à tous les appareils
+- Interactive extension presentation
+- Demonstration of functionality with a product example
+- Direct link to Chrome Web Store for installation
+- Responsive design compatible with all devices
 
-### Déploiement du site
+### Website Deployment
 
-Pour déployer le site web :
+To deploy the website:
 
-1. Téléchargez le contenu du dossier `landing-page` sur votre serveur web
-2. Assurez-vous que tous les fichiers (HTML, CSS, JS, images) sont accessibles
-3. Le site est prêt à être consulté
+1. Download the contents of the `landing-page` folder to your web server
+2. Ensure all files (HTML, CSS, JS, images) are accessible
+3. The site is ready to be viewed
 
-## Développement
+## Development
 
 ### Extension
 
-Pour modifier l'extension :
+To modify the extension:
 
-1. Effectuez vos modifications dans le dossier `extension`
-2. Rechargez l'extension dans Chrome en cliquant sur l'icône de rechargement sur la page `chrome://extensions/`
-3. Testez vos modifications
+1. Make changes in the `extension` folder
+2. Reload the extension in Chrome by clicking the reload icon on the `chrome://extensions/` page
+3. Test your modifications
 
-### Site web
+### Website
 
-Pour modifier le site web :
+To modify the website:
 
-1. Éditez les fichiers dans le dossier `landing-page`
-2. Testez localement en ouvrant `index.html` dans un navigateur
-3. Déployez les fichiers modifiés sur votre serveur web
+1. Edit files in the `landing-page` folder
+2. Test locally by opening `index.html` in a browser
+3. Deploy modified files to your web server
 
-## Licence
+## Performance & SEO
 
-Licence MIT
+The project is optimized for:
+- Fast loading times
+- Search engine visibility
+- Cross-browser compatibility
+
+## Contributing
+
+Contributions are welcome! Please read our contribution guidelines before starting.
+
+## Support
+
+If you encounter any issues or have suggestions, please open an issue on our GitHub repository.
+
+## License
+
+MIT License
