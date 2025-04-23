@@ -2,7 +2,7 @@
 {
   "manifest_version": 3,
   "name": "AltMarket",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Trouvez des alternatives d'occasion sur Leboncoin pendant votre navigation sur Amazon.fr",
   "default_locale": "fr",
   "icons": {

@@ -38,6 +38,9 @@ function createOnboardingOverlay() {
   if (isOnboardingCompleted()) {
     return null;
   }
+  if (document.getElementById('aaf-onboarding-overlay')) {
+    return null;
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'aaf-onboarding-overlay';
